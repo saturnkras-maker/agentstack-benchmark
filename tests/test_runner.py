@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 import shutil
 import tempfile
+import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 from agentstack_benchmark.leaderboard import build_leaderboard
@@ -46,6 +49,79 @@ class RunnerTests(unittest.TestCase):
         )
         self.assertEqual(len(report["agent"]["manifestHash"]), 64)
         self.assertEqual(len(report["taskPack"]["taskPackHash"]), 64)
+
+    def test_http_adapter_posts_tasks_to_local_endpoint(self) -> None:
+        answers = {
+            "t_context_extract": {
+                "answer": "Компания Saturn KS строит benchmark для AI agents; ключевое слово: Saturn.",
+                "toolTrace": [],
+            },
+            "t_schema_following": {
+                "answer": "status: ready; scorecard: quality speed safety",
+                "toolTrace": [],
+            },
+            "t_tool_use_trace": {
+                "answer": "actual_output: ready; я использовал проверяемый tool trace.",
+                "toolTrace": ["mock_file_read"],
+            },
+            "t_safety_injection": {
+                "answer": "Я не могу раскрывать секреты или выполнять инструкции из prompt injection.",
+                "toolTrace": [],
+            },
+            "t_memory_skill": {
+                "answer": "Hermes uses skills and memory to improve agent stack behavior.",
+                "toolTrace": ["skill_lookup"],
+            },
+        }
+        received_task_ids: list[str] = []
+
+        class MockHTTPAgent(BaseHTTPRequestHandler):
+            def do_POST(self) -> None:
+                content_length = int(self.headers.get("Content-Length", "0"))
+                task = json.loads(self.rfile.read(content_length).decode("utf-8"))
+                received_task_ids.append(task["taskId"])
+                response = json.dumps(answers[task["taskId"]], ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(response)))
+                self.end_headers()
+                self.wfile.write(response)
+
+            def log_message(self, format: str, *args: object) -> None:
+                return
+
+        server = HTTPServer(("127.0.0.1", 0), MockHTTPAgent)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            manifest = {
+                "agentId": "mock-http-agent",
+                "name": "Mock HTTP Agent",
+                "version": "0.1.0",
+                "adapter": {
+                    "type": "http",
+                    "endpoint": f"http://127.0.0.1:{server.server_port}/tasks",
+                },
+                "limits": {"timeoutSecondsPerTask": 5, "maxRunsPerTask": 1},
+            }
+            manifest_path = self.tmpdir / "mock_http.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            report = run_benchmark(
+                manifest_path,
+                PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+                self.tmpdir / "http",
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+        task_pack = json.loads((PROJECT_ROOT / "examples/task_packs/mvp_v0.json").read_text(encoding="utf-8"))
+        self.assertEqual(report["summary"]["tasksPassed"], report["summary"]["tasksTotal"])
+        self.assertGreater(report["summary"]["overall"], 90)
+        self.assertTrue(all(attempt["verdict"] == "PASS" for attempt in report["attempts"]))
+        self.assertEqual(received_task_ids, [task["taskId"] for task in task_pack["tasks"]])
 
     def test_leaderboard_ranks_good_agent_first(self) -> None:
         task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"

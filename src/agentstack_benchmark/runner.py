@@ -5,6 +5,7 @@ import subprocess
 import time
 from pathlib import Path
 from typing import Any
+from urllib import error, parse, request
 
 from .evaluator import evaluate_attempt, summarize_scores
 from .schemas import load_json, stable_json_hash
@@ -21,9 +22,10 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
     _validate_manifest(manifest)
     _validate_task_pack(task_pack)
 
+    project_root = manifest_path.parent.parent.parent
     attempts = []
     for task in task_pack["tasks"]:
-        output, elapsed = _invoke_cli_agent(manifest, task, manifest_path.parent.parent.parent)
+        output, elapsed = _invoke_agent(manifest, task, project_root)
         attempts.append(evaluate_attempt(task, output, elapsed))
 
     score_summary = summarize_scores(attempts)
@@ -72,24 +74,33 @@ def render_markdown_report(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _invoke_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: Path) -> tuple[dict[str, Any], float]:
+    adapter = manifest.get("adapter", {})
+    adapter_type = adapter.get("type")
+    if adapter_type == "cli":
+        return _invoke_cli_agent(manifest, task, project_root)
+    if adapter_type == "http":
+        return _invoke_http_agent(manifest, task)
+    raise ValueError("adapter.type must be one of: cli, http")
+
+
+def _build_task_payload(task: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "taskId": task["taskId"],
+        "category": task.get("category", "core"),
+        "prompt": task["prompt"],
+        "context": task.get("context", {}),
+    }
+
+
 def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: Path) -> tuple[dict[str, Any], float]:
     adapter = manifest.get("adapter", {})
-    if adapter.get("type") != "cli":
-        raise ValueError("Only cli adapter is supported in prototype v0.1")
     command = adapter.get("command")
     if not isinstance(command, list) or not all(isinstance(part, str) for part in command):
         raise ValueError("adapter.command must be a string array")
 
     timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
-    payload = json.dumps(
-        {
-            "taskId": task["taskId"],
-            "category": task.get("category", "core"),
-            "prompt": task["prompt"],
-            "context": task.get("context", {}),
-        },
-        ensure_ascii=False,
-    )
+    payload = json.dumps(_build_task_payload(task), ensure_ascii=False)
 
     started = time.monotonic()
     result = subprocess.run(
@@ -119,6 +130,52 @@ def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_ro
     if not isinstance(output, dict):
         output = {"answer": str(output), "toolTrace": []}
     return output, elapsed
+
+
+def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[dict[str, Any], float]:
+    adapter = manifest.get("adapter", {})
+    endpoint = adapter.get("endpoint")
+    if not isinstance(endpoint, str) or not endpoint:
+        raise ValueError("adapter.endpoint must be a non-empty string")
+    _validate_local_http_endpoint(endpoint)
+
+    timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
+    payload = json.dumps(_build_task_payload(task), ensure_ascii=False).encode("utf-8")
+    http_request = request.Request(
+        endpoint,
+        data=payload,
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        method="POST",
+    )
+
+    started = time.monotonic()
+    try:
+        with request.urlopen(http_request, timeout=timeout) as response:
+            response_body = response.read().decode("utf-8")
+    except (TimeoutError, error.URLError) as exc:
+        elapsed = time.monotonic() - started
+        return {
+            "answer": "",
+            "toolTrace": [],
+            "runtimeError": f"http_error={exc}",
+        }, elapsed
+    elapsed = time.monotonic() - started
+
+    try:
+        output = json.loads(response_body)
+    except json.JSONDecodeError:
+        output = {"answer": response_body, "toolTrace": []}
+    if not isinstance(output, dict):
+        output = {"answer": str(output), "toolTrace": []}
+    return output, elapsed
+
+
+def _validate_local_http_endpoint(endpoint: str) -> None:
+    parsed = parse.urlparse(endpoint)
+    if parsed.scheme != "http":
+        raise ValueError("adapter.endpoint must use http for the local prototype")
+    if parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError("adapter.endpoint must target localhost/127.0.0.1 for the local prototype")
 
 
 def _validate_manifest(manifest: dict[str, Any]) -> None:
