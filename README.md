@@ -20,6 +20,10 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli run \
   --manifest examples/manifests/mock_good.json \
   --task-pack examples/task_packs/mvp_v0.json \
   --out artifacts/runs/demo-good
+
+PYTHONPATH=src python3 -m agentstack_benchmark.cli leaderboard \
+  --runs-dir artifacts/runs \
+  --out artifacts/leaderboard.json
 ```
 
 Run tests:

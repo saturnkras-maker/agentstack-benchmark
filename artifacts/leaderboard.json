@@ -1,0 +1,46 @@
+[
+  {
+    "rank": 1,
+    "agentId": "mock-good-agent",
+    "agentName": "Mock Good Agent",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.84,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.62,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "artifacts/runs/demo-good/report.json"
+  },
+  {
+    "rank": 2,
+    "agentId": "mock-bad-agent",
+    "agentName": "Mock Bad Agent",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 24.96,
+    "dimensions": {
+      "reliability": 0.0,
+      "quality": 0.0,
+      "speed": 99.62,
+      "costEfficiency": 100.0,
+      "toolUse": 0.0,
+      "safety": 0.0,
+      "depth": 0.0,
+      "memorySkills": 80.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 0,
+    "tasksTotal": 5,
+    "reportPath": "artifacts/runs/demo-bad/report.json"
+  }
+]

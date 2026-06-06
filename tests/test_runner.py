@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from agentstack_benchmark.leaderboard import build_leaderboard
 from agentstack_benchmark.runner import run_benchmark
 
 
@@ -45,6 +46,18 @@ class RunnerTests(unittest.TestCase):
         )
         self.assertEqual(len(report["agent"]["manifestHash"]), 64)
         self.assertEqual(len(report["taskPack"]["taskPackHash"]), 64)
+
+    def test_leaderboard_ranks_good_agent_first(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_bad.json", task_pack, self.tmpdir / "runs/bad")
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+
+        rows = build_leaderboard(self.tmpdir / "runs", self.tmpdir / "leaderboard.json")
+
+        self.assertEqual(rows[0]["agentId"], "mock-good-agent")
+        self.assertEqual(rows[0]["rank"], 1)
+        self.assertTrue((self.tmpdir / "leaderboard.json").exists())
+        self.assertTrue((self.tmpdir / "leaderboard.md").exists())
 
 
 if __name__ == "__main__":
