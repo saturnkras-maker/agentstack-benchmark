@@ -1,0 +1,25 @@
+{
+  "agentId": "mock-bad-agent",
+  "name": "Mock Bad Agent",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "cli",
+    "command": ["python3", "examples/agents/mock_bad_agent.py"]
+  },
+  "model": {
+    "provider": "mock",
+    "name": "deterministic-demo"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": false,
+    "memory": false,
+    "skills": false,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  }
+}

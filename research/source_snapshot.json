@@ -1,0 +1,158 @@
+{
+  "created_at_unix": 1780775165.020299,
+  "sources": [
+    {
+      "name": "Open Agent Leaderboard / IBM+HF",
+      "url": "https://huggingface.co/blog/ibm-research/open-agent-leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://huggingface.co/blog/ibm-research/open-agent-leaderboard",
+      "title": "The Open Agent Leaderboard",
+      "description": "A Blog post by IBM Research on Hugging Face"
+    },
+    {
+      "name": "HAL Princeton",
+      "url": "https://hal.cs.princeton.edu/",
+      "ok": true,
+      "status": 200,
+      "final": "https://hal.cs.princeton.edu/",
+      "title": "HAL: Holistic Agent Leaderboard",
+      "description": "The Holistic Agent Leaderboard (HAL) is the standardized, cost-aware, and third-party leaderboard for evaluating agents."
+    },
+    {
+      "name": "Steel.dev Agent Leaderboards",
+      "url": "https://leaderboard.steel.dev/",
+      "ok": true,
+      "status": 200,
+      "final": "https://leaderboard.steel.dev/",
+      "title": "AI Agent Benchmark Leaderboards: Browser, Coding & Computer Use | Steel.dev",
+      "description": "Compare AI agent benchmark leaderboards for browser agents, computer use, research, and coding, with sourced scores and methodology notes."
+    },
+    {
+      "name": "The Agentic Leaderboard",
+      "url": "https://theagenticleaderboard.com/",
+      "ok": true,
+      "status": 200,
+      "final": "https://theagenticleaderboard.com/",
+      "title": "The Agentic Leaderboard: Top 100 Open-Source AI Agents (Ranked Weekly)",
+      "description": "The premier benchmark for closed-loop execution and autonomous AI workflows. Discover, compare, and rank the top open-source AI agents based on reliability, tool selection, and efficiency."
+    },
+    {
+      "name": "Agent Arena leaderboard",
+      "url": "https://www.agent-arena.com/leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://www.agent-arena.com/leaderboard",
+      "title": "Agent Arena",
+      "description": "Run and Rate LLM Agents"
+    },
+    {
+      "name": "ClawBench leaderboard",
+      "url": "https://www.clawbench.com/leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://www.clawbench.com/leaderboard",
+      "title": "AI Agent Leaderboard | ClawBench",
+      "description": "Explore live AI agent rankings across public ClawBench benchmark competitions and task-level results."
+    },
+    {
+      "name": "Galileo Agent Leaderboard",
+      "url": "https://galileo.ai/agent-leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://huggingface.co/spaces/galileo-ai/agent-leaderboard",
+      "title": "Agent Leaderboard - a Hugging Face Space by galileo-ai",
+      "description": "This app loads a dataset and presents two interactive leaderboard views. Users can select categories, methodologies, and performance metrics, and the app shows the filtered results as tables and ch..."
+    },
+    {
+      "name": "Artificial Analysis Coding Agents",
+      "url": "https://artificialanalysis.ai/agents/coding-agents",
+      "ok": true,
+      "status": 200,
+      "final": "https://artificialanalysis.ai/agents/coding-agents",
+      "title": "AI Coding Agent Benchmarks & Leaderboard | Artificial Analysis",
+      "description": "We measure real-world performance of coding agents on software engineering tasks, including cost, token usage, and execution time. We compare how performance changes across agents, models, and execution settings."
+    },
+    {
+      "name": "Terminal-Bench",
+      "url": "https://www.tbench.ai/leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://www.tbench.ai/leaderboard",
+      "title": "Terminal-Bench",
+      "description": "A benchmark for terminal agents"
+    },
+    {
+      "name": "SWE-bench",
+      "url": "https://www.swebench.com/",
+      "ok": true,
+      "status": 200,
+      "final": "https://www.swebench.com/",
+      "title": "SWE-bench Leaderboards",
+      "description": ""
+    },
+    {
+      "name": "WebArena",
+      "url": "https://webarena.dev/",
+      "ok": true,
+      "status": 200,
+      "final": "https://webarena.dev/",
+      "title": "WebArena-x",
+      "description": "WebArena: A suite of benchmarks for building autonomous web agents."
+    },
+    {
+      "name": "OSWorld",
+      "url": "https://os-world.github.io/",
+      "ok": true,
+      "status": 200,
+      "final": "https://os-world.github.io/",
+      "title": "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments",
+      "description": "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments"
+    },
+    {
+      "name": "BFCL",
+      "url": "https://huggingface.co/spaces/gorilla-llm/berkeley-function-calling-leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://huggingface.co/spaces/gorilla-llm/berkeley-function-calling-leaderboard",
+      "title": "Berkeley Function Calling Leaderboard - a Hugging Face Space by gorilla-llm",
+      "description": "This simple web page embeds the official Berkeley Function-Calling Leaderboard, letting you see the latest rankings and scores directly in your browser. No input is required—just open the page and ..."
+    },
+    {
+      "name": "Foundry Browser Agent Benchmark",
+      "url": "https://www.thefoundryai.com/leaderboard",
+      "ok": true,
+      "status": 200,
+      "final": "https://www.thefoundryai.com/leaderboard",
+      "title": "Foundry - Browser Agent Benchmarking Platform",
+      "description": "Foundry is a platform for building and evaluating browser agents. Users can configure tasks, define evaluation criteria, and collect high-quality data for reinforcement learning (RL) and agent improvement."
+    },
+    {
+      "name": "BenchLM Agentic Benchmarks",
+      "url": "https://benchlm.ai/agentic",
+      "ok": true,
+      "status": 200,
+      "final": "https://benchlm.ai/agentic",
+      "title": "Agentic Benchmarks 2026: Tool Use, Browsing, Computer Use | BenchLM.ai",
+      "description": "Compare 248 AI models on agentic benchmarks for tool use, browser research, and multi-step computer tasks. See which models handle terminal work, API tools, and software interfaces most reliably."
+    },
+    {
+      "name": "AgentBench GitHub",
+      "url": "https://github.com/THUDM/AgentBench",
+      "ok": true,
+      "status": 200,
+      "final": "https://github.com/THUDM/AgentBench",
+      "title": "GitHub - THUDM/AgentBench: A Comprehensive Benchmark to Evaluate LLMs as Agents (ICLR'24) · GitHub",
+      "description": "A Comprehensive Benchmark to Evaluate LLMs as Agents (ICLR'24) - THUDM/AgentBench"
+    },
+    {
+      "name": "BenchmarkingAgents directory",
+      "url": "https://benchmarkingagents.com/agent-benchmarks/",
+      "ok": true,
+      "status": 200,
+      "final": "https://benchmarkingagents.com/agent-benchmarks/",
+      "title": "AI Agent Benchmarks 2026 - SWE-bench, WebArena, AgentBench, Terminal-Bench, OSWorld, Tau-Bench",
+      "description": "Comprehensive guide to AI agent benchmarks in 2026. SWE-bench Verified, WebArena, AgentBench, Terminal-Bench, OSWorld, and Tau-Bench explained with methodology, current SOTA scores, and honest limitations. Last verified April 2026."
+    }
+  ]
+}
