@@ -48,11 +48,13 @@
         <a class="button" href="https://github.com/saturnkras-maker/agentstack-benchmark">View repository</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/archive/refs/heads/main.zip">Download ZIP</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/offline-local-mvp-demo.md">Offline demo guide</a>
+        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-model-adapter-v0.1.md">Local model adapter</a>
       </div>
       <div class="status">
         <span class="pill ok">One-command offline demo</span>
         <span class="pill ok">No internet</span>
         <span class="pill ok">No API keys</span>
+        <span class="pill ok">Optional local model adapter</span>
         <span class="pill ok">Track: local-public</span>
         <span class="pill warn">Hosted-verified: reserved</span>
         <span class="pill warn">Paid checkout: not connected</span>
@@ -65,6 +67,7 @@
         <p>Run locally from the repository root:</p>
         <pre><code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code></pre>
         <p>Then open <code>http://127.0.0.1:8088/run</code>, use <code>http://127.0.0.1:8765/tasks</code>, and click <strong>Run benchmark</strong>.</p>
+        <p>Optional local model path: run <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check</code>, then <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --agent-mode auto-local-model</code>. If no loopback model is available, the deterministic offline demo remains the fallback.</p>
       </article>
     </section>
 
