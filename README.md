@@ -70,6 +70,8 @@ Preview endpoints:
 
 - `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
 - `GET /api/v1/leaderboard` — JSON leaderboard from existing `report.json` run artifacts.
+- `GET /api/v1/runs` — deterministic summaries for existing local run artifacts.
+- `GET /api/v1/runs/{runId}/report` — one full run report by safe single-segment `runId`.
 
 Monetization note: beta starts free. See `docs/monetization-v0.md` for the paid surfaces deferred until the benchmark proves trust and repeat usage.
 

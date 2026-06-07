@@ -7,6 +7,7 @@ from typing import Any
 from urllib import parse
 
 from .leaderboard import collect_leaderboard_rows
+from .run_registry import collect_run_summaries, load_run_report
 
 PRICING_MODE = "free-beta"
 SERVICE_NAME = "agentstack-benchmark"
@@ -32,6 +33,51 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
                     "service": SERVICE_NAME,
                     "pricingMode": PRICING_MODE,
                     "entries": collect_leaderboard_rows(self.runs_dir),
+                }
+            )
+            return
+        if path == "/api/v1/runs":
+            self._send_json(
+                {
+                    "service": SERVICE_NAME,
+                    "pricingMode": PRICING_MODE,
+                    "runs": collect_run_summaries(self.runs_dir),
+                }
+            )
+            return
+        parts = path.split("/")
+        if len(parts) == 6 and parts[1:4] == ["api", "v1", "runs"] and parts[5] == "report":
+            run_id = parse.unquote(parts[4])
+            try:
+                report = load_run_report(self.runs_dir, run_id)
+            except ValueError:
+                self._send_json(
+                    {
+                        "error": {
+                            "code": "INVALID_RUN_ID",
+                            "message": "runId must be a safe path segment",
+                        }
+                    },
+                    status=400,
+                )
+                return
+            if report is None:
+                self._send_json(
+                    {
+                        "error": {
+                            "code": "RUN_NOT_FOUND",
+                            "message": f"Run not found: {run_id}",
+                        }
+                    },
+                    status=404,
+                )
+                return
+            self._send_json(
+                {
+                    "service": SERVICE_NAME,
+                    "pricingMode": PRICING_MODE,
+                    "runId": run_id,
+                    "report": report,
                 }
             )
             return

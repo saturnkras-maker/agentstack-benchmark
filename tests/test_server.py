@@ -6,7 +6,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
-from urllib import request
+from urllib import error, request
 
 from agentstack_benchmark.runner import run_benchmark
 from agentstack_benchmark.server import make_server
@@ -39,6 +39,17 @@ class APIServerTests(unittest.TestCase):
             self.assertEqual(response.headers.get_content_type(), "application/json")
             return json.loads(response.read().decode("utf-8"))
 
+    def _get_error_json(self, path: str, expected_status: int) -> dict:
+        server = self._server
+        url = f"http://127.0.0.1:{server.server_port}{path}"
+        try:
+            request.urlopen(url, timeout=5)
+        except error.HTTPError as exc:
+            self.assertEqual(exc.code, expected_status)
+            self.assertEqual(exc.headers.get_content_type(), "application/json")
+            return json.loads(exc.read().decode("utf-8"))
+        self.fail(f"Expected HTTP {expected_status} for {path}")
+
     def test_healthz_declares_free_beta_mode(self) -> None:
         self._server = self._start_server()
 
@@ -61,6 +72,43 @@ class APIServerTests(unittest.TestCase):
         self.assertEqual(body["entries"][0]["rank"], 1)
         self.assertEqual(body["entries"][0]["agentId"], "mock-good-agent")
         self.assertGreater(body["entries"][0]["overall"], body["entries"][1]["overall"])
+
+    def test_runs_endpoint_lists_existing_report_summaries(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_bad.json", task_pack, self.tmpdir / "runs/bad")
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        body = self._get_json("/api/v1/runs")
+
+        self.assertEqual(body["pricingMode"], "free-beta")
+        self.assertEqual([run["runId"] for run in body["runs"]], ["bad", "good"])
+        good_run = body["runs"][1]
+        self.assertEqual(good_run["agentId"], "mock-good-agent")
+        self.assertGreater(good_run["overall"], 90)
+        self.assertEqual(good_run["tasksTotal"], 5)
+        self.assertNotIn("attempts", good_run)
+
+    def test_run_report_endpoint_returns_one_existing_report(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        body = self._get_json("/api/v1/runs/good/report")
+
+        self.assertEqual(body["pricingMode"], "free-beta")
+        self.assertEqual(body["runId"], "good")
+        report = body["report"]
+        self.assertEqual(report["agent"]["agentId"], "mock-good-agent")
+        self.assertEqual(report["summary"]["tasksTotal"], 5)
+        self.assertIn("attempts", report)
+
+    def test_run_report_endpoint_rejects_unsafe_run_id(self) -> None:
+        self._server = self._start_server()
+
+        body = self._get_error_json("/api/v1/runs/%2E%2E/report", 400)
+
+        self.assertEqual(body["error"]["code"], "INVALID_RUN_ID")
 
 
 if __name__ == "__main__":
