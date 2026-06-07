@@ -41,6 +41,7 @@ class PublicBetaPackageTests(unittest.TestCase):
         asset_paths = {asset["path"] for asset in manifest["assets"]}
         expected_paths = {
             "README.md",
+            "Makefile",
             "pyproject.toml",
             "docs/product-technical-spec-v0.1.md",
             "docs/monetization-v0.md",
@@ -76,6 +77,8 @@ class PublicBetaPackageTests(unittest.TestCase):
         self.assertIn("agentstack_benchmark.cli demo-local", checklist)
         self.assertIn("agentstack_benchmark.cli local-model-check", checklist)
         self.assertIn("agentstack_benchmark.cli doctor", checklist)
+        self.assertIn("make doctor", checklist)
+        self.assertIn("make demo-local", checklist)
         self.assertIn("auto-local-model", checklist)
         self.assertIn("Offline local MVP demo", checklist)
         self.assertIn("local model adapter", checklist.lower())

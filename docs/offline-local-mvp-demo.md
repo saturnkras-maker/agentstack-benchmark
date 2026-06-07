@@ -9,6 +9,12 @@ It starts a deterministic offline demo agent that implements the HTTP adapter co
 From the repository root:
 
 ```bash
+make demo-local
+```
+
+Equivalent explicit Python command:
+
+```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local
 ```
 

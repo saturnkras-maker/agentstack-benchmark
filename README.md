@@ -33,6 +33,12 @@ Current slice:
 Run the offline local MVP demo — no internet, API keys, hosted services, or downloaded model required:
 
 ```bash
+make demo-local
+```
+
+Equivalent explicit Python command:
+
+```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local
 ```
 
@@ -46,12 +52,24 @@ Then open:
 For a non-blocking smoke test:
 
 ```bash
+make demo-local-once
+```
+
+Equivalent explicit Python command:
+
+```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
 ```
 
 See `docs/offline-local-mvp-demo.md`.
 
 First-run readiness check:
+
+```bash
+make doctor
+```
+
+Equivalent explicit Python command:
 
 ```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor
@@ -62,12 +80,18 @@ It prints exact local commands, URLs, port readiness, and local model status wit
 If you already have a local model backend running on loopback (for example `llama-server` or Ollama), check it without internet/API keys:
 
 ```bash
+make local-model-check
+
+# equivalent explicit Python command
 PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
 ```
 
 Then try the same UX with local-model autodetect and deterministic fallback:
 
 ```bash
+make demo-local-auto
+
+# equivalent explicit Python command
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local \
   --agent-mode auto-local-model
 ```
