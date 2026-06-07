@@ -9,10 +9,11 @@ Current slice:
 - JSON task pack;
 - CLI adapter;
 - local-only HTTP adapter prototype;
+- local free-beta API preview (`healthz` + leaderboard);
 - deterministic evaluator;
 - JSON + Markdown reports;
 - mock good/bad agents;
-- unit tests proving score separation and local HTTP adapter behavior.
+- unit tests proving score separation, local HTTP adapter behavior, and API preview behavior.
 
 Run demo:
 
@@ -49,5 +50,21 @@ Run tests:
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
+
+Start local free-beta API preview:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
+  --host 127.0.0.1 \
+  --port 8088 \
+  --runs-dir artifacts/runs
+```
+
+Preview endpoints:
+
+- `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
+- `GET /api/v1/leaderboard` — JSON leaderboard from existing `report.json` run artifacts.
+
+Monetization note: beta starts free. See `docs/monetization-v0.md` for the paid surfaces deferred until the benchmark proves trust and repeat usage.
 
 Product/technical spec: `docs/product-technical-spec-v0.1.md`.

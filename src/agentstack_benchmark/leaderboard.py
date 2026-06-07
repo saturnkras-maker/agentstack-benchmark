@@ -5,9 +5,8 @@ from pathlib import Path
 from typing import Any
 
 
-def build_leaderboard(runs_dir: str | Path, out_path: str | Path) -> list[dict[str, Any]]:
+def collect_leaderboard_rows(runs_dir: str | Path) -> list[dict[str, Any]]:
     runs_dir = Path(runs_dir)
-    out_path = Path(out_path)
     rows: list[dict[str, Any]] = []
     for report_path in sorted(runs_dir.glob("*/report.json")):
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -28,6 +27,12 @@ def build_leaderboard(runs_dir: str | Path, out_path: str | Path) -> list[dict[s
     rows.sort(key=lambda item: (-float(item["overall"]), item["agentId"]))
     for index, row in enumerate(rows, start=1):
         row["rank"] = index
+    return rows
+
+
+def build_leaderboard(runs_dir: str | Path, out_path: str | Path) -> list[dict[str, Any]]:
+    out_path = Path(out_path)
+    rows = collect_leaderboard_rows(runs_dir)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")

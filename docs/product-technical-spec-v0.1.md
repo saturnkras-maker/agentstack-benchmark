@@ -272,12 +272,15 @@ Consistent error body:
 
 ## 11. Monetization hypotheses
 
-Free:
+Current beta decision: **free first**. The first launch should optimize for trust, submissions, and repeat usage, not payment capture.
+
+Free beta:
 
 - public basic run;
 - public leaderboard;
 - short report;
-- badge.
+- badge;
+- safe reproducibility/trace metadata where publishable.
 
 Paid later:
 
