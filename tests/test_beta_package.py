@@ -52,6 +52,7 @@ class PublicBetaPackageTests(unittest.TestCase):
             "docs/auth-rate-limit-v0.1.md",
             "docs/public-beta-package-v0.1.md",
             "docs/offline-local-mvp-demo.md",
+            "docs/local-model-adapter-v0.1.md",
             "examples/manifests/offline_demo.json",
             "examples/task_packs/beta_v0_1.json",
             "examples/pilots/local_public_v0_1.json",
@@ -72,7 +73,10 @@ class PublicBetaPackageTests(unittest.TestCase):
         self.assertIn("agentstack_benchmark.cli pilot-run", checklist)
         self.assertIn("agentstack_benchmark.cli serve", checklist)
         self.assertIn("agentstack_benchmark.cli demo-local", checklist)
+        self.assertIn("agentstack_benchmark.cli local-model-check", checklist)
+        self.assertIn("auto-local-model", checklist)
         self.assertIn("Offline local MVP demo", checklist)
+        self.assertIn("local model adapter", checklist.lower())
         self.assertNotIn("git push", checklist)
         self.assertNotIn("--force", checklist)
         self.assertNotIn("private key", checklist.lower())

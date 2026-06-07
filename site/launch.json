@@ -6,6 +6,8 @@
   "defaultTrack": "local-public",
   "offlineLocalDemo": "ready",
   "browserRunUx": "loopback-local-ready",
+  "localModelAdapter": "loopback-autodetect-ready",
+  "localModelFallback": "deterministic-offline-demo",
   "internetRequiredForDemo": false,
   "apiKeysRequiredForDemo": false,
   "hostedVerified": "reserved-server-side-only",

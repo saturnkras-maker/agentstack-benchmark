@@ -24,6 +24,7 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
     "docs/auth-rate-limit-v0.1.md",
     "docs/public-beta-package-v0.1.md",
     "docs/offline-local-mvp-demo.md",
+    "docs/local-model-adapter-v0.1.md",
     "examples/manifests/offline_demo.json",
     "examples/task_packs/beta_v0_1.json",
     "examples/pilots/local_public_v0_1.json",
@@ -38,6 +39,9 @@ LOCAL_VERIFICATION_COMMANDS = [
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli serve "
     "--host 127.0.0.1 --port 8088 --runs-dir artifacts/runs",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once",
+    "PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check",
+    "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local "
+    "--agent-mode auto-local-model --once",
 ]
 
 
@@ -83,6 +87,7 @@ def render_public_beta_checklist(manifest: dict[str, Any]) -> str:
         "- Reproducibility hash, variance/confidence metadata, and output redaction.",
         "- Five local-public pilot fixtures and a track-aware leaderboard path.",
         "- Offline local MVP demo path for UX testing without internet or API keys.",
+        "- Optional local model adapter with loopback autodetect and deterministic fallback.",
         "- Hosted-verified boundary scaffold with hidden-task rejection in local runs.",
         "- Optional bearer-auth and rate-limit scaffold for guarded preview serving.",
         "",

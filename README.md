@@ -13,6 +13,7 @@ Current slice:
 - local free-beta API preview (`healthz` + leaderboard);
 - local public-beta web preview (`/`, `/run`, `/leaderboard`, `/runs/{runId}`);
 - one-command offline local MVP demo (`demo-local`, `docs/offline-local-mvp-demo.md`);
+- optional loopback local model adapter autodetect (`local-model-check`, `docs/local-model-adapter-v0.1.md`);
 - browser-run UX for loopback HTTP agents (`docs/hosted-ux-runner-v0.1.md`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
@@ -48,6 +49,29 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
 ```
 
 See `docs/offline-local-mvp-demo.md`.
+
+If you already have a local model backend running on loopback (for example `llama-server` or Ollama), check it without internet/API keys:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
+```
+
+Then try the same UX with local-model autodetect and deterministic fallback:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local \
+  --agent-mode auto-local-model
+```
+
+For strict local-model mode with an OpenAI-compatible endpoint:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local \
+  --agent-mode local-model \
+  --local-model-base-url http://127.0.0.1:8080/v1
+```
+
+See `docs/local-model-adapter-v0.1.md`.
 
 Run demo:
 
