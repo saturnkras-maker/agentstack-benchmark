@@ -1,0 +1,24 @@
+{
+  "agentId": "pilot-openai-agents-sdk",
+  "name": "OpenAI Agents SDK — local pilot fixture",
+  "version": "0.1.0-local-fixture",
+  "adapter": {
+    "type": "cli",
+    "command": [
+      "python3",
+      "agents/pilot_fixture_agent.py",
+      "--profile",
+      "openai-agents-sdk"
+    ]
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  },
+  "pilot": {
+    "pilotId": "openai-agents-sdk",
+    "frameworkName": "OpenAI Agents SDK",
+    "localPilotMode": "fixture-adapter",
+    "realExecutionBoundary": "Real OpenAI Agents SDK execution is not executed in this local-public fixture because it can require participant-owned model/API credentials."
+  }
+}
