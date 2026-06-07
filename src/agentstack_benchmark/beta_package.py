@@ -13,6 +13,7 @@ PACKAGE_STATUS_LOCAL_READY = "local-ready"
 
 REQUIRED_PUBLIC_BETA_ASSETS = [
     "README.md",
+    "Makefile",
     "pyproject.toml",
     "docs/product-technical-spec-v0.1.md",
     "docs/monetization-v0.md",
@@ -32,6 +33,9 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
 ]
 
 LOCAL_VERIFICATION_COMMANDS = [
+    "make doctor",
+    "make demo-local-once",
+    "make local-model-check",
     "PYTHONPATH=src python3 -m unittest tests.test_beta_package -v",
     "PYTHONPATH=src python3 -m unittest discover -s tests -v",
     "python3 -m compileall -q src examples tests",
@@ -91,6 +95,7 @@ def render_public_beta_checklist(manifest: dict[str, Any]) -> str:
         "- Offline local MVP demo path for UX testing without internet or API keys.",
         "- Optional local model adapter with loopback autodetect and deterministic fallback.",
         "- First-run doctor command with exact local commands, URLs, and port readiness.",
+        "- Root Makefile aliases for doctor/demo/local-model smoke commands.",
         "- Hosted-verified boundary scaffold with hidden-task rejection in local runs.",
         "- Optional bearer-auth and rate-limit scaffold for guarded preview serving.",
         "",

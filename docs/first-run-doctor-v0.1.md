@@ -7,10 +7,22 @@ It does not start servers, download models, call external endpoints, or require 
 ## Run
 
 ```bash
+make doctor
+```
+
+Equivalent explicit Python command:
+
+```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor
 ```
 
 Fast non-probing mode:
+
+```bash
+make doctor DOCTOR_ARGS=--skip-local-model-probe
+```
+
+Equivalent explicit Python command:
 
 ```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor --skip-local-model-probe

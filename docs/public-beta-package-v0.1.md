@@ -68,6 +68,9 @@ Those remain separate decisions even when the local package is green.
 PYTHONPATH=src python3 -m unittest tests.test_beta_package -v
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 python3 -m compileall -q src examples tests
+make doctor
+make demo-local-once
+make local-model-check
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
 PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
 PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor

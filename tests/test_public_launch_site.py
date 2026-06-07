@@ -18,6 +18,8 @@ class PublicLaunchSiteTests(unittest.TestCase):
         self.assertIn("No API keys", html)
         self.assertIn("Optional local model adapter", html)
         self.assertIn("First-run doctor", html)
+        self.assertIn("make doctor", html)
+        self.assertIn("make demo-local", html)
         self.assertIn("agentstack_benchmark.cli doctor", html)
         self.assertIn("local-model-check", html)
         self.assertIn("auto-local-model", html)
