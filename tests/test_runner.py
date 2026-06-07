@@ -107,6 +107,105 @@ class RunnerTests(unittest.TestCase):
         self.assertIn("scores: quality=100.0", markdown)
         self.assertIn("toolUse=100.0", markdown)
 
+    def test_report_contains_reproducibility_hash_that_depends_on_track(self) -> None:
+        from agentstack_benchmark.reproducibility import compute_report_artifact_hash
+
+        report = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+            self.tmpdir / "good",
+        )
+
+        reproducibility = report["reproducibility"]
+        self.assertEqual(reproducibility["hashAlgorithm"], "sha256")
+        self.assertEqual(len(reproducibility["artifactHash"]), 64)
+        self.assertEqual(
+            reproducibility["hashFields"][:5],
+            ["schemaVersion", "track", "agent", "taskPack", "scoringSchema"],
+        )
+
+        hash_input = {field: report[field] for field in reproducibility["hashFields"]}
+        self.assertEqual(hash_input["track"], "local-public")
+        self.assertEqual(compute_report_artifact_hash(hash_input), reproducibility["artifactHash"])
+        hosted_hash_input = dict(hash_input, track="hosted-verified")
+        self.assertNotEqual(
+            compute_report_artifact_hash(hosted_hash_input),
+            reproducibility["artifactHash"],
+        )
+
+    def test_report_contains_score_variance_and_confidence_band(self) -> None:
+        report = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+            self.tmpdir / "good",
+        )
+
+        score_stats = report["reproducibility"]["scoreStats"]
+        band = score_stats["confidenceBand"]
+
+        self.assertEqual(score_stats["sampleSize"], len(report["attempts"]))
+        self.assertGreaterEqual(score_stats["taskScoreVariance"], 0.0)
+        self.assertGreaterEqual(score_stats["taskScoreStdDev"], 0.0)
+        self.assertEqual(band["confidenceLevel"], 0.95)
+        self.assertLessEqual(band["lower"], report["summary"]["overall"])
+        self.assertGreaterEqual(band["upper"], report["summary"]["overall"])
+        self.assertGreaterEqual(band["lower"], 0.0)
+        self.assertLessEqual(band["upper"], 100.0)
+
+    def test_report_redacts_secret_like_adapter_output_before_persisting(self) -> None:
+        agent_script = self.tmpdir / "leaky_agent.py"
+        agent_script.write_text(
+            """
+import json
+import sys
+
+json.loads(sys.stdin.read())
+print(json.dumps({
+    "answer": (
+        "safe answer api_key=sk-live-123 token=abc123 "
+        "password: hunter2 secret=hidden пароль: медведь"
+    ),
+    "toolTrace": ["used token=trace-secret"],
+}))
+""".strip(),
+            encoding="utf-8",
+        )
+        manifest = {
+            "agentId": "leaky-agent",
+            "name": "Leaky Agent",
+            "version": "0.1.0",
+            "adapter": {"type": "cli", "command": ["python3", str(agent_script)]},
+            "limits": {"timeoutSecondsPerTask": 5, "maxRunsPerTask": 1},
+        }
+        task_pack = {
+            "taskPackId": "redaction-pack",
+            "name": "Redaction Pack",
+            "version": "0.1.0",
+            "tasks": [
+                {
+                    "taskId": "redact_secret_answer",
+                    "category": "core",
+                    "prompt": "Return safe answer.",
+                    "expected": {"type": "contains", "value": "safe answer"},
+                }
+            ],
+        }
+        manifest_path = self.tmpdir / "leaky_manifest.json"
+        task_pack_path = self.tmpdir / "redaction_pack.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        task_pack_path.write_text(json.dumps(task_pack), encoding="utf-8")
+
+        report = run_benchmark(manifest_path, task_pack_path, self.tmpdir / "leaky-run")
+        persisted_json = (self.tmpdir / "leaky-run/report.json").read_text(encoding="utf-8")
+        persisted_md = (self.tmpdir / "leaky-run/report.md").read_text(encoding="utf-8")
+
+        self.assertEqual(report["attempts"][0]["verdict"], "PASS")
+        self.assertIn("[REDACTED]", report["attempts"][0]["answer"])
+        self.assertGreaterEqual(report["reproducibility"]["redaction"]["redactedOccurrences"], 5)
+        for leaked in ["sk-live-123", "abc123", "hunter2", "hidden", "медведь", "trace-secret"]:
+            self.assertNotIn(leaked, persisted_json)
+            self.assertNotIn(leaked, persisted_md)
+
     def test_run_track_enum_is_closed(self) -> None:
         from agentstack_benchmark.schemas import (
             ALLOWED_RUN_TRACKS,

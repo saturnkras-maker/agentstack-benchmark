@@ -9,6 +9,7 @@ from urllib import error, parse, request
 
 from .adapter_contract import build_task_request, normalize_agent_response
 from .evaluator import build_scoring_schema, evaluate_attempt, summarize_scores
+from .reproducibility import build_reproducibility_metadata, redact_value
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 
 
@@ -30,7 +31,8 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
         attempts.append(evaluate_attempt(task, output, elapsed))
 
     score_summary = summarize_scores(attempts)
-    report = {
+    redacted_attempts, redacted_occurrences = redact_value(attempts)
+    base_report = {
         "schemaVersion": "agentstack-benchmark.report.v0.1",
         "track": RUN_TRACK_LOCAL_PUBLIC,
         "agent": {
@@ -47,7 +49,20 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
         },
         "scoringSchema": build_scoring_schema(),
         "summary": score_summary,
-        "attempts": attempts,
+        "attempts": redacted_attempts,
+    }
+    report = {
+        "schemaVersion": base_report["schemaVersion"],
+        "track": base_report["track"],
+        "agent": base_report["agent"],
+        "taskPack": base_report["taskPack"],
+        "scoringSchema": base_report["scoringSchema"],
+        "summary": base_report["summary"],
+        "reproducibility": build_reproducibility_metadata(
+            base_report,
+            redacted_occurrences,
+        ),
+        "attempts": base_report["attempts"],
     }
 
     (out_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -64,6 +79,15 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         f"Track: `{report['track']}`",
         f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`",
         f"Overall score: **{report['summary']['overall']}**",
+        "",
+        "## Reproducibility",
+        f"- artifactHash ({report['reproducibility']['hashAlgorithm']}): "
+        f"`{report['reproducibility']['artifactHash']}`",
+        "- confidence band (95%): "
+        f"{report['reproducibility']['scoreStats']['confidenceBand']['lower']}–"
+        f"{report['reproducibility']['scoreStats']['confidenceBand']['upper']}",
+        "- redacted occurrences: "
+        f"{report['reproducibility']['redaction']['redactedOccurrences']}",
         "",
         "## Scorecard",
     ]

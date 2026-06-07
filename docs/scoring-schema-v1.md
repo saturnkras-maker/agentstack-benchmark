@@ -19,8 +19,10 @@ Canonical top-level `report.json` order starts with:
 4. `taskPack`
 5. `scoringSchema`
 6. `summary`
+7. `reproducibility`
+8. `attempts`
 
-`track` remains a run/report-level field. `scoringSchema` describes how `summary` and per-attempt `scores` were produced.
+`track` remains a run/report-level field. `scoringSchema` describes how `summary` and per-attempt `scores` were produced. `reproducibility` is placed after `summary` and is excluded from its own artifact hash.
 
 ## Weights
 

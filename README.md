@@ -15,6 +15,7 @@ Current slice:
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
 - JSON + richer Markdown reports with track/schema/scorecard/task-score context;
+- reproducibility/redaction metadata (`docs/reproducibility-redaction.md`);
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
@@ -93,6 +94,8 @@ Preview JSON endpoints:
 Track values are intentionally enum-like and closed for the beta foundation: `local-public` is the only default assigned by local runs; `hosted-verified` is reserved for a future server-side hosted verified runner and is never assigned automatically by the local preview.
 
 Reports embed `scoringSchema.schemaVersion: scoring_schema_v1` next to the run-level track. The schema freezes the current deterministic weights and verdict vocabulary for the local-public beta; LLM-as-judge, hidden tasks, and hosted verification stay outside this scoring slice.
+
+Reports also embed `reproducibility.artifactHash` (SHA-256 over canonical fields including `track`), local score variance/confidence-band metadata, and redaction stats. Secret-like adapter output is replaced with `[REDACTED]` before `report.json` / `report.md` are persisted.
 
 Monetization note: beta starts free. See `docs/monetization-v0.md` for the paid surfaces deferred until the benchmark proves trust and repeat usage.
 
