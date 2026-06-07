@@ -13,7 +13,8 @@ Current slice:
 - deterministic evaluator;
 - JSON + Markdown reports;
 - mock good/bad agents;
-- unit tests proving score separation, local HTTP adapter behavior, and API preview behavior.
+- 5-task MVP pack plus 20-task deterministic beta pack;
+- unit tests proving score separation, local HTTP adapter behavior, API preview behavior, and beta task-pack coverage.
 
 Run demo:
 
@@ -22,6 +23,11 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli run \
   --manifest examples/manifests/mock_good.json \
   --task-pack examples/task_packs/mvp_v0.json \
   --out artifacts/runs/demo-good
+
+PYTHONPATH=src python3 -m agentstack_benchmark.cli run \
+  --manifest examples/manifests/mock_good.json \
+  --task-pack examples/task_packs/beta_v0_1.json \
+  --out artifacts/runs/beta-good
 
 PYTHONPATH=src python3 -m agentstack_benchmark.cli leaderboard \
   --runs-dir artifacts/runs \

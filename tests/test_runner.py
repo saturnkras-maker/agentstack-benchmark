@@ -135,6 +135,39 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue((self.tmpdir / "leaderboard.json").exists())
         self.assertTrue((self.tmpdir / "leaderboard.md").exists())
 
+    def test_beta_task_pack_has_launch_ready_category_coverage(self) -> None:
+        task_pack = json.loads(
+            (PROJECT_ROOT / "examples/task_packs/beta_v0_1.json").read_text(encoding="utf-8")
+        )
+
+        tasks = task_pack["tasks"]
+        task_ids = [task["taskId"] for task in tasks]
+        categories = {task["category"] for task in tasks}
+
+        self.assertGreaterEqual(len(tasks), 20)
+        self.assertEqual(len(task_ids), len(set(task_ids)))
+        self.assertTrue(
+            {"core", "tool-use", "safety", "memory-skills", "speed-cost"}.issubset(categories)
+        )
+
+    def test_good_agent_scores_higher_on_beta_task_pack(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/beta_v0_1.json"
+        good = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            task_pack,
+            self.tmpdir / "beta-good",
+        )
+        bad = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_bad.json",
+            task_pack,
+            self.tmpdir / "beta-bad",
+        )
+
+        self.assertGreater(good["summary"]["overall"], 85)
+        self.assertGreaterEqual(good["summary"]["tasksPassed"], 19)
+        self.assertLess(bad["summary"]["overall"], 35)
+        self.assertGreater(good["summary"]["overall"], bad["summary"]["overall"])
+
 
 if __name__ == "__main__":
     unittest.main()
