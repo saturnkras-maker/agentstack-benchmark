@@ -1,0 +1,25 @@
+{
+  "agentId": "mock-http-agent",
+  "name": "Mock HTTP Agent",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "http",
+    "endpoint": "http://127.0.0.1:8765/tasks"
+  },
+  "model": {
+    "provider": "mock",
+    "name": "deterministic-http-demo"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": false,
+    "memory": true,
+    "skills": true,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  }
+}

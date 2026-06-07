@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "agentstack-benchmark.pricing.v0.1",
+  "currency": "USD",
+  "plans": [
+    {
+      "planId": "free-beta",
+      "name": "Free beta",
+      "price": 0,
+      "billingMode": "no-payment-required",
+      "status": "active",
+      "includes": [
+        "local-public task pack",
+        "local report generation",
+        "local leaderboard",
+        "public beta checklist"
+      ]
+    },
+    {
+      "planId": "hosted-verified",
+      "name": "Hosted verified track",
+      "price": null,
+      "billingMode": "provider-required-before-live-checkout",
+      "status": "reserved-not-live",
+      "requiresBeforeActivation": [
+        "merchant provider account",
+        "public price IDs or payment links",
+        "webhook signature verification",
+        "refund/legal copy",
+        "server-side hosted runner"
+      ]
+    }
+  ],
+  "liveCheckoutEnabled": false,
+  "providerSecretsEmbedded": false
+}
