@@ -24,7 +24,18 @@ The current product MVP is a local/offline browser experience:
 4. Click **Run benchmark**.
 5. Inspect the generated report and leaderboard.
 
-This path requires no internet, no API keys, no hosted service, and no downloaded model file. The built-in demo agent is deterministic by design so the UX/UI can be tested immediately. Optional real local model backends (for example `llama.cpp`/GGUF) can be added later behind the same HTTP adapter contract.
+This path requires no internet, no API keys, no hosted service, and no downloaded model file. The built-in demo agent is deterministic by design so the UX/UI can be tested immediately.
+
+If a real local model backend is already running on loopback, the same UX can use it instead:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
+
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local \
+  --agent-mode auto-local-model
+```
+
+`auto-local-model` supports loopback OpenAI-compatible and Ollama endpoints, rejects external URLs, and falls back to the deterministic offline demo instead of hanging when no backend is available.
 
 ## Guarantees
 

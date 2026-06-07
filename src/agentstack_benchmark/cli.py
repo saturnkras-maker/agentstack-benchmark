@@ -8,6 +8,11 @@ from pathlib import Path
 from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
 from .leaderboard import build_leaderboard
+from .local_model import (
+    discover_local_model_backend,
+    run_local_model_demo_once,
+    start_local_model_agent,
+)
 from .offline_demo import DEFAULT_TASK_PACK_PATH, run_offline_demo_once, start_offline_demo_agent
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .runner import run_benchmark
@@ -98,6 +103,37 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run the offline demo benchmark once and exit without serving the UI",
     )
+    demo_parser.add_argument(
+        "--agent-mode",
+        choices=("offline", "auto-local-model", "local-model"),
+        default="offline",
+        help="Use deterministic offline agent, try a local model with fallback, or require a local model",
+    )
+    demo_parser.add_argument(
+        "--local-model-base-url",
+        default=None,
+        help="Loopback OpenAI-compatible /v1 or Ollama base URL for local-model modes",
+    )
+    demo_parser.add_argument(
+        "--local-model-name",
+        default=None,
+        help="Optional local model name override for local-model modes",
+    )
+
+    local_model_parser = subparsers.add_parser(
+        "local-model-check",
+        help="Probe loopback local model backends without internet or API keys",
+    )
+    local_model_parser.add_argument(
+        "--base-url",
+        default=None,
+        help="Loopback OpenAI-compatible /v1 or Ollama base URL to probe",
+    )
+    local_model_parser.add_argument(
+        "--model",
+        default=None,
+        help="Optional model name override",
+    )
 
     pilot_parser = subparsers.add_parser(
         "pilot-run",
@@ -172,13 +208,35 @@ def main(argv: list[str] | None = None) -> int:
         serve(args.host, args.port, args.runs_dir, security_config=security_config)
         return 0
     if args.command == "demo-local":
-        summary = run_offline_demo_once(
-            runs_dir=args.runs_dir,
-            run_id=args.run_id,
-            host=args.host,
-            agent_port=args.agent_port,
-            task_pack_path=args.task_pack,
-        )
+        local_backend = None
+        fallback_from_local_model = False
+        if args.agent_mode in {"auto-local-model", "local-model"}:
+            local_backend = discover_local_model_backend(
+                base_url=args.local_model_base_url,
+                model=args.local_model_name,
+                env=dict(os.environ),
+            )
+        if local_backend and local_backend.available:
+            summary = run_local_model_demo_once(
+                backend=local_backend,
+                runs_dir=args.runs_dir,
+                run_id=args.run_id,
+                host=args.host,
+                agent_port=args.agent_port,
+                task_pack_path=args.task_pack,
+            )
+        else:
+            if args.agent_mode == "local-model":
+                print(json.dumps({"available": False, "localModelStatus": local_backend.to_dict() if local_backend else None}, ensure_ascii=False))
+                return 1
+            fallback_from_local_model = args.agent_mode == "auto-local-model"
+            summary = run_offline_demo_once(
+                runs_dir=args.runs_dir,
+                run_id=args.run_id,
+                host=args.host,
+                agent_port=args.agent_port,
+                task_pack_path=args.task_pack,
+            )
         base_url = f"http://{args.host}:{args.ui_port}"
         body = {
             **summary,
@@ -187,25 +245,30 @@ def main(argv: list[str] | None = None) -> int:
             "reportUrl": f"{base_url}/runs/{args.run_id}",
             "leaderboardUrl": f"{base_url}/leaderboard",
         }
+        if fallback_from_local_model:
+            body["fallbackFromLocalModel"] = True
+            body["localModelStatus"] = local_backend.to_dict() if local_backend else None
         print(json.dumps(body, ensure_ascii=False))
         if args.once:
             return 0
-        agent = start_offline_demo_agent(host=args.host, port=args.agent_port)
+        if local_backend and local_backend.available:
+            agent = start_local_model_agent(local_backend, host=args.host, port=args.agent_port)
+        else:
+            agent = start_offline_demo_agent(host=args.host, port=args.agent_port)
         try:
-            print(
-                json.dumps(
-                    {
-                        "status": "serving",
-                        "agentEndpoint": agent.endpoint,
-                        "uiUrl": body["uiUrl"],
-                        "runFormUrl": body["runFormUrl"],
-                        "reportUrl": body["reportUrl"],
-                        "leaderboardUrl": body["leaderboardUrl"],
-                    },
-                    ensure_ascii=False,
-                ),
-                flush=True,
-            )
+            serving_body = {
+                "status": "serving",
+                "agentEndpoint": agent.endpoint,
+                "agentMode": body["mode"],
+                "uiUrl": body["uiUrl"],
+                "runFormUrl": body["runFormUrl"],
+                "reportUrl": body["reportUrl"],
+                "leaderboardUrl": body["leaderboardUrl"],
+            }
+            if fallback_from_local_model:
+                serving_body["fallbackFromLocalModel"] = True
+                serving_body["localModelStatus"] = body.get("localModelStatus")
+            print(json.dumps(serving_body, ensure_ascii=False), flush=True)
             security_config = SecurityConfig.from_token(
                 None,
                 rate_limit_requests=120,
@@ -214,6 +277,14 @@ def main(argv: list[str] | None = None) -> int:
             serve(args.host, args.ui_port, args.runs_dir, security_config=security_config)
         finally:
             agent.shutdown()
+        return 0
+    if args.command == "local-model-check":
+        backend = discover_local_model_backend(
+            base_url=args.base_url,
+            model=args.model,
+            env=dict(os.environ),
+        )
+        print(json.dumps(backend.to_dict(), ensure_ascii=False))
         return 0
     if args.command == "pilot-run":
         reports = run_local_pilots(args.registry, args.task_pack, args.out_dir)

@@ -43,6 +43,9 @@ The generator currently requires these source assets:
 - local-public pilot docs and registry;
 - hosted-verified boundary docs;
 - auth/rate-limit docs;
+- offline local MVP demo docs;
+- local model adapter docs;
+- offline demo manifest;
 - deterministic beta task pack.
 
 ## Explicit non-actions
@@ -64,4 +67,7 @@ Those remain separate decisions even when the local package is green.
 PYTHONPATH=src python3 -m unittest tests.test_beta_package -v
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 python3 -m compileall -q src examples tests
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
+PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --agent-mode auto-local-model --once
 ```
