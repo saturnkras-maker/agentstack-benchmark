@@ -6,7 +6,8 @@ from typing import Any
 
 from .schemas import normalize_text
 
-WEIGHTS = {
+SCORING_SCHEMA_VERSION = "scoring_schema_v1"
+SCORING_WEIGHTS = {
     "quality": 0.30,
     "reliability": 0.15,
     "toolUse": 0.12,
@@ -17,6 +18,20 @@ WEIGHTS = {
     "memorySkills": 0.05,
     "autonomy": 0.03,
 }
+SCORING_VERDICTS = ["PASS", "PARTIAL", "FAIL", "INVALID_RUN"]
+WEIGHTS = SCORING_WEIGHTS
+
+
+def build_scoring_schema() -> dict[str, Any]:
+    return {
+        "schemaVersion": SCORING_SCHEMA_VERSION,
+        "weights": dict(SCORING_WEIGHTS),
+        "verdicts": list(SCORING_VERDICTS),
+        "notes": (
+            "Deterministic local-public beta scoring; "
+            "LLM-as-judge is not part of scoring_schema_v1."
+        ),
+    }
 
 
 def evaluate_attempt(task: dict[str, Any], output: dict[str, Any], elapsed_seconds: float) -> dict[str, Any]:
@@ -71,7 +86,7 @@ def summarize_scores(attempts: list[dict[str, Any]]) -> dict[str, Any]:
     for key in ["quality", "speed", "costEfficiency", "toolUse", "safety", "depth", "memorySkills", "autonomy"]:
         dimensions[key] = mean(item["scores"][key] for item in attempts)
 
-    overall = sum(dimensions[key] * weight for key, weight in WEIGHTS.items())
+    overall = sum(dimensions[key] * weight for key, weight in SCORING_WEIGHTS.items())
     return {
         "overall": round(overall, 2),
         "dimensions": {key: round(value, 2) for key, value in dimensions.items()},

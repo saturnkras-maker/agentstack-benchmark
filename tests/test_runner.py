@@ -65,6 +65,48 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(list(persisted)[:4], ["schemaVersion", "track", "agent", "taskPack"])
         self.assertEqual(persisted["track"], "local-public")
 
+    def test_report_declares_scoring_schema_v1_with_canonical_order(self) -> None:
+        from agentstack_benchmark.evaluator import SCORING_SCHEMA_VERSION, SCORING_WEIGHTS
+
+        report = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+            self.tmpdir / "good",
+        )
+
+        self.assertEqual(
+            list(report)[:6],
+            ["schemaVersion", "track", "agent", "taskPack", "scoringSchema", "summary"],
+        )
+        self.assertEqual(report["scoringSchema"]["schemaVersion"], SCORING_SCHEMA_VERSION)
+        self.assertEqual(report["scoringSchema"]["weights"], SCORING_WEIGHTS)
+        self.assertEqual(sum(report["scoringSchema"]["weights"].values()), 1.0)
+        self.assertEqual(
+            report["scoringSchema"]["verdicts"],
+            ["PASS", "PARTIAL", "FAIL", "INVALID_RUN"],
+        )
+
+        persisted = json.loads((self.tmpdir / "good/report.json").read_text(encoding="utf-8"))
+        self.assertEqual(persisted["scoringSchema"], report["scoringSchema"])
+
+    def test_markdown_report_contains_scorecard_context_and_task_scores(self) -> None:
+        run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+            self.tmpdir / "good",
+        )
+
+        markdown = (self.tmpdir / "good/report.md").read_text(encoding="utf-8")
+
+        self.assertIn("Track: `local-public`", markdown)
+        self.assertIn("Scoring schema: `scoring_schema_v1`", markdown)
+        self.assertIn("## Scorecard", markdown)
+        self.assertIn("- quality (weight 0.30):", markdown)
+        self.assertIn("- reliability (weight 0.15):", markdown)
+        self.assertIn("## Task attempts", markdown)
+        self.assertIn("scores: quality=100.0", markdown)
+        self.assertIn("toolUse=100.0", markdown)
+
     def test_run_track_enum_is_closed(self) -> None:
         from agentstack_benchmark.schemas import (
             ALLOWED_RUN_TRACKS,

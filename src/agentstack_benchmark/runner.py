@@ -8,7 +8,7 @@ from typing import Any
 from urllib import error, parse, request
 
 from .adapter_contract import build_task_request, normalize_agent_response
-from .evaluator import evaluate_attempt, summarize_scores
+from .evaluator import build_scoring_schema, evaluate_attempt, summarize_scores
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 
 
@@ -45,6 +45,7 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
             "version": task_pack["version"],
             "taskPackHash": stable_json_hash(task_pack),
         },
+        "scoringSchema": build_scoring_schema(),
         "summary": score_summary,
         "attempts": attempts,
     }
@@ -60,17 +61,22 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         "",
         f"Agent: `{report['agent']['agentId']}` v{report['agent']['version']}",
         f"Task pack: `{report['taskPack']['taskPackId']}` v{report['taskPack']['version']}",
+        f"Track: `{report['track']}`",
+        f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`",
         f"Overall score: **{report['summary']['overall']}**",
         "",
-        "## Dimensions",
+        "## Scorecard",
     ]
-    for key, value in sorted(report["summary"]["dimensions"].items()):
-        lines.append(f"- {key}: {value}")
+    weights = report["scoringSchema"]["weights"]
+    dimensions = report["summary"]["dimensions"]
+    for key, weight in weights.items():
+        lines.append(f"- {key} (weight {weight:.2f}): {dimensions[key]}")
     lines.extend(["", "## Task attempts"])
     for attempt in report["attempts"]:
+        score_text = ", ".join(f"{key}={value}" for key, value in attempt["scores"].items())
         lines.append(
             f"- `{attempt['taskId']}` ({attempt['category']}): {attempt['verdict']} "
-            f"in {attempt['elapsedSeconds']}s — {attempt['answer']}"
+            f"in {attempt['elapsedSeconds']}s — scores: {score_text} — {attempt['answer']}"
         )
     lines.append("")
     return "\n".join(lines)
@@ -86,7 +92,10 @@ def _invoke_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: 
     raise ValueError("adapter.type must be one of: cli, http")
 
 
-def _build_task_payload(task: dict[str, Any], default_timeout_seconds: float | None = None) -> dict[str, Any]:
+def _build_task_payload(
+    task: dict[str, Any],
+    default_timeout_seconds: float | None = None,
+) -> dict[str, Any]:
     return build_task_request(task, default_timeout_seconds=default_timeout_seconds)
 
 
