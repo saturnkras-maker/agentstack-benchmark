@@ -5,15 +5,15 @@ This document records the first public launch surface for AgentStack Benchmark.
 ## Launch target
 
 - Repository: `https://github.com/saturnkras-maker/agentstack-benchmark`
-- PR gate: `https://github.com/saturnkras-maker/agentstack-benchmark/pull/1`
-- Release branch: `release/public-beta-v0.1`
+- PR gate: `https://github.com/saturnkras-maker/agentstack-benchmark/pull/1` (merged)
+- Release branch: `main`
 - Static launch page source: `site/`
 - Deployment target: GitHub Pages via `gh-pages` branch.
 
 ## Guarantees
 
 - No direct push to `main`.
-- Public beta code remains review-gated through PR #1.
+- Public beta code reached `main` through merged PR #1.
 - Launch page contains no production secrets, no private keys, and no payment credentials.
 - `local-public` is the default track.
 - `hosted-verified` remains reserved for a future server-side runner.

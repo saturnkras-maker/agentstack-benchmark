@@ -1,9 +1,10 @@
 {
   "schemaVersion": "agentstack-benchmark.public-launch.v0.1",
-  "launchStatus": "public-preview-live-on-gh-pages-after-deploy",
+  "launchStatus": "public-preview-live-on-gh-pages",
   "repo": "https://github.com/saturnkras-maker/agentstack-benchmark",
   "pullRequest": "https://github.com/saturnkras-maker/agentstack-benchmark/pull/1",
-  "releaseBranch": "release/public-beta-v0.1",
+  "pullRequestStatus": "merged",
+  "releaseBranch": "main",
   "defaultTrack": "local-public",
   "hostedVerified": "reserved-server-side-only",
   "noDirectPushToMain": true,
