@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .adapter_contract import build_adapter_contract
 from .leaderboard import build_leaderboard
 from .runner import run_benchmark
 from .server import serve
@@ -30,6 +31,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="artifacts/runs",
         help="Directory containing run subdirectories with report.json files",
     )
+
+    subparsers.add_parser("adapter-contract", help="Print the local HTTP adapter contract as JSON")
     return parser
 
 
@@ -46,6 +49,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "serve":
         serve(args.host, args.port, args.runs_dir)
+        return 0
+    if args.command == "adapter-contract":
+        print(json.dumps(build_adapter_contract(), ensure_ascii=False, indent=2))
         return 0
     parser.error(f"Unsupported command: {args.command}")
     return 2

@@ -9,6 +9,7 @@ Current slice:
 - JSON task pack;
 - CLI adapter;
 - local-only HTTP adapter prototype;
+- versioned HTTP adapter contract (`docs/adapter-contract-v0.1.md` + `adapter-contract` CLI);
 - local free-beta API preview (`healthz` + leaderboard);
 - local public-beta web preview (`/`, `/leaderboard`, `/runs/{runId}`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
@@ -36,17 +37,25 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli leaderboard \
   --out artifacts/leaderboard.json
 ```
 
-HTTP adapter prototype:
+HTTP adapter contract:
 
-`examples/manifests/mock_http.json` shows the local HTTP adapter contract. The runner POSTs each task as JSON to `adapter.endpoint` and expects a JSON object response such as:
-
-```json
-{"answer": "status: ready", "toolTrace": []}
-```
-
-For this prototype, endpoints are intentionally limited to `http://127.0.0.1`, `http://localhost`, or `http://[::1]` to avoid accidental external network side effects. Start a local agent server first, then run:
+`docs/adapter-contract-v0.1.md` defines the versioned local HTTP adapter contract. Print the machine-readable contract with:
 
 ```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli adapter-contract
+```
+
+`examples/manifests/mock_http.json` shows the manifest shape. The runner POSTs each task as JSON to `adapter.endpoint` and expects a JSON object response such as:
+
+```json
+{"schemaVersion": "agentstack-benchmark.adapter.response.v0.1", "answer": "status: ready", "toolTrace": []}
+```
+
+For this prototype, endpoints are intentionally limited to `http://127.0.0.1`, `http://localhost`, or `http://[::1]` to avoid accidental external network side effects. Start the example local HTTP handler first, then run:
+
+```bash
+PYTHONPATH=src python3 examples/agents/http_contract_agent.py --host 127.0.0.1 --port 8765
+
 PYTHONPATH=src python3 -m agentstack_benchmark.cli run \
   --manifest examples/manifests/mock_http.json \
   --task-pack examples/task_packs/mvp_v0.json \

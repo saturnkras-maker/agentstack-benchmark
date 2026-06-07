@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 from urllib import error, parse, request
 
+from .adapter_contract import build_task_request, normalize_agent_response
 from .evaluator import evaluate_attempt, summarize_scores
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 
@@ -85,13 +86,8 @@ def _invoke_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: 
     raise ValueError("adapter.type must be one of: cli, http")
 
 
-def _build_task_payload(task: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "taskId": task["taskId"],
-        "category": task.get("category", "core"),
-        "prompt": task["prompt"],
-        "context": task.get("context", {}),
-    }
+def _build_task_payload(task: dict[str, Any], default_timeout_seconds: float | None = None) -> dict[str, Any]:
+    return build_task_request(task, default_timeout_seconds=default_timeout_seconds)
 
 
 def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: Path) -> tuple[dict[str, Any], float]:
@@ -101,7 +97,7 @@ def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_ro
         raise ValueError("adapter.command must be a string array")
 
     timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
-    payload = json.dumps(_build_task_payload(task), ensure_ascii=False)
+    payload = json.dumps(_build_task_payload(task, timeout), ensure_ascii=False)
 
     started = time.monotonic()
     result = subprocess.run(
@@ -130,7 +126,7 @@ def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_ro
         output = {"answer": result.stdout, "toolTrace": []}
     if not isinstance(output, dict):
         output = {"answer": str(output), "toolTrace": []}
-    return output, elapsed
+    return normalize_agent_response(output), elapsed
 
 
 def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[dict[str, Any], float]:
@@ -141,7 +137,7 @@ def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[
     _validate_local_http_endpoint(endpoint)
 
     timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
-    payload = json.dumps(_build_task_payload(task), ensure_ascii=False).encode("utf-8")
+    payload = json.dumps(_build_task_payload(task, timeout), ensure_ascii=False).encode("utf-8")
     http_request = request.Request(
         endpoint,
         data=payload,
@@ -165,10 +161,20 @@ def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[
     try:
         output = json.loads(response_body)
     except json.JSONDecodeError:
-        output = {"answer": response_body, "toolTrace": []}
+        output = {
+            "answer": "",
+            "toolTrace": [],
+            "runtimeError": "invalid_adapter_response: response body must be JSON object",
+        }
     if not isinstance(output, dict):
-        output = {"answer": str(output), "toolTrace": []}
-    return output, elapsed
+        output = {
+            "answer": "",
+            "toolTrace": [],
+            "runtimeError": "invalid_adapter_response: response body must be JSON object",
+        }
+    if "runtimeError" in output:
+        return output, elapsed
+    return normalize_agent_response(output), elapsed
 
 
 def _validate_local_http_endpoint(endpoint: str) -> None:
