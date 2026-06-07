@@ -25,6 +25,7 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
     "docs/public-beta-package-v0.1.md",
     "docs/offline-local-mvp-demo.md",
     "docs/local-model-adapter-v0.1.md",
+    "docs/first-run-doctor-v0.1.md",
     "examples/manifests/offline_demo.json",
     "examples/task_packs/beta_v0_1.json",
     "examples/pilots/local_public_v0_1.json",
@@ -40,6 +41,7 @@ LOCAL_VERIFICATION_COMMANDS = [
     "--host 127.0.0.1 --port 8088 --runs-dir artifacts/runs",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check",
+    "PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local "
     "--agent-mode auto-local-model --once",
 ]
@@ -88,6 +90,7 @@ def render_public_beta_checklist(manifest: dict[str, Any]) -> str:
         "- Five local-public pilot fixtures and a track-aware leaderboard path.",
         "- Offline local MVP demo path for UX testing without internet or API keys.",
         "- Optional local model adapter with loopback autodetect and deterministic fallback.",
+        "- First-run doctor command with exact local commands, URLs, and port readiness.",
         "- Hosted-verified boundary scaffold with hidden-task rejection in local runs.",
         "- Optional bearer-auth and rate-limit scaffold for guarded preview serving.",
         "",

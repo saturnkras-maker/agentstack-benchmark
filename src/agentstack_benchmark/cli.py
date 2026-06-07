@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
+from .doctor import build_first_run_doctor_report
 from .leaderboard import build_leaderboard
 from .local_model import (
     discover_local_model_backend,
@@ -133,6 +134,35 @@ def build_parser() -> argparse.ArgumentParser:
         "--model",
         default=None,
         help="Optional model name override",
+    )
+
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        help="Print local MVP first-run readiness and exact next commands as JSON",
+    )
+    doctor_parser.add_argument("--repo-root", default=".", help="Repository root to inspect")
+    doctor_parser.add_argument("--host", default="127.0.0.1", help="Loopback host for suggested URLs")
+    doctor_parser.add_argument("--ui-port", type=int, default=8088, help="Suggested UI port")
+    doctor_parser.add_argument(
+        "--agent-port",
+        type=int,
+        default=8765,
+        help="Suggested local agent adapter port",
+    )
+    doctor_parser.add_argument(
+        "--skip-local-model-probe",
+        action="store_true",
+        help="Skip loopback model probing; useful for instant non-network checks",
+    )
+    doctor_parser.add_argument(
+        "--local-model-base-url",
+        default=None,
+        help="Optional loopback local model base URL to probe",
+    )
+    doctor_parser.add_argument(
+        "--local-model-name",
+        default=None,
+        help="Optional local model name override",
     )
 
     pilot_parser = subparsers.add_parser(
@@ -285,6 +315,19 @@ def main(argv: list[str] | None = None) -> int:
             env=dict(os.environ),
         )
         print(json.dumps(backend.to_dict(), ensure_ascii=False))
+        return 0
+    if args.command == "doctor":
+        report = build_first_run_doctor_report(
+            repo_root=args.repo_root,
+            host=args.host,
+            ui_port=args.ui_port,
+            agent_port=args.agent_port,
+            probe_local_model=not args.skip_local_model_probe,
+            local_model_base_url=args.local_model_base_url,
+            local_model_name=args.local_model_name,
+            env=dict(os.environ),
+        )
+        print(json.dumps(report, ensure_ascii=False))
         return 0
     if args.command == "pilot-run":
         reports = run_local_pilots(args.registry, args.task_pack, args.out_dir)
