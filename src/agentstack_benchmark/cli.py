@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from .adapter_contract import build_adapter_contract
+from .beta_package import build_public_beta_package
 from .leaderboard import build_leaderboard
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .runner import run_benchmark
@@ -99,6 +100,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers.add_parser("adapter-contract", help="Print the local HTTP adapter contract as JSON")
+    beta_parser = subparsers.add_parser(
+        "beta-package",
+        help="Write the local public beta package manifest and checklist",
+    )
+    beta_parser.add_argument(
+        "--repo-root",
+        default=".",
+        help="Repository root containing README, docs, examples, and pyproject.toml",
+    )
+    beta_parser.add_argument(
+        "--out-dir",
+        default="artifacts/public-beta-package",
+        help="Directory for public_beta_manifest.json, checklist, and summary.json",
+    )
     return parser
 
 
@@ -148,6 +163,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "adapter-contract":
         print(json.dumps(build_adapter_contract(), ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "beta-package":
+        manifest = build_public_beta_package(args.repo_root, args.out_dir)
+        print(
+            json.dumps(
+                {
+                    "packageStatus": manifest["packageStatus"],
+                    "assetCount": len(manifest["assets"]),
+                    "outDir": str(Path(args.out_dir)),
+                },
+                ensure_ascii=False,
+            )
+        )
         return 0
     parser.error(f"Unsupported command: {args.command}")
     return 2

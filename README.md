@@ -19,6 +19,7 @@ Current slice:
 - local-public pilot ×5 registry/fixture runner (`docs/local-public-pilots-v0.1.md`);
 - hosted-verified track boundary scaffold (`docs/hosted-verified-track-v0.1.md`);
 - auth/rate-limit scaffold for guarded preview serving (`docs/auth-rate-limit-v0.1.md`);
+- local public beta package manifest/checklist generator (`docs/public-beta-package-v0.1.md`);
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
@@ -83,6 +84,15 @@ Run tests:
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
+
+Generate the local public beta package artifact:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli beta-package \
+  --out-dir artifacts/public-beta-package
+```
+
+This writes `public_beta_manifest.json`, `PUBLIC_BETA_CHECKLIST.md`, and `summary.json`. The package is local-ready only: it records release-critical file hashes and explicitly performs no external deploy, no public launch, and no billing/payment setup.
 
 Start local free-beta API + web preview:
 
