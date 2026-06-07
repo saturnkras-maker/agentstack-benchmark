@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AgentStack Benchmark — public beta</title>
-  <meta name="description" content="AgentStack Benchmark is a local-public benchmark package for evaluating full AI agent stacks.">
+  <title>AgentStack Benchmark — offline local MVP</title>
+  <meta name="description" content="AgentStack Benchmark is a local-public benchmark package for evaluating full AI agent stacks with a one-command offline demo.">
   <style>
     :root { color-scheme: dark; --bg: #07111f; --card: #111d2d; --text: #edf5ff; --muted: #a8b7ca; --accent: #69e0ff; --ok: #7dffb2; --warn: #ffd37d; }
     * { box-sizing: border-box; }
@@ -15,6 +15,7 @@
     h1 { font-size: clamp(40px, 8vw, 82px); line-height: .95; margin: 0; }
     h2 { margin: 0 0 12px; font-size: 26px; }
     p { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 800px; }
+    pre { overflow-x: auto; margin: 0; padding: 16px; border-radius: 16px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.1); }
     .actions { display: flex; flex-wrap: wrap; gap: 12px; }
     a.button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; color: #04121d; background: var(--accent); text-decoration: none; font-weight: 800; }
     a.button.secondary { color: var(--text); background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); }
@@ -33,29 +34,44 @@
 <body>
   <main>
     <section class="hero">
-      <div class="eyebrow">Local-public beta</div>
+      <div class="eyebrow">Local-public beta · Offline local MVP</div>
       <h1>3DMark-style benchmark for AI agent stacks.</h1>
       <p>
         AgentStack Benchmark evaluates the whole agent construction — model, prompts, tools,
         memory, orchestration, speed, cost, safety, and reproducibility — not only the base model.
       </p>
+      <p>
+        The current MVP is touchable locally: start the offline demo, open the browser UI,
+        click <strong>Run benchmark</strong>, and inspect a visual report/leaderboard.
+      </p>
       <div class="actions">
         <a class="button" href="https://github.com/saturnkras-maker/agentstack-benchmark">View repository</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/pull/1">Merged PR #1</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/archive/refs/heads/main.zip">Download ZIP</a>
+        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/offline-local-mvp-demo.md">Offline demo guide</a>
       </div>
       <div class="status">
+        <span class="pill ok">One-command offline demo</span>
+        <span class="pill ok">No internet</span>
+        <span class="pill ok">No API keys</span>
         <span class="pill ok">Track: local-public</span>
-        <span class="pill ok">Free beta: active</span>
         <span class="pill warn">Hosted-verified: reserved</span>
         <span class="pill warn">Paid checkout: not connected</span>
       </div>
     </section>
 
+    <section class="grid" aria-label="Offline MVP quick start">
+      <article class="card" style="grid-column: 1 / -1;">
+        <h2>One-command offline demo</h2>
+        <p>Run locally from the repository root:</p>
+        <pre><code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code></pre>
+        <p>Then open <code>http://127.0.0.1:8088/run</code>, use <code>http://127.0.0.1:8765/tasks</code>, and click <strong>Run benchmark</strong>.</p>
+      </article>
+    </section>
+
     <section class="grid" aria-label="Beta highlights">
       <article class="card">
-        <strong>Trust foundation</strong>
-        <p>Reports include canonical field order, hashes, variance/confidence metadata, and redaction of secret-like adapter output.</p>
+        <strong>Touchable UX/UI</strong>
+        <p>Local browser flow renders a run form, visual report, dimension scorecards, and leaderboard from local artifacts.</p>
       </article>
       <article class="card">
         <strong>Agent-stack contract</strong>
@@ -70,7 +86,7 @@
     <section class="grid" aria-label="Pricing and launch status">
       <article class="card">
         <h2>Free beta</h2>
-        <p>$0. Local run package, five pilot fixtures, demo reports, local preview server, and public checklist.</p>
+        <p>$0. Offline demo agent, local run package, pilot fixtures, local preview server, and public checklist.</p>
       </article>
       <article class="card">
         <h2>Verified track</h2>
@@ -83,7 +99,7 @@
     </section>
 
     <footer>
-      Public launch surface generated from the main branch after PR #1 merge. No production secrets or payment credentials are embedded in this page.
+      Public launch surface generated from the main branch. No production secrets, API keys, private model credentials, or payment credentials are embedded in this page.
     </footer>
   </main>
 </body>

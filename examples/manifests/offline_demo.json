@@ -1,0 +1,25 @@
+{
+  "agentId": "offline-demo-agent",
+  "name": "Offline Demo Agent",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "http",
+    "endpoint": "http://127.0.0.1:8765/tasks"
+  },
+  "model": {
+    "provider": "local-offline",
+    "name": "deterministic-demo-model-emulator"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": true,
+    "memory": true,
+    "skills": true,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  }
+}

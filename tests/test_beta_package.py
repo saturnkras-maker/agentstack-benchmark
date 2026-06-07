@@ -51,6 +51,8 @@ class PublicBetaPackageTests(unittest.TestCase):
             "docs/hosted-verified-track-v0.1.md",
             "docs/auth-rate-limit-v0.1.md",
             "docs/public-beta-package-v0.1.md",
+            "docs/offline-local-mvp-demo.md",
+            "examples/manifests/offline_demo.json",
             "examples/task_packs/beta_v0_1.json",
             "examples/pilots/local_public_v0_1.json",
         }
@@ -69,6 +71,8 @@ class PublicBetaPackageTests(unittest.TestCase):
         self.assertIn("PYTHONPATH=src python3 -m unittest discover -s tests -v", checklist)
         self.assertIn("agentstack_benchmark.cli pilot-run", checklist)
         self.assertIn("agentstack_benchmark.cli serve", checklist)
+        self.assertIn("agentstack_benchmark.cli demo-local", checklist)
+        self.assertIn("Offline local MVP demo", checklist)
         self.assertNotIn("git push", checklist)
         self.assertNotIn("--force", checklist)
         self.assertNotIn("private key", checklist.lower())

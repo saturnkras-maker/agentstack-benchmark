@@ -12,6 +12,7 @@ Current slice:
 - versioned HTTP adapter contract (`docs/adapter-contract-v0.1.md` + `adapter-contract` CLI);
 - local free-beta API preview (`healthz` + leaderboard);
 - local public-beta web preview (`/`, `/run`, `/leaderboard`, `/runs/{runId}`);
+- one-command offline local MVP demo (`demo-local`, `docs/offline-local-mvp-demo.md`);
 - browser-run UX for loopback HTTP agents (`docs/hosted-ux-runner-v0.1.md`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
@@ -26,6 +27,27 @@ Current slice:
 - product/technical spec (`docs/product-technical-spec-v0.1.md`);
 - monetization outline (`docs/monetization-v0.md`);
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
+
+Run the offline local MVP demo — no internet, API keys, hosted services, or downloaded model required:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local
+```
+
+Then open:
+
+- `http://127.0.0.1:8088/` — local UI home.
+- `http://127.0.0.1:8088/run` — browser run form.
+- `http://127.0.0.1:8088/runs/offline-demo-run` — initial visual report.
+- `http://127.0.0.1:8088/leaderboard` — local leaderboard.
+
+For a non-blocking smoke test:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
+```
+
+See `docs/offline-local-mvp-demo.md`.
 
 Run demo:
 

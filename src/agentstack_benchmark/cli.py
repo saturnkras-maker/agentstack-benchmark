@@ -8,6 +8,7 @@ from pathlib import Path
 from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
 from .leaderboard import build_leaderboard
+from .offline_demo import DEFAULT_TASK_PACK_PATH, run_offline_demo_once, start_offline_demo_agent
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .runner import run_benchmark
 from .security import SecurityConfig
@@ -72,6 +73,30 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=60,
         help="Rate-limit window in seconds",
+    )
+
+    demo_parser = subparsers.add_parser(
+        "demo-local",
+        help="Start the offline local MVP demo agent and UI; no internet or API keys required",
+    )
+    demo_parser.add_argument("--host", default="127.0.0.1", help="Loopback host to bind")
+    demo_parser.add_argument("--agent-port", type=int, default=8765, help="Offline agent port")
+    demo_parser.add_argument("--ui-port", type=int, default=8088, help="Preview UI port")
+    demo_parser.add_argument(
+        "--runs-dir",
+        default="artifacts/runs/offline-demo",
+        help="Directory where offline demo reports are written",
+    )
+    demo_parser.add_argument("--run-id", default="offline-demo-run", help="Initial demo run id")
+    demo_parser.add_argument(
+        "--task-pack",
+        default=str(DEFAULT_TASK_PACK_PATH),
+        help="Task pack path for the initial demo run",
+    )
+    demo_parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Run the offline demo benchmark once and exit without serving the UI",
     )
 
     pilot_parser = subparsers.add_parser(
@@ -145,6 +170,50 @@ def main(argv: list[str] | None = None) -> int:
             rate_limit_window_seconds=args.rate_limit_window_seconds,
         )
         serve(args.host, args.port, args.runs_dir, security_config=security_config)
+        return 0
+    if args.command == "demo-local":
+        summary = run_offline_demo_once(
+            runs_dir=args.runs_dir,
+            run_id=args.run_id,
+            host=args.host,
+            agent_port=args.agent_port,
+            task_pack_path=args.task_pack,
+        )
+        base_url = f"http://{args.host}:{args.ui_port}"
+        body = {
+            **summary,
+            "uiUrl": f"{base_url}/",
+            "runFormUrl": f"{base_url}/run",
+            "reportUrl": f"{base_url}/runs/{args.run_id}",
+            "leaderboardUrl": f"{base_url}/leaderboard",
+        }
+        print(json.dumps(body, ensure_ascii=False))
+        if args.once:
+            return 0
+        agent = start_offline_demo_agent(host=args.host, port=args.agent_port)
+        try:
+            print(
+                json.dumps(
+                    {
+                        "status": "serving",
+                        "agentEndpoint": agent.endpoint,
+                        "uiUrl": body["uiUrl"],
+                        "runFormUrl": body["runFormUrl"],
+                        "reportUrl": body["reportUrl"],
+                        "leaderboardUrl": body["leaderboardUrl"],
+                    },
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+            security_config = SecurityConfig.from_token(
+                None,
+                rate_limit_requests=120,
+                rate_limit_window_seconds=60,
+            )
+            serve(args.host, args.ui_port, args.runs_dir, security_config=security_config)
+        finally:
+            agent.shutdown()
         return 0
     if args.command == "pilot-run":
         reports = run_local_pilots(args.registry, args.task_pack, args.out_dir)
