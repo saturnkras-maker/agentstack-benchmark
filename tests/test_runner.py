@@ -50,6 +50,32 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(report["agent"]["manifestHash"]), 64)
         self.assertEqual(len(report["taskPack"]["taskPackHash"]), 64)
 
+    def test_report_declares_local_public_track_with_canonical_order(self) -> None:
+        report = run_benchmark(
+            PROJECT_ROOT / "examples/manifests/mock_good.json",
+            PROJECT_ROOT / "examples/task_packs/mvp_v0.json",
+            self.tmpdir / "good",
+        )
+
+        self.assertEqual(list(report)[:4], ["schemaVersion", "track", "agent", "taskPack"])
+        self.assertEqual(report["track"], "local-public")
+        self.assertNotEqual(report["track"], "hosted-verified")
+
+        persisted = json.loads((self.tmpdir / "good/report.json").read_text(encoding="utf-8"))
+        self.assertEqual(list(persisted)[:4], ["schemaVersion", "track", "agent", "taskPack"])
+        self.assertEqual(persisted["track"], "local-public")
+
+    def test_run_track_enum_is_closed(self) -> None:
+        from agentstack_benchmark.schemas import (
+            ALLOWED_RUN_TRACKS,
+            RUN_TRACK_HOSTED_VERIFIED,
+            RUN_TRACK_LOCAL_PUBLIC,
+        )
+
+        self.assertEqual(RUN_TRACK_LOCAL_PUBLIC, "local-public")
+        self.assertEqual(RUN_TRACK_HOSTED_VERIFIED, "hosted-verified")
+        self.assertEqual(ALLOWED_RUN_TRACKS, {"local-public", "hosted-verified"})
+
     def test_http_adapter_posts_tasks_to_local_endpoint(self) -> None:
         answers = {
             "t_context_extract": {

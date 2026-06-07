@@ -8,7 +8,7 @@ from typing import Any
 from urllib import error, parse, request
 
 from .evaluator import evaluate_attempt, summarize_scores
-from .schemas import load_json, stable_json_hash
+from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 
 
 def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir: str | Path) -> dict[str, Any]:
@@ -31,6 +31,7 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
     score_summary = summarize_scores(attempts)
     report = {
         "schemaVersion": "agentstack-benchmark.report.v0.1",
+        "track": RUN_TRACK_LOCAL_PUBLIC,
         "agent": {
             "agentId": manifest["agentId"],
             "name": manifest["name"],

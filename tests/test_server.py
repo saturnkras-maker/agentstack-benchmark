@@ -90,6 +90,7 @@ class APIServerTests(unittest.TestCase):
         self.assertEqual(len(body["entries"]), 2)
         self.assertEqual(body["entries"][0]["rank"], 1)
         self.assertEqual(body["entries"][0]["agentId"], "mock-good-agent")
+        self.assertEqual(body["entries"][0]["track"], "local-public")
         self.assertGreater(body["entries"][0]["overall"], body["entries"][1]["overall"])
 
     def test_runs_endpoint_lists_existing_report_summaries(self) -> None:
@@ -104,6 +105,7 @@ class APIServerTests(unittest.TestCase):
         self.assertEqual([run["runId"] for run in body["runs"]], ["bad", "good"])
         good_run = body["runs"][1]
         self.assertEqual(good_run["agentId"], "mock-good-agent")
+        self.assertEqual(good_run["track"], "local-public")
         self.assertGreater(good_run["overall"], 90)
         self.assertEqual(good_run["tasksTotal"], 5)
         self.assertNotIn("attempts", good_run)
@@ -117,7 +119,9 @@ class APIServerTests(unittest.TestCase):
 
         self.assertEqual(body["pricingMode"], "free-beta")
         self.assertEqual(body["runId"], "good")
+        self.assertEqual(body["track"], "local-public")
         report = body["report"]
+        self.assertEqual(report["track"], "local-public")
         self.assertEqual(report["agent"]["agentId"], "mock-good-agent")
         self.assertEqual(report["summary"]["tasksTotal"], 5)
         self.assertIn("attempts", report)
@@ -155,6 +159,8 @@ class APIServerTests(unittest.TestCase):
         self.assertIn("Leaderboard", html)
         self.assertLess(html.index("Mock Good Agent"), html.index("Mock Bad Agent"))
         self.assertIn("#1", html)
+        self.assertIn("local-public", html)
+        self.assertIn('class="track-badge"', html)
         self.assertIn('href="/runs/good"', html)
         self.assertNotIn(str(self.tmpdir), html)
 
@@ -168,6 +174,8 @@ class APIServerTests(unittest.TestCase):
         self.assertIn("Run report", html)
         self.assertIn("Mock Good Agent", html)
         self.assertIn("Overall", html)
+        self.assertIn("local-public", html)
+        self.assertIn('class="track-badge"', html)
         self.assertIn("5/5 tasks", html)
         self.assertIn("Back to leaderboard", html)
         self.assertNotIn(str(self.tmpdir), html)

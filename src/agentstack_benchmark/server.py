@@ -53,6 +53,7 @@ def _render_page(title: str, body: str) -> str:
     .muted {{ color: #a9b5d6; }}
     .grid {{ display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin: 16px 0; }}
     .metric {{ background: #10172d; border-radius: 14px; padding: 14px; }}
+    .track-badge {{ display: inline-block; border: 1px solid #4f67a8; border-radius: 999px; padding: 2px 8px; color: #c9d6ff; background: #1b2748; font-size: 12px; font-weight: 700; }}
     code {{ background: #10172d; border-radius: 6px; padding: 2px 5px; }}
   </style>
 </head>
@@ -65,6 +66,10 @@ def _render_page(title: str, body: str) -> str:
 """
 
 
+def _render_track_badge(track: str) -> str:
+    return f'<span class="track-badge">{html.escape(track)}</span>'
+
+
 def _render_home_page(runs_dir: str | Path) -> str:
     rows = _rank_run_summaries(runs_dir)
     top = rows[0] if rows else None
@@ -75,7 +80,7 @@ def _render_home_page(runs_dir: str | Path) -> str:
         top_card = (
             "      <div class=\"metric\"><strong>Current leader</strong><br>"
             f"<a href=\"/runs/{_quote_run_id(top_run_id)}\">{html.escape(str(top['agentName']))}</a>"
-            f"<br><span class=\"muted\">{html.escape(str(top['overall']))} overall · run <code>{html.escape(top_run_id)}</code></span></div>"
+            f"<br><span class=\"muted\">{html.escape(str(top['overall']))} overall · {_render_track_badge(str(top['track']))} · run <code>{html.escape(top_run_id)}</code></span></div>"
         )
     run_links = "\n".join(
         f"        <li><a href=\"/runs/{_quote_run_id(str(row['runId']))}\">{html.escape(str(row['runId']))}</a> — {html.escape(str(row['agentName']))}</li>"
@@ -125,13 +130,14 @@ def _render_leaderboard_page(runs_dir: str | Path) -> str:
                 f"<td>#{row['rank']}</td>"
                 f"<td><a href=\"/runs/{_quote_run_id(run_id)}\">{html.escape(str(row['agentName']))}</a>"
                 f"<br><span class=\"muted\"><code>{html.escape(str(row['agentId']))}</code></span></td>"
+                f"<td>{_render_track_badge(str(row['track']))}</td>"
                 f"<td>{html.escape(str(row['overall']))}</td>"
                 f"<td>{html.escape(str(row['tasksPassed']))}/{html.escape(str(row['tasksTotal']))}</td>"
                 f"<td class=\"muted\">{dimension_text}</td>"
                 "</tr>"
             )
         table = """      <table>
-        <thead><tr><th>Rank</th><th>Agent</th><th>Overall</th><th>Tasks</th><th>Dimensions</th></tr></thead>
+        <thead><tr><th>Rank</th><th>Agent</th><th>Track</th><th>Overall</th><th>Tasks</th><th>Dimensions</th></tr></thead>
         <tbody>
 {rows}
         </tbody>
@@ -151,6 +157,7 @@ def _render_run_report_page(run_id: str, report: dict[str, Any]) -> str:
     agent = report["agent"]
     task_pack = report["taskPack"]
     summary = report["summary"]
+    track = str(report["track"])
     dimensions = summary["dimensions"]
     metric_cards = "\n".join(
         f"      <div class=\"metric\"><strong>{html.escape(str(name))}</strong><br>{html.escape(str(value))}</div>"
@@ -161,6 +168,7 @@ def _render_run_report_page(run_id: str, report: dict[str, Any]) -> str:
     body = f"""    <section class="card">
       <p class="eyebrow">Run report</p>
       <h1>Run report: {safe_run_id}</h1>
+      <p>{_render_track_badge(track)}</p>
       <p><strong>{html.escape(str(agent['name']))}</strong> <span class="muted">(<code>{html.escape(str(agent['agentId']))}</code>, version {html.escape(str(agent['version']))})</span></p>
       <p class="muted">Task pack: {html.escape(str(task_pack['name']))} · {html.escape(str(task_pack['version']))}</p>
       <div class="grid">
@@ -277,6 +285,7 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
                     "service": SERVICE_NAME,
                     "pricingMode": PRICING_MODE,
                     "runId": run_id,
+                    "track": report["track"],
                     "report": report,
                 }
             )

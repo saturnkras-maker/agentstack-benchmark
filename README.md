@@ -11,6 +11,7 @@ Current slice:
 - local-only HTTP adapter prototype;
 - local free-beta API preview (`healthz` + leaderboard);
 - local public-beta web preview (`/`, `/leaderboard`, `/runs/{runId}`);
+- run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator;
 - JSON + Markdown reports;
 - mock good/bad agents;
@@ -71,14 +72,16 @@ Preview web pages:
 
 - `GET /` — local public-beta landing page with health/runs/leaderboard navigation.
 - `GET /leaderboard` — HTML leaderboard from existing local `report.json` run artifacts.
-- `GET /runs/{runId}` — HTML run report summary for a safe single-segment `runId`.
+- `GET /runs/{runId}` — HTML run report summary for a safe single-segment `runId`, including a track badge.
 
 Preview JSON endpoints:
 
 - `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
-- `GET /api/v1/leaderboard` — JSON leaderboard from existing `report.json` run artifacts.
-- `GET /api/v1/runs` — deterministic summaries for existing local run artifacts.
-- `GET /api/v1/runs/{runId}/report` — one full run report by safe single-segment `runId`.
+- `GET /api/v1/leaderboard` — JSON leaderboard entries from existing `report.json` run artifacts, each with a separate `track` field.
+- `GET /api/v1/runs` — deterministic summaries for existing local run artifacts, each with `track: local-public`.
+- `GET /api/v1/runs/{runId}/report` — one full run report by safe single-segment `runId`, with wrapper/report `track` fields.
+
+Track values are intentionally enum-like and closed for the beta foundation: `local-public` is the only default assigned by local runs; `hosted-verified` is reserved for a future server-side hosted verified runner and is never assigned automatically by the local preview.
 
 Monetization note: beta starts free. See `docs/monetization-v0.md` for the paid surfaces deferred until the benchmark proves trust and repeat usage.
 

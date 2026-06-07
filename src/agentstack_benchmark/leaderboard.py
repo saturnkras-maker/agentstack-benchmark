@@ -4,15 +4,18 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .schemas import canonicalize_report
+
 
 def collect_leaderboard_rows(runs_dir: str | Path) -> list[dict[str, Any]]:
     runs_dir = Path(runs_dir)
     rows: list[dict[str, Any]] = []
     for report_path in sorted(runs_dir.glob("*/report.json")):
-        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report = canonicalize_report(json.loads(report_path.read_text(encoding="utf-8")))
         rows.append(
             {
                 "rank": 0,
+                "track": report["track"],
                 "agentId": report["agent"]["agentId"],
                 "agentName": report["agent"]["name"],
                 "agentVersion": report["agent"]["version"],
@@ -49,7 +52,7 @@ def render_leaderboard_markdown(rows: list[dict[str, Any]]) -> str:
     for row in rows:
         lines.append(
             f"{row['rank']}. **{row['agentName']}** (`{row['agentId']}`) — "
-            f"overall **{row['overall']}**, passed {row['tasksPassed']}/{row['tasksTotal']}"
+            f"{row['track']}, overall **{row['overall']}**, passed {row['tasksPassed']}/{row['tasksTotal']}"
         )
         dims = row["dimensions"]
         lines.append(
