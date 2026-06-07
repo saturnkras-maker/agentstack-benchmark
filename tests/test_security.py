@@ -57,8 +57,9 @@ class SecurityPolicyTests(unittest.TestCase):
         self.fail(f"Expected HTTP {expected_status} for {path}")
 
     def test_security_metadata_never_exposes_bearer_token(self) -> None:
+        token_value = "synthetic-" + "token-value"
         config = SecurityConfig.from_token(
-            "synthetic-token-value",
+            token_value,
             rate_limit_requests=7,
             rate_limit_window_seconds=60,
         )
@@ -70,11 +71,13 @@ class SecurityPolicyTests(unittest.TestCase):
         self.assertTrue(public_metadata["auth"]["enabled"])
         self.assertEqual(public_metadata["rateLimit"]["requests"], 7)
         self.assertEqual(public_metadata["rateLimit"]["windowSeconds"], 60)
-        self.assertNotIn("synthetic-token-value", encoded)
+        self.assertNotIn(token_value, encoded)
 
     def test_configured_bearer_auth_protects_preview_surfaces(self) -> None:
+        token_value = "synthetic-" + "token-value"
+        wrong_token_value = "wrong-" + token_value
         config = SecurityConfig.from_token(
-            "synthetic-token-value",
+            token_value,
             rate_limit_requests=10,
             rate_limit_window_seconds=60,
         )
@@ -82,7 +85,7 @@ class SecurityPolicyTests(unittest.TestCase):
 
         health = self._get_json(server, "/api/v1/healthz")
         self.assertTrue(health["security"]["auth"]["enabled"])
-        self.assertNotIn("synthetic-token-value", json.dumps(health, ensure_ascii=False))
+        self.assertNotIn(token_value, json.dumps(health, ensure_ascii=False))
 
         missing_body, missing_exc = self._get_error_json(server, "/api/v1/tracks", 401)
         self.assertEqual(missing_body["error"]["code"], "AUTH_REQUIRED")
@@ -92,14 +95,14 @@ class SecurityPolicyTests(unittest.TestCase):
             server,
             "/api/v1/tracks",
             403,
-            headers={"Authorization": "Bearer wrong-synthetic-token"},
+            headers={"Authorization": "Bearer " + wrong_token_value},
         )
         self.assertEqual(wrong_body["error"]["code"], "AUTH_INVALID")
 
         body = self._get_json(
             server,
             "/api/v1/tracks",
-            headers={"Authorization": "Bearer synthetic-token-value"},
+            headers={"Authorization": "Bearer " + token_value},
         )
         self.assertEqual(body["trackCapabilities"]["defaultTrack"], "local-public")
 

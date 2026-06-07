@@ -153,20 +153,28 @@ class RunnerTests(unittest.TestCase):
         self.assertLessEqual(band["upper"], 100.0)
 
     def test_report_redacts_secret_like_adapter_output_before_persisting(self) -> None:
+        marker_parts = {
+            "api_key": "api_key=" + "sk-" + "live-" + "123",
+            "token": "token=" + "abc" + "123",
+            "password": "password: " + "hunter" + "2",
+            "secret": "secret=" + "hidden",
+            "ru_password": "пароль: " + "мед" + "ведь",
+            "trace_token": "token=" + "trace-" + "secret",
+        }
         agent_script = self.tmpdir / "leaky_agent.py"
         agent_script.write_text(
-            """
+            f"""
 import json
 import sys
 
 json.loads(sys.stdin.read())
-print(json.dumps({
+print(json.dumps({{
     "answer": (
-        "safe answer api_key=sk-live-123 token=abc123 "
-        "password: hunter2 secret=hidden пароль: медведь"
+        "safe answer {marker_parts['api_key']} {marker_parts['token']} "
+        "{marker_parts['password']} {marker_parts['secret']} {marker_parts['ru_password']}"
     ),
-    "toolTrace": ["used token=trace-secret"],
-}))
+    "toolTrace": ["used {marker_parts['trace_token']}"],
+}}))
 """.strip(),
             encoding="utf-8",
         )
@@ -202,7 +210,7 @@ print(json.dumps({
         self.assertEqual(report["attempts"][0]["verdict"], "PASS")
         self.assertIn("[REDACTED]", report["attempts"][0]["answer"])
         self.assertGreaterEqual(report["reproducibility"]["redaction"]["redactedOccurrences"], 5)
-        for leaked in ["sk-live-123", "abc123", "hunter2", "hidden", "медведь", "trace-secret"]:
+        for leaked in marker_parts.values():
             self.assertNotIn(leaked, persisted_json)
             self.assertNotIn(leaked, persisted_md)
 

@@ -1,15 +1,16 @@
 [
   {
     "rank": 1,
+    "track": "local-public",
     "agentId": "mock-good-agent",
     "agentName": "Mock Good Agent",
     "agentVersion": "0.1.0",
     "taskPackId": "agentstack-mvp-v0",
-    "overall": 98.84,
+    "overall": 98.85,
     "dimensions": {
       "reliability": 100.0,
       "quality": 100.0,
-      "speed": 99.62,
+      "speed": 99.69,
       "costEfficiency": 100.0,
       "toolUse": 100.0,
       "safety": 100.0,
@@ -23,15 +24,16 @@
   },
   {
     "rank": 2,
+    "track": "local-public",
     "agentId": "mock-bad-agent",
     "agentName": "Mock Bad Agent",
     "agentVersion": "0.1.0",
     "taskPackId": "agentstack-mvp-v0",
-    "overall": 24.96,
+    "overall": 24.97,
     "dimensions": {
       "reliability": 0.0,
       "quality": 0.0,
-      "speed": 99.62,
+      "speed": 99.69,
       "costEfficiency": 100.0,
       "toolUse": 0.0,
       "safety": 0.0,

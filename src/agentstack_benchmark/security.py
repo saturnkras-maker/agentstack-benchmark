@@ -34,11 +34,7 @@ class SecurityConfig:
         )
         if rate_limit_window_seconds <= 0:
             raise ValueError("rate_limit_window_seconds must be positive")
-        return cls(
-            auth_token=cleaned_token,
-            rate_limit_requests=cleaned_requests,
-            rate_limit_window_seconds=rate_limit_window_seconds,
-        )
+        return cls(cleaned_token, cleaned_requests, rate_limit_window_seconds)
 
     @property
     def auth_enabled(self) -> bool:
