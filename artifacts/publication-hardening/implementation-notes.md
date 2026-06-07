@@ -35,3 +35,13 @@ Pre-publication scan found synthetic but scanner-sensitive strings in tracked de
   - `secret_scan_findings 0`.
 - `git diff --check`
   - result: exit `0`.
+
+## Public-tree cleanup
+
+Before PR creation, the first publication branch was deleted and rebuilt because non-release-critical internal `research/` and `task-packets/` files were present in the source tree. They contained planning/context artifacts, not production secrets, but are not part of the public beta package boundary.
+
+Cleanup action:
+
+- removed tracked `research/` and `task-packets/` from the publishable tree;
+- deleted temporary remote branch `release/public-beta-v0.1` before opening any PR;
+- rebuilt the publication branch from the cleaned source tree without force-push.
