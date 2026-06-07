@@ -39,6 +39,14 @@ class APIServerTests(unittest.TestCase):
             self.assertEqual(response.headers.get_content_type(), "application/json")
             return json.loads(response.read().decode("utf-8"))
 
+    def _get_html(self, path: str) -> str:
+        server = self._server
+        url = f"http://127.0.0.1:{server.server_port}{path}"
+        with request.urlopen(url, timeout=5) as response:
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.headers.get_content_type(), "text/html")
+            return response.read().decode("utf-8")
+
     def _get_error_json(self, path: str, expected_status: int) -> dict:
         server = self._server
         url = f"http://127.0.0.1:{server.server_port}{path}"
@@ -48,6 +56,17 @@ class APIServerTests(unittest.TestCase):
             self.assertEqual(exc.code, expected_status)
             self.assertEqual(exc.headers.get_content_type(), "application/json")
             return json.loads(exc.read().decode("utf-8"))
+        self.fail(f"Expected HTTP {expected_status} for {path}")
+
+    def _get_error_html(self, path: str, expected_status: int) -> str:
+        server = self._server
+        url = f"http://127.0.0.1:{server.server_port}{path}"
+        try:
+            request.urlopen(url, timeout=5)
+        except error.HTTPError as exc:
+            self.assertEqual(exc.code, expected_status)
+            self.assertEqual(exc.headers.get_content_type(), "text/html")
+            return exc.read().decode("utf-8")
         self.fail(f"Expected HTTP {expected_status} for {path}")
 
     def test_healthz_declares_free_beta_mode(self) -> None:
@@ -109,6 +128,57 @@ class APIServerTests(unittest.TestCase):
         body = self._get_error_json("/api/v1/runs/%2E%2E/report", 400)
 
         self.assertEqual(body["error"]["code"], "INVALID_RUN_ID")
+
+    def test_home_page_renders_public_beta_preview_without_local_paths(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_bad.json", task_pack, self.tmpdir / "runs/bad")
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        html = self._get_html("/")
+
+        self.assertIn("AgentStack Benchmark", html)
+        self.assertIn("Free beta", html)
+        self.assertIn("2 local runs", html)
+        self.assertIn('href="/leaderboard"', html)
+        self.assertIn('href="/runs/good"', html)
+        self.assertNotIn(str(self.tmpdir), html)
+
+    def test_leaderboard_page_renders_ranked_html_preview(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_bad.json", task_pack, self.tmpdir / "runs/bad")
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        html = self._get_html("/leaderboard")
+
+        self.assertIn("Leaderboard", html)
+        self.assertLess(html.index("Mock Good Agent"), html.index("Mock Bad Agent"))
+        self.assertIn("#1", html)
+        self.assertIn('href="/runs/good"', html)
+        self.assertNotIn(str(self.tmpdir), html)
+
+    def test_run_report_page_renders_existing_report_without_local_paths(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        html = self._get_html("/runs/good")
+
+        self.assertIn("Run report", html)
+        self.assertIn("Mock Good Agent", html)
+        self.assertIn("Overall", html)
+        self.assertIn("5/5 tasks", html)
+        self.assertIn("Back to leaderboard", html)
+        self.assertNotIn(str(self.tmpdir), html)
+
+    def test_run_report_page_rejects_unsafe_run_id(self) -> None:
+        self._server = self._start_server()
+
+        html = self._get_error_html("/runs/%2E%2E", 400)
+
+        self.assertIn("Invalid run id", html)
+        self.assertNotIn(str(self.tmpdir), html)
 
 
 if __name__ == "__main__":

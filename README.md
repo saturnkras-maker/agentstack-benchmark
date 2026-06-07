@@ -10,11 +10,12 @@ Current slice:
 - CLI adapter;
 - local-only HTTP adapter prototype;
 - local free-beta API preview (`healthz` + leaderboard);
+- local public-beta web preview (`/`, `/leaderboard`, `/runs/{runId}`);
 - deterministic evaluator;
 - JSON + Markdown reports;
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
-- unit tests proving score separation, local HTTP adapter behavior, API preview behavior, and beta task-pack coverage.
+- unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
 
 Run demo:
 
@@ -57,7 +58,7 @@ Run tests:
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-Start local free-beta API preview:
+Start local free-beta API + web preview:
 
 ```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
@@ -66,7 +67,13 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
   --runs-dir artifacts/runs
 ```
 
-Preview endpoints:
+Preview web pages:
+
+- `GET /` — local public-beta landing page with health/runs/leaderboard navigation.
+- `GET /leaderboard` — HTML leaderboard from existing local `report.json` run artifacts.
+- `GET /runs/{runId}` — HTML run report summary for a safe single-segment `runId`.
+
+Preview JSON endpoints:
 
 - `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
 - `GET /api/v1/leaderboard` — JSON leaderboard from existing `report.json` run artifacts.
