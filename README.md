@@ -16,6 +16,7 @@ Current slice:
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
 - JSON + richer Markdown reports with track/schema/scorecard/task-score context;
 - reproducibility/redaction metadata (`docs/reproducibility-redaction.md`);
+- local-public pilot ×5 registry/fixture runner (`docs/local-public-pilots-v0.1.md`);
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
@@ -37,6 +38,18 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli leaderboard \
   --runs-dir artifacts/runs \
   --out artifacts/leaderboard.json
 ```
+
+Run the five local-public pilot fixtures:
+
+```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli pilot-run \
+  --registry examples/pilots/local_public_v0_1.json \
+  --task-pack examples/task_packs/mvp_v0.json \
+  --out-dir artifacts/runs/pilots-local-public-v0-1 \
+  --leaderboard-out artifacts/pilot-leaderboard.json
+```
+
+The pilot fixtures cover OpenAI Agents SDK, LangGraph, Microsoft AutoGen, CrewAI, and Claude Code + MCP as local-safe calibration entries. They do not execute real third-party SDKs, require private keys, deploy hosted infra, or assign `hosted-verified`; each generated run stays `track: local-public`.
 
 HTTP adapter contract:
 

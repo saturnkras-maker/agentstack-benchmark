@@ -1,0 +1,24 @@
+{
+  "agentId": "pilot-autogen",
+  "name": "Microsoft AutoGen — local pilot fixture",
+  "version": "0.1.0-local-fixture",
+  "adapter": {
+    "type": "cli",
+    "command": [
+      "python3",
+      "agents/pilot_fixture_agent.py",
+      "--profile",
+      "autogen"
+    ]
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  },
+  "pilot": {
+    "pilotId": "autogen",
+    "frameworkName": "Microsoft AutoGen",
+    "localPilotMode": "fixture-adapter",
+    "realExecutionBoundary": "Real AutoGen execution is not executed in this local-public fixture because it may require package installs and participant-owned model credentials."
+  }
+}

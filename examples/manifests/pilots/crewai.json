@@ -1,0 +1,24 @@
+{
+  "agentId": "pilot-crewai",
+  "name": "CrewAI — local pilot fixture",
+  "version": "0.1.0-local-fixture",
+  "adapter": {
+    "type": "cli",
+    "command": [
+      "python3",
+      "agents/pilot_fixture_agent.py",
+      "--profile",
+      "crewai"
+    ]
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 5,
+    "maxRunsPerTask": 1
+  },
+  "pilot": {
+    "pilotId": "crewai",
+    "frameworkName": "CrewAI",
+    "localPilotMode": "fixture-adapter",
+    "realExecutionBoundary": "Real CrewAI execution is not executed in this local-public fixture because it may require package installs and participant-owned model credentials."
+  }
+}

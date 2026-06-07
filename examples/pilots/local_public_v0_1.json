@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "agentstack-benchmark.pilot-registry.v0.1",
+  "track": "local-public",
+  "taskPackPath": "examples/task_packs/beta_v0_1.json",
+  "localOnly": true,
+  "pilots": [
+    {
+      "pilotId": "openai-agents-sdk",
+      "track": "local-public",
+      "frameworkName": "OpenAI Agents SDK",
+      "frameworkCategory": "first-party hosted/API agent SDK",
+      "agentId": "pilot-openai-agents-sdk",
+      "manifestPath": "examples/manifests/pilots/openai_agents_sdk.json",
+      "localPilotMode": "fixture-adapter",
+      "requiresPrivateKeys": false,
+      "selectionRationale": "First-party OpenAI agent framework; important for API-first hosted-agent builders and likely early adopters of benchmark submissions.",
+      "coverage": ["agent loop", "tool calls", "hosted/API-first workflows"],
+      "sourceUrls": ["https://openai.github.io/openai-agents-python/"],
+      "realExecutionBoundary": "Real OpenAI Agents SDK execution is not executed in this local-public fixture because it can require participant-owned model/API credentials."
+    },
+    {
+      "pilotId": "langgraph",
+      "track": "local-public",
+      "frameworkName": "LangGraph",
+      "frameworkCategory": "graph/state-machine agent orchestration",
+      "agentId": "pilot-langgraph",
+      "manifestPath": "examples/manifests/pilots/langgraph.json",
+      "localPilotMode": "fixture-adapter",
+      "requiresPrivateKeys": false,
+      "selectionRationale": "Graph-based stateful orchestration has strong relevance for durable workflows, recovery, branching, and multi-step agent benchmarks.",
+      "coverage": ["state graph", "durable workflow", "multi-step reasoning"],
+      "sourceUrls": ["https://docs.langchain.com/oss/python/langgraph/overview"],
+      "realExecutionBoundary": "Real LangGraph execution is not executed in this local-public fixture because it may require package installs and participant-owned model credentials."
+    },
+    {
+      "pilotId": "autogen",
+      "track": "local-public",
+      "frameworkName": "Microsoft AutoGen",
+      "frameworkCategory": "multi-agent conversation/orchestration",
+      "agentId": "pilot-autogen",
+      "manifestPath": "examples/manifests/pilots/autogen.json",
+      "localPilotMode": "fixture-adapter",
+      "requiresPrivateKeys": false,
+      "selectionRationale": "Microsoft-backed multi-agent ecosystem; covers collaborative agent teams and conversation-driven orchestration patterns.",
+      "coverage": ["multi-agent coordination", "conversation orchestration", "tool use"],
+      "sourceUrls": ["https://microsoft.github.io/autogen/stable/"],
+      "realExecutionBoundary": "Real AutoGen execution is not executed in this local-public fixture because it may require package installs and participant-owned model credentials."
+    },
+    {
+      "pilotId": "crewai",
+      "track": "local-public",
+      "frameworkName": "CrewAI",
+      "frameworkCategory": "role/task crew orchestration",
+      "agentId": "pilot-crewai",
+      "manifestPath": "examples/manifests/pilots/crewai.json",
+      "localPilotMode": "fixture-adapter",
+      "requiresPrivateKeys": false,
+      "selectionRationale": "Popular role/crew/task framing; useful to test how benchmark tasks map to delegated role-based agent workflows.",
+      "coverage": ["role-based agents", "task delegation", "workflow orchestration"],
+      "sourceUrls": ["https://docs.crewai.com/"],
+      "realExecutionBoundary": "Real CrewAI execution is not executed in this local-public fixture because it may require package installs and participant-owned model credentials."
+    },
+    {
+      "pilotId": "claude-mcp",
+      "track": "local-public",
+      "frameworkName": "Claude Code + MCP",
+      "frameworkCategory": "developer agent plus tool protocol ecosystem",
+      "agentId": "pilot-claude-mcp",
+      "manifestPath": "examples/manifests/pilots/claude_mcp.json",
+      "localPilotMode": "fixture-adapter",
+      "requiresPrivateKeys": false,
+      "selectionRationale": "Covers developer-agent workflows and MCP-style tool/server integration, which are central to agent-stack interoperability.",
+      "coverage": ["developer agent", "MCP tool servers", "tool interoperability"],
+      "sourceUrls": [
+        "https://modelcontextprotocol.io/docs/getting-started/intro",
+        "https://docs.anthropic.com/en/docs/claude-code/overview"
+      ],
+      "realExecutionBoundary": "Real Claude Code + MCP execution is not executed in this local-public fixture because it may require local tools, model credentials, and participant-owned MCP servers."
+    }
+  ]
+}
