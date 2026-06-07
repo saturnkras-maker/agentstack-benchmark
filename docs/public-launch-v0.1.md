@@ -1,26 +1,45 @@
 # Public launch v0.1
 
-This document records the first public launch surface for AgentStack Benchmark.
+This document records the public launch surface for AgentStack Benchmark.
 
 ## Launch target
 
 - Repository: `https://github.com/saturnkras-maker/agentstack-benchmark`
-- PR gate: `https://github.com/saturnkras-maker/agentstack-benchmark/pull/1` (merged)
 - Release branch: `main`
 - Static launch page source: `site/`
 - Deployment target: GitHub Pages via `gh-pages` branch.
 
+## Current MVP surface
+
+The current product MVP is a local/offline browser experience:
+
+1. Run a one-command local demo:
+
+   ```bash
+   PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local
+   ```
+
+2. Open the local run form: `http://127.0.0.1:8088/run`.
+3. Use the demo loopback adapter endpoint: `http://127.0.0.1:8765/tasks`.
+4. Click **Run benchmark**.
+5. Inspect the generated report and leaderboard.
+
+This path requires no internet, no API keys, no hosted service, and no downloaded model file. The built-in demo agent is deterministic by design so the UX/UI can be tested immediately. Optional real local model backends (for example `llama.cpp`/GGUF) can be added later behind the same HTTP adapter contract.
+
 ## Guarantees
 
 - No direct push to `main`.
-- Public beta code reached `main` through merged PR #1.
-- Launch page contains no production secrets, no private keys, and no payment credentials.
+- Public beta code reaches `main` through PR merge gates.
+- Launch page contains no production secrets, API keys, private model credentials, private keys, or payment credentials.
 - `local-public` is the default track.
 - `hosted-verified` remains reserved for a future server-side runner.
+- Offline demo is explicitly `local-public`, not `hosted-verified`.
 
-## Public beta command
+## Public beta commands
 
 ```bash
+PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
+
 PYTHONPATH=src python3 -m agentstack_benchmark.cli beta-package \
   --out-dir artifacts/public-beta-package
 ```
