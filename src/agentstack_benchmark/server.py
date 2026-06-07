@@ -9,6 +9,7 @@ from urllib import parse
 
 from .leaderboard import collect_leaderboard_rows
 from .run_registry import collect_run_summaries, load_run_report
+from .tracks import build_track_capabilities
 
 PRICING_MODE = "free-beta"
 SERVICE_NAME = "agentstack-benchmark"
@@ -232,6 +233,15 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
                     "status": "ok",
                     "service": SERVICE_NAME,
                     "pricingMode": PRICING_MODE,
+                }
+            )
+            return
+        if path == "/api/v1/tracks":
+            self._send_json(
+                {
+                    "service": SERVICE_NAME,
+                    "pricingMode": PRICING_MODE,
+                    "trackCapabilities": build_track_capabilities(),
                 }
             )
             return

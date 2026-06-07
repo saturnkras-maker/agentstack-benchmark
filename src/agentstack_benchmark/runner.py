@@ -11,6 +11,7 @@ from .adapter_contract import build_task_request, normalize_agent_response
 from .evaluator import build_scoring_schema, evaluate_attempt, summarize_scores
 from .reproducibility import build_reproducibility_metadata, redact_value
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
+from .tracks import validate_local_public_task_pack
 
 
 def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir: str | Path) -> dict[str, Any]:
@@ -23,6 +24,7 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
     task_pack = load_json(task_pack_path)
     _validate_manifest(manifest)
     _validate_task_pack(task_pack)
+    validate_local_public_task_pack(task_pack)
 
     project_root = manifest_path.parent.parent.parent
     attempts = []

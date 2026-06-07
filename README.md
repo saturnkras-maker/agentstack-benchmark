@@ -17,6 +17,7 @@ Current slice:
 - JSON + richer Markdown reports with track/schema/scorecard/task-score context;
 - reproducibility/redaction metadata (`docs/reproducibility-redaction.md`);
 - local-public pilot ×5 registry/fixture runner (`docs/local-public-pilots-v0.1.md`);
+- hosted-verified track boundary scaffold (`docs/hosted-verified-track-v0.1.md`);
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
@@ -100,11 +101,12 @@ Preview web pages:
 Preview JSON endpoints:
 
 - `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
+- `GET /api/v1/tracks` — machine-readable track capabilities: `local-public` is active/local-runner assignable; `hosted-verified` is reserved for a future server-side hosted runner.
 - `GET /api/v1/leaderboard` — JSON leaderboard entries from existing `report.json` run artifacts, each with a separate `track` field.
 - `GET /api/v1/runs` — deterministic summaries for existing local run artifacts, each with `track: local-public`.
 - `GET /api/v1/runs/{runId}/report` — one full run report by safe single-segment `runId`, with wrapper/report `track` fields.
 
-Track values are intentionally enum-like and closed for the beta foundation: `local-public` is the only default assigned by local runs; `hosted-verified` is reserved for a future server-side hosted verified runner and is never assigned automatically by the local preview.
+Track values are intentionally enum-like and closed for the beta foundation: `local-public` is the only default assigned by local runs; `hosted-verified` is reserved for a future server-side hosted verified runner and is never assigned automatically by the local preview. Local task packs reject hidden-task markers (`visibility: hidden`, `hidden: true`, or `requiresTrack: hosted-verified`) before execution/report persistence.
 
 Reports embed `scoringSchema.schemaVersion: scoring_schema_v1` next to the run-level track. The schema freezes the current deterministic weights and verdict vocabulary for the local-public beta; LLM-as-judge, hidden tasks, and hosted verification stay outside this scoring slice.
 
