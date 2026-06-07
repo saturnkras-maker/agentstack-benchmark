@@ -18,6 +18,7 @@ Current slice:
 - reproducibility/redaction metadata (`docs/reproducibility-redaction.md`);
 - local-public pilot ×5 registry/fixture runner (`docs/local-public-pilots-v0.1.md`);
 - hosted-verified track boundary scaffold (`docs/hosted-verified-track-v0.1.md`);
+- auth/rate-limit scaffold for guarded preview serving (`docs/auth-rate-limit-v0.1.md`);
 - mock good/bad agents;
 - 5-task MVP pack plus 20-task deterministic beta pack;
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
@@ -89,7 +90,20 @@ Start local free-beta API + web preview:
 PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
   --host 127.0.0.1 \
   --port 8088 \
-  --runs-dir artifacts/runs
+  --runs-dir artifacts/runs \
+  --rate-limit-requests 120 \
+  --rate-limit-window-seconds 60
+```
+
+To require bearer auth for preview surfaces, set a token in a local environment variable and pass only the variable name:
+
+```bash
+export AGENTSTACK_BENCHMARK_API_TOKEN="<set-locally>"
+PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
+  --host 127.0.0.1 \
+  --port 8088 \
+  --runs-dir artifacts/runs \
+  --api-token-env AGENTSTACK_BENCHMARK_API_TOKEN
 ```
 
 Preview web pages:
@@ -101,6 +115,7 @@ Preview web pages:
 Preview JSON endpoints:
 
 - `GET /api/v1/healthz` — service health and current `pricingMode: free-beta`.
+- health JSON includes safe `security` metadata and never includes bearer token values.
 - `GET /api/v1/tracks` — machine-readable track capabilities: `local-public` is active/local-runner assignable; `hosted-verified` is reserved for a future server-side hosted runner.
 - `GET /api/v1/leaderboard` — JSON leaderboard entries from existing `report.json` run artifacts, each with a separate `track` field.
 - `GET /api/v1/runs` — deterministic summaries for existing local run artifacts, each with `track: local-public`.

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .adapter_contract import build_adapter_contract
 from .leaderboard import build_leaderboard
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .runner import run_benchmark
+from .security import SecurityConfig
 from .server import serve
 
 
@@ -52,6 +54,23 @@ def build_parser() -> argparse.ArgumentParser:
         "--runs-dir",
         default="artifacts/runs",
         help="Directory containing run subdirectories with report.json files",
+    )
+    serve_parser.add_argument(
+        "--api-token-env",
+        default=None,
+        help="Name of env var containing the optional bearer token; value is never printed",
+    )
+    serve_parser.add_argument(
+        "--rate-limit-requests",
+        type=int,
+        default=120,
+        help="Requests per client per rate-limit window; set 0 to disable",
+    )
+    serve_parser.add_argument(
+        "--rate-limit-window-seconds",
+        type=int,
+        default=60,
+        help="Rate-limit window in seconds",
     )
 
     pilot_parser = subparsers.add_parser(
@@ -100,7 +119,17 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"entries": len(rows), "out": str(Path(args.out))}, ensure_ascii=False))
         return 0
     if args.command == "serve":
-        serve(args.host, args.port, args.runs_dir)
+        token = None
+        if args.api_token_env:
+            token = os.environ.get(args.api_token_env)
+            if not token:
+                raise SystemExit(f"Missing or empty API token env var: {args.api_token_env}")
+        security_config = SecurityConfig.from_token(
+            token,
+            rate_limit_requests=args.rate_limit_requests,
+            rate_limit_window_seconds=args.rate_limit_window_seconds,
+        )
+        serve(args.host, args.port, args.runs_dir, security_config=security_config)
         return 0
     if args.command == "pilot-run":
         reports = run_local_pilots(args.registry, args.task_pack, args.out_dir)

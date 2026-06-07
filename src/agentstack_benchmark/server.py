@@ -9,6 +9,7 @@ from urllib import parse
 
 from .leaderboard import collect_leaderboard_rows
 from .run_registry import collect_run_summaries, load_run_report
+from .security import InMemoryRateLimiter, SecurityConfig
 from .tracks import build_track_capabilities
 
 PRICING_MODE = "free-beta"
@@ -199,9 +200,16 @@ def _render_error_page(title: str, message: str) -> str:
 
 class BenchmarkAPIHandler(BaseHTTPRequestHandler):
     runs_dir: Path
+    security_config: SecurityConfig
+    rate_limiter: InMemoryRateLimiter
 
     def do_GET(self) -> None:
         path = parse.urlparse(self.path).path
+        if path != "/api/v1/healthz":
+            if not self._authorize_request():
+                return
+            if not self._check_rate_limit():
+                return
         if path == "/":
             self._send_html(_render_home_page(self.runs_dir))
             return
@@ -233,6 +241,7 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
                     "status": "ok",
                     "service": SERVICE_NAME,
                     "pricingMode": PRICING_MODE,
+                    "security": self.security_config.to_public_dict(),
                 }
             )
             return
@@ -313,10 +322,44 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: object) -> None:
         return
 
-    def _send_json(self, body: dict[str, Any], status: int = 200) -> None:
+    def _authorize_request(self) -> bool:
+        allowed, status, code, message = self.security_config.validate_authorization_header(
+            self.headers.get("Authorization")
+        )
+        if allowed:
+            return True
+        headers = {"WWW-Authenticate": "Bearer"} if status == 401 else None
+        self._send_json({"error": {"code": code, "message": message}}, status=status, headers=headers)
+        return False
+
+    def _check_rate_limit(self) -> bool:
+        client_id = self.client_address[0] if self.client_address else "unknown"
+        allowed, retry_after = self.rate_limiter.check(client_id)
+        if allowed:
+            return True
+        self._send_json(
+            {
+                "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Rate limit exceeded",
+                }
+            },
+            status=429,
+            headers={"Retry-After": str(retry_after)},
+        )
+        return False
+
+    def _send_json(
+        self,
+        body: dict[str, Any],
+        status: int = 200,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         payload = json.dumps(body, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
@@ -330,18 +373,32 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
 
-def make_server(host: str, port: int, runs_dir: str | Path) -> ThreadingHTTPServer:
+def make_server(
+    host: str,
+    port: int,
+    runs_dir: str | Path,
+    security_config: SecurityConfig | None = None,
+) -> ThreadingHTTPServer:
     runs_path = Path(runs_dir)
+    resolved_security_config = security_config or SecurityConfig.disabled()
 
     class ConfiguredBenchmarkAPIHandler(BenchmarkAPIHandler):
         pass
 
     ConfiguredBenchmarkAPIHandler.runs_dir = runs_path
+    ConfiguredBenchmarkAPIHandler.security_config = resolved_security_config
+    ConfiguredBenchmarkAPIHandler.rate_limiter = InMemoryRateLimiter(resolved_security_config)
     return ThreadingHTTPServer((host, port), ConfiguredBenchmarkAPIHandler)
 
 
-def serve(host: str, port: int, runs_dir: str | Path) -> None:
-    server = make_server(host, port, runs_dir)
+def serve(
+    host: str,
+    port: int,
+    runs_dir: str | Path,
+    security_config: SecurityConfig | None = None,
+) -> None:
+    resolved_security_config = security_config or SecurityConfig.disabled()
+    server = make_server(host, port, runs_dir, security_config=resolved_security_config)
     try:
         print(
             json.dumps(
@@ -350,6 +407,7 @@ def serve(host: str, port: int, runs_dir: str | Path) -> None:
                     "pricingMode": PRICING_MODE,
                     "url": f"http://{host}:{server.server_port}",
                     "runsDir": str(Path(runs_dir)),
+                    "security": resolved_security_config.to_public_dict(),
                 },
                 ensure_ascii=False,
             )
