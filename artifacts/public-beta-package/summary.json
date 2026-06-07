@@ -1,0 +1,8 @@
+{
+  "packageStatus": "local-ready",
+  "manifestPath": "artifacts/public-beta-package/public_beta_manifest.json",
+  "checklistPath": "artifacts/public-beta-package/PUBLIC_BETA_CHECKLIST.md",
+  "assetCount": 13,
+  "pricingMode": "free-beta",
+  "defaultTrack": "local-public"
+}
