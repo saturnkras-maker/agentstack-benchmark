@@ -11,7 +11,8 @@ Current slice:
 - local-only HTTP adapter prototype;
 - versioned HTTP adapter contract (`docs/adapter-contract-v0.1.md` + `adapter-contract` CLI);
 - local free-beta API preview (`healthz` + leaderboard);
-- local public-beta web preview (`/`, `/leaderboard`, `/runs/{runId}`);
+- local public-beta web preview (`/`, `/run`, `/leaderboard`, `/runs/{runId}`);
+- browser-run UX for loopback HTTP agents (`docs/hosted-ux-runner-v0.1.md`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
 - JSON + richer Markdown reports with track/schema/scorecard/task-score context;
@@ -123,8 +124,17 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli serve \
 Preview web pages:
 
 - `GET /` — local public-beta landing page with health/runs/leaderboard navigation.
+- `GET /run` — browser form to run a loopback HTTP agent against the MVP task pack and open a visual report.
 - `GET /leaderboard` — HTML leaderboard from existing local `report.json` run artifacts.
 - `GET /runs/{runId}` — HTML run report summary for a safe single-segment `runId`, including a track badge.
+
+Browser-run UX:
+
+```bash
+PYTHONPATH=src python3 examples/agents/http_contract_agent.py --host 127.0.0.1 --port 8765
+```
+
+Then open `http://127.0.0.1:8088/run`, enter `http://127.0.0.1:8765/tasks`, and click **Run benchmark**. The flow is loopback-only and does not accept API keys/secrets in this slice. See `docs/hosted-ux-runner-v0.1.md`.
 
 Preview JSON endpoints:
 
