@@ -52,6 +52,23 @@ class PublicDemoSiteTests(unittest.TestCase):
         self.assertIn("local-public", leaderboard_html)
         self.assertNotIn(str(self.tmpdir), index_html + report_html + leaderboard_html)
 
+    def test_public_demo_generator_is_idempotent_for_committed_static_files(self) -> None:
+        build_public_demo_site(REPO_ROOT, self.tmpdir)
+        first_snapshot = {
+            path.relative_to(self.tmpdir): path.read_bytes()
+            for path in sorted(self.tmpdir.rglob("*"))
+            if path.is_file()
+        }
+
+        build_public_demo_site(REPO_ROOT, self.tmpdir)
+        second_snapshot = {
+            path.relative_to(self.tmpdir): path.read_bytes()
+            for path in sorted(self.tmpdir.rglob("*"))
+            if path.is_file()
+        }
+
+        self.assertEqual(first_snapshot, second_snapshot)
+
     def test_committed_public_demo_site_is_present_on_launch_surface(self) -> None:
         demo_dir = REPO_ROOT / "site/demo"
         self.assertTrue((demo_dir / "index.html").exists())

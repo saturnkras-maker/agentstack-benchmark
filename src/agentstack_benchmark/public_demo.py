@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import html
 import json
 import shutil
@@ -7,8 +8,11 @@ from pathlib import Path
 from typing import Any
 
 from .leaderboard import build_leaderboard
+from .evaluator import SCORING_WEIGHTS, summarize_scores
 from .offline_demo import run_offline_demo_once
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, load_pilot_registry, run_local_pilots
+from .reproducibility import build_reproducibility_metadata
+from .schemas import stable_json_hash
 
 PUBLIC_DEMO_SCHEMA_VERSION = "agentstack-benchmark.public-demo.v0.1"
 
@@ -40,7 +44,9 @@ def build_public_demo_site(
         task_pack_path=repo_root / "examples/task_packs/mvp_v0.json",
     )
     sample_report_path = generated_dir / "runs" / "sample" / sample_run_id / "report.json"
-    sample_report = json.loads(sample_report_path.read_text(encoding="utf-8"))
+    sample_report = _make_static_sample_report(
+        json.loads(sample_report_path.read_text(encoding="utf-8"))
+    )
 
     pilot_runs_dir = generated_dir / "runs" / "pilots"
     registry_path = repo_root / DEFAULT_PILOT_REGISTRY_PATH
@@ -52,7 +58,7 @@ def build_public_demo_site(
     )
     leaderboard_path = generated_dir / "pilot-leaderboard.json"
     raw_rows = build_leaderboard(pilot_runs_dir, leaderboard_path)
-    leaderboard_rows = [_sanitize_leaderboard_row(row) for row in raw_rows]
+    leaderboard_rows = _make_static_leaderboard_rows(raw_rows)
 
     public_demo_manifest = {
         "schemaVersion": PUBLIC_DEMO_SCHEMA_VERSION,
@@ -110,6 +116,50 @@ def build_public_demo_site(
     )
     shutil.rmtree(generated_dir)
     return public_demo_manifest
+
+
+def _make_static_sample_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Normalize timing-derived values so committed static demo files are reproducible."""
+
+    static_report = copy.deepcopy(report)
+    static_report["agent"]["manifestHash"] = stable_json_hash(
+        {
+            "staticSample": True,
+            "track": static_report["track"],
+            "agentId": static_report["agent"]["agentId"],
+            "taskPackId": static_report["taskPack"]["taskPackId"],
+        }
+    )
+    for attempt in static_report["attempts"]:
+        attempt["elapsedSeconds"] = 0.0
+        attempt["scores"]["speed"] = 100.0
+    static_report["summary"] = summarize_scores(static_report["attempts"])
+    static_report["reproducibility"] = build_reproducibility_metadata(
+        static_report,
+        redacted_occurrences=0,
+    )
+    return static_report
+
+
+def _make_static_leaderboard_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    static_rows = []
+    for row in sorted(rows, key=lambda item: item["agentId"]):
+        sanitized = _sanitize_leaderboard_row(row)
+        sanitized["dimensions"] = dict(sanitized["dimensions"])
+        sanitized["dimensions"]["speed"] = 100.0
+        sanitized["overall"] = _weighted_overall_from_dimensions(sanitized["dimensions"])
+        static_rows.append(sanitized)
+    static_rows.sort(key=lambda item: (-float(item["overall"]), item["agentId"]))
+    for index, row in enumerate(static_rows, start=1):
+        row["rank"] = index
+    return static_rows
+
+
+def _weighted_overall_from_dimensions(dimensions: dict[str, Any]) -> float:
+    return round(
+        sum(float(dimensions[key]) * weight for key, weight in SCORING_WEIGHTS.items()),
+        2,
+    )
 
 
 def _public_report(report: dict[str, Any]) -> dict[str, Any]:
