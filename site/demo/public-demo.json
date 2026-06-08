@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "agentstack-benchmark.public-demo.v0.1",
+  "status": "static-local-public-sample-ready",
+  "track": "local-public",
+  "sampleRun": {
+    "runId": "public-demo-offline-run",
+    "agentId": "offline-demo-agent",
+    "agentName": "Offline Demo Agent",
+    "overall": 98.88,
+    "tasksPassed": 5,
+    "tasksTotal": 5
+  },
+  "pilotLeaderboard": {
+    "entries": 5,
+    "registry": "examples/pilots/local_public_v0_1.json",
+    "mode": "fixture-adapter"
+  },
+  "hostedRunnerIncluded": false,
+  "billingCheckoutConnected": false,
+  "apiKeysRequired": false,
+  "internetRequiredForDemo": false,
+  "files": {
+    "index": "site/demo/index.html",
+    "report": "site/demo/report.html",
+    "leaderboard": "site/demo/leaderboard.html",
+    "reportJson": "site/demo/report.json",
+    "leaderboardJson": "site/demo/leaderboard.json"
+  }
+}

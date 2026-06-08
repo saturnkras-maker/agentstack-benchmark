@@ -28,14 +28,23 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
     "docs/local-model-adapter-v0.1.md",
     "docs/first-run-doctor-v0.1.md",
     "docs/local-mvp-cockpit-v0.1.md",
+    "docs/local-mvp-verification-v0.1.md",
+    "docs/public-demo-sample-v0.1.md",
     "examples/manifests/offline_demo.json",
     "examples/task_packs/beta_v0_1.json",
     "examples/pilots/local_public_v0_1.json",
+    "site/demo/index.html",
+    "site/demo/report.html",
+    "site/demo/leaderboard.html",
+    "site/demo/public-demo.json",
 ]
 
 LOCAL_VERIFICATION_COMMANDS = [
     "make doctor",
+    "make verify-local-mvp",
     "make demo-local-once",
+    "make demo-pilots",
+    "make public-demo-site",
     "make cockpit",
     "make local-model-check",
     "PYTHONPATH=src python3 -m unittest tests.test_beta_package -v",
@@ -48,6 +57,8 @@ LOCAL_VERIFICATION_COMMANDS = [
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor",
+    "PYTHONPATH=src python3 -m agentstack_benchmark.cli verify-local-mvp",
+    "PYTHONPATH=src python3 -m agentstack_benchmark.cli public-demo-site",
     "PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local "
     "--agent-mode auto-local-model --once",
 ]
@@ -98,7 +109,9 @@ def render_public_beta_checklist(manifest: dict[str, Any]) -> str:
         "- Optional local model adapter with loopback autodetect and deterministic fallback.",
         "- First-run doctor command with exact local commands, URLs, and port readiness.",
         "- Local MVP Cockpit page that combines readiness, commands, URLs, local-model status, and run summaries.",
-        "- Root Makefile aliases for doctor/demo/local-model smoke commands.",
+        "- One-command local MVP proof loop with browser/API endpoint checks (`make verify-local-mvp`).",
+        "- Static public demo report and 5-pilot leaderboard for the GitHub Pages launch surface.",
+        "- Root Makefile aliases for doctor/demo/local-model/trust-pack smoke commands.",
         "- Hosted-verified boundary scaffold with hidden-task rejection in local runs.",
         "- Optional bearer-auth and rate-limit scaffold for guarded preview serving.",
         "",

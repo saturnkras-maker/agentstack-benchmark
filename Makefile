@@ -1,4 +1,4 @@
-.PHONY: help test compile doctor local-model-check demo-local demo-local-once demo-local-auto demo-local-auto-once cockpit serve
+.PHONY: help test compile doctor local-model-check demo-local demo-local-once demo-local-auto demo-local-auto-once demo-pilots verify-local-mvp public-demo-site cockpit serve
 
 PYTHON ?= python3.11
 PYTHONPATH ?= src
@@ -7,6 +7,10 @@ UI_PORT ?= 8088
 AGENT_PORT ?= 8765
 RUNS_DIR ?= artifacts/runs
 RUN_ID ?= offline-demo-run
+VERIFY_OUT_DIR ?= artifacts/local-mvp-verification
+PILOT_RUNS_DIR ?= artifacts/runs/pilots-local-public-v0-1
+PILOT_LEADERBOARD ?= artifacts/pilot-leaderboard.json
+PUBLIC_DEMO_OUT_DIR ?= site/demo
 DOCTOR_ARGS ?=
 LOCAL_MODEL_ARGS ?=
 DEMO_ARGS ?=
@@ -17,6 +21,9 @@ APP = PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m agentstack_benchmark.cli
 # - agentstack_benchmark.cli doctor
 # - agentstack_benchmark.cli serve
 # - agentstack_benchmark.cli demo-local
+# - agentstack_benchmark.cli pilot-run
+# - agentstack_benchmark.cli verify-local-mvp
+# - agentstack_benchmark.cli public-demo-site
 # - --agent-mode auto-local-model
 
 help:
@@ -27,6 +34,9 @@ help:
 	@echo "  make local-model-check      # loopback local model autodetect"
 	@echo "  make demo-local-auto        # try local model, fallback to offline demo"
 	@echo "  make demo-local-auto-once   # non-blocking auto-local-model smoke"
+	@echo "  make demo-pilots            # build 5-pilot local-public reports + leaderboard"
+	@echo "  make verify-local-mvp       # one-command proof: demo run + browser/API checks"
+	@echo "  make public-demo-site       # regenerate static public sample report/leaderboard"
 	@echo "  make cockpit                # serve artifacts and open /cockpit in the printed URL"
 	@echo "  make serve                  # serve existing artifacts at local UI"
 	@echo "  make test                   # run unittest suite"
@@ -56,6 +66,15 @@ demo-local-auto:
 
 demo-local-auto-once:
 	$(APP) demo-local --agent-mode auto-local-model --host $(HOST) --ui-port $(UI_PORT) --agent-port $(AGENT_PORT) --runs-dir $(RUNS_DIR) --run-id $(RUN_ID) --once $(DEMO_ARGS)
+
+demo-pilots:
+	$(APP) pilot-run --out-dir $(PILOT_RUNS_DIR) --leaderboard-out $(PILOT_LEADERBOARD)
+
+verify-local-mvp:
+	$(APP) verify-local-mvp --host $(HOST) --ui-port 0 --agent-port 0 --out-dir $(VERIFY_OUT_DIR)
+
+public-demo-site:
+	$(APP) public-demo-site --out-dir $(PUBLIC_DEMO_OUT_DIR)
 
 cockpit:
 	@echo "Open cockpit after startup: http://$(HOST):$(UI_PORT)/cockpit"

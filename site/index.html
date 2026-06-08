@@ -51,6 +51,8 @@
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-model-adapter-v0.1.md">Local model adapter</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/first-run-doctor-v0.1.md">First-run doctor</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-mvp-cockpit-v0.1.md">Local MVP Cockpit</a>
+        <a class="button secondary" href="demo/report.html">Open sample report</a>
+        <a class="button secondary" href="demo/leaderboard.html">Open sample leaderboard</a>
       </div>
       <div class="status">
         <span class="pill ok">One-command offline demo</span>
@@ -59,6 +61,8 @@
         <span class="pill ok">Optional local model adapter</span>
         <span class="pill ok">First-run doctor</span>
         <span class="pill ok">Local MVP Cockpit</span>
+        <span class="pill ok">Static public demo sample</span>
+        <span class="pill ok">Local MVP verification proof</span>
         <span class="pill ok">Track: local-public</span>
         <span class="pill warn">Hosted-verified: reserved</span>
         <span class="pill warn">Paid checkout: not connected</span>
@@ -71,7 +75,9 @@
         <p>Run locally from the repository root:</p>
         <pre><code>make doctor
 make demo-local
-make cockpit</code></pre>
+make cockpit
+make verify-local-mvp
+make demo-pilots</code></pre>
         <p>Equivalent explicit Python commands: <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor</code> and <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code>.</p>
         <p>Before starting, run <code>make doctor</code> to print exact local commands, URLs, port readiness, and model status.</p>
         <p>Then open <code>http://127.0.0.1:8088/run</code>, use <code>http://127.0.0.1:8765/tasks</code>, and click <strong>Run benchmark</strong>.</p>
@@ -91,6 +97,10 @@ make cockpit</code></pre>
       <article class="card">
         <strong>Safe track boundary</strong>
         <p><code>local-public</code> runs are local and reproducible. <code>hosted-verified</code> is server-side only and cannot be self-assigned locally.</p>
+      </article>
+      <article class="card" style="grid-column: 1 / -1;">
+        <strong>Static sample before clone</strong>
+        <p>Open <a href="demo/report.html">sample report</a> or <a href="demo/leaderboard.html">sample leaderboard</a>. Repository path: <code>site/demo/report.html</code>. This is a static local-public sample, not hosted execution.</p>
       </article>
     </section>
 
