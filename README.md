@@ -15,6 +15,7 @@ Current slice:
 - one-command offline local MVP demo (`demo-local`, `docs/offline-local-mvp-demo.md`);
 - optional loopback local model adapter autodetect (`local-model-check`, `docs/local-model-adapter-v0.1.md`);
 - first-run local readiness doctor (`doctor`, `docs/first-run-doctor-v0.1.md`);
+- Local MVP Cockpit onboarding surface (`/cockpit`, `docs/local-mvp-cockpit-v0.1.md`);
 - browser-run UX for loopback HTTP agents (`docs/hosted-ux-runner-v0.1.md`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
@@ -77,7 +78,15 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor
 
 It prints exact local commands, URLs, port readiness, and local model status without starting servers. See `docs/first-run-doctor-v0.1.md`.
 
-If you already have a local model backend running on loopback (for example `llama-server` or Ollama), check it without internet/API keys:
+Guided local cockpit after the UI is running:
+
+```bash
+make cockpit
+```
+
+Open `http://127.0.0.1:8088/cockpit` for readiness, exact commands, URLs, local model status, run summaries, and next actions. See `docs/local-mvp-cockpit-v0.1.md`.
+
+Optional local model adapter check:
 
 ```bash
 make local-model-check

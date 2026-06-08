@@ -27,6 +27,7 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
     "docs/offline-local-mvp-demo.md",
     "docs/local-model-adapter-v0.1.md",
     "docs/first-run-doctor-v0.1.md",
+    "docs/local-mvp-cockpit-v0.1.md",
     "examples/manifests/offline_demo.json",
     "examples/task_packs/beta_v0_1.json",
     "examples/pilots/local_public_v0_1.json",
@@ -35,6 +36,7 @@ REQUIRED_PUBLIC_BETA_ASSETS = [
 LOCAL_VERIFICATION_COMMANDS = [
     "make doctor",
     "make demo-local-once",
+    "make cockpit",
     "make local-model-check",
     "PYTHONPATH=src python3 -m unittest tests.test_beta_package -v",
     "PYTHONPATH=src python3 -m unittest discover -s tests -v",
@@ -95,6 +97,7 @@ def render_public_beta_checklist(manifest: dict[str, Any]) -> str:
         "- Offline local MVP demo path for UX testing without internet or API keys.",
         "- Optional local model adapter with loopback autodetect and deterministic fallback.",
         "- First-run doctor command with exact local commands, URLs, and port readiness.",
+        "- Local MVP Cockpit page that combines readiness, commands, URLs, local-model status, and run summaries.",
         "- Root Makefile aliases for doctor/demo/local-model smoke commands.",
         "- Hosted-verified boundary scaffold with hidden-task rejection in local runs.",
         "- Optional bearer-auth and rate-limit scaffold for guarded preview serving.",

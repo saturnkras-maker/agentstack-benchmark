@@ -20,13 +20,16 @@ class MakefileAliasTests(unittest.TestCase):
             "demo-local-once:",
             "demo-local-auto:",
             "demo-local-auto-once:",
+            "cockpit:",
             "serve:",
             "test:",
             "compile:",
         ]:
             self.assertIn(target, text)
         self.assertIn("agentstack_benchmark.cli doctor", text)
+        self.assertIn("agentstack_benchmark.cli serve", text)
         self.assertIn("agentstack_benchmark.cli demo-local", text)
+        self.assertIn("PYTHON ?= python3.11", text)
         self.assertIn("--agent-mode auto-local-model", text)
 
     def test_make_doctor_smoke_prints_ready_json(self) -> None:

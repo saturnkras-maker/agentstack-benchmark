@@ -13,16 +13,18 @@ This document records the public launch surface for AgentStack Benchmark.
 
 The current product MVP is a local/offline browser experience:
 
-1. Run a one-command local demo:
+1. Check readiness and run a one-command local demo:
 
    ```bash
-   PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local
+   make doctor
+   make demo-local
    ```
 
-2. Open the local run form: `http://127.0.0.1:8088/run`.
-3. Use the demo loopback adapter endpoint: `http://127.0.0.1:8765/tasks`.
-4. Click **Run benchmark**.
-5. Inspect the generated report and leaderboard.
+2. Open the Local MVP Cockpit: `http://127.0.0.1:8088/cockpit`.
+3. Open the local run form: `http://127.0.0.1:8088/run`.
+4. Use the demo loopback adapter endpoint: `http://127.0.0.1:8765/tasks`.
+5. Click **Run benchmark**.
+6. Inspect the generated report and leaderboard.
 
 This path requires no internet, no API keys, no hosted service, and no downloaded model file. The built-in demo agent is deterministic by design so the UX/UI can be tested immediately.
 
@@ -30,6 +32,8 @@ If a real local model backend is already running on loopback, the same UX can us
 
 ```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
+
+make cockpit
 
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local \
   --agent-mode auto-local-model

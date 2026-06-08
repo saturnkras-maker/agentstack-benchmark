@@ -55,6 +55,7 @@ class PublicBetaPackageTests(unittest.TestCase):
             "docs/offline-local-mvp-demo.md",
             "docs/local-model-adapter-v0.1.md",
             "docs/first-run-doctor-v0.1.md",
+            "docs/local-mvp-cockpit-v0.1.md",
             "examples/manifests/offline_demo.json",
             "examples/task_packs/beta_v0_1.json",
             "examples/pilots/local_public_v0_1.json",
@@ -82,6 +83,8 @@ class PublicBetaPackageTests(unittest.TestCase):
         self.assertIn("auto-local-model", checklist)
         self.assertIn("Offline local MVP demo", checklist)
         self.assertIn("local model adapter", checklist.lower())
+        self.assertIn("Local MVP Cockpit", checklist)
+        self.assertIn("make cockpit", checklist)
         self.assertNotIn("git push", checklist)
         self.assertNotIn("--force", checklist)
         self.assertNotIn("private key", checklist.lower())
