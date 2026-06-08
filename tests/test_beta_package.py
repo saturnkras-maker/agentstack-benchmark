@@ -56,9 +56,15 @@ class PublicBetaPackageTests(unittest.TestCase):
             "docs/local-model-adapter-v0.1.md",
             "docs/first-run-doctor-v0.1.md",
             "docs/local-mvp-cockpit-v0.1.md",
+            "docs/local-mvp-verification-v0.1.md",
+            "docs/public-demo-sample-v0.1.md",
             "examples/manifests/offline_demo.json",
             "examples/task_packs/beta_v0_1.json",
             "examples/pilots/local_public_v0_1.json",
+            "site/demo/index.html",
+            "site/demo/report.html",
+            "site/demo/leaderboard.html",
+            "site/demo/public-demo.json",
         }
         self.assertTrue(expected_paths.issubset(asset_paths))
         for asset in manifest["assets"]:
@@ -85,6 +91,9 @@ class PublicBetaPackageTests(unittest.TestCase):
         self.assertIn("local model adapter", checklist.lower())
         self.assertIn("Local MVP Cockpit", checklist)
         self.assertIn("make cockpit", checklist)
+        self.assertIn("make verify-local-mvp", checklist)
+        self.assertIn("make demo-pilots", checklist)
+        self.assertIn("Static public demo report", checklist)
         self.assertNotIn("git push", checklist)
         self.assertNotIn("--force", checklist)
         self.assertNotIn("private key", checklist.lower())

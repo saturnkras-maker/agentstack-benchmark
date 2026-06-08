@@ -9,6 +9,7 @@ from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
 from .doctor import build_first_run_doctor_report
 from .leaderboard import build_leaderboard
+from .local_mvp_verification import verify_local_mvp
 from .local_model import (
     discover_local_model_backend,
     run_local_model_demo_once,
@@ -16,6 +17,7 @@ from .local_model import (
 )
 from .offline_demo import DEFAULT_TASK_PACK_PATH, run_offline_demo_once, start_offline_demo_agent
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
+from .public_demo import build_public_demo_site
 from .runner import run_benchmark
 from .security import SecurityConfig
 from .server import serve
@@ -190,6 +192,37 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to write a leaderboard for the generated pilot runs",
     )
 
+    verify_parser = subparsers.add_parser(
+        "verify-local-mvp",
+        help="Run local MVP proof loop and write JSON/Markdown proof artifacts",
+    )
+    verify_parser.add_argument("--repo-root", default=".", help="Repository root to verify")
+    verify_parser.add_argument(
+        "--out-dir",
+        default="artifacts/local-mvp-verification",
+        help="Directory for local_mvp_verification.json and .md",
+    )
+    verify_parser.add_argument("--host", default="127.0.0.1", help="Loopback host to bind")
+    verify_parser.add_argument("--ui-port", type=int, default=0, help="UI server port; 0 chooses a free port")
+    verify_parser.add_argument(
+        "--agent-port",
+        type=int,
+        default=0,
+        help="Offline demo agent port; 0 chooses a free port",
+    )
+    verify_parser.add_argument("--run-id", default="verify-offline-demo-run", help="Verification run id")
+
+    public_demo_parser = subparsers.add_parser(
+        "public-demo-site",
+        help="Generate static public demo report and leaderboard under site/demo",
+    )
+    public_demo_parser.add_argument("--repo-root", default=".", help="Repository root to inspect")
+    public_demo_parser.add_argument(
+        "--out-dir",
+        default="site/demo",
+        help="Directory for static public demo HTML/JSON files",
+    )
+
     subparsers.add_parser("adapter-contract", help="Print the local HTTP adapter contract as JSON")
     beta_parser = subparsers.add_parser(
         "beta-package",
@@ -339,6 +372,42 @@ def main(argv: list[str] | None = None) -> int:
                     "leaderboardEntries": len(rows),
                     "outDir": str(Path(args.out_dir)),
                     "leaderboardOut": str(Path(args.leaderboard_out)),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
+    if args.command == "verify-local-mvp":
+        report = verify_local_mvp(
+            repo_root=args.repo_root,
+            out_dir=args.out_dir,
+            host=args.host,
+            ui_port=args.ui_port,
+            agent_port=args.agent_port,
+            run_id=args.run_id,
+        )
+        print(
+            json.dumps(
+                {
+                    "status": report["status"],
+                    "overall": report["run"]["overall"],
+                    "tasks": f"{report['run']['tasksPassed']}/{report['run']['tasksTotal']}",
+                    "endpointsChecked": len(report["endpointChecks"]),
+                    "outDir": str(Path(args.out_dir)),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0 if report["status"] == "pass" else 1
+    if args.command == "public-demo-site":
+        manifest = build_public_demo_site(repo_root=args.repo_root, out_dir=args.out_dir)
+        print(
+            json.dumps(
+                {
+                    "status": manifest["status"],
+                    "sampleOverall": manifest["sampleRun"]["overall"],
+                    "leaderboardEntries": manifest["pilotLeaderboard"]["entries"],
+                    "outDir": str(Path(args.out_dir)),
                 },
                 ensure_ascii=False,
             )

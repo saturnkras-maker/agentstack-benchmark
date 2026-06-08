@@ -47,6 +47,8 @@ The generator currently requires these source assets:
 - local model adapter docs;
 - first-run doctor docs;
 - Local MVP Cockpit docs;
+- Local MVP verification proof docs;
+- static public demo sample docs and `site/demo/` HTML/JSON files;
 - offline demo manifest;
 - deterministic beta task pack.
 
@@ -70,11 +72,16 @@ PYTHONPATH=src python3 -m unittest tests.test_beta_package -v
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 python3 -m compileall -q src examples tests
 make doctor
+make verify-local-mvp
 make demo-local-once
+make demo-pilots
+make public-demo-site
 make cockpit
 make local-model-check
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --once
 PYTHONPATH=src python3 -m agentstack_benchmark.cli local-model-check
 PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor
+PYTHONPATH=src python3 -m agentstack_benchmark.cli verify-local-mvp
+PYTHONPATH=src python3 -m agentstack_benchmark.cli public-demo-site
 PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local --agent-mode auto-local-model --once
 ```

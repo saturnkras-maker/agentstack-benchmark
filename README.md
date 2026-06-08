@@ -16,6 +16,8 @@ Current slice:
 - optional loopback local model adapter autodetect (`local-model-check`, `docs/local-model-adapter-v0.1.md`);
 - first-run local readiness doctor (`doctor`, `docs/first-run-doctor-v0.1.md`);
 - Local MVP Cockpit onboarding surface (`/cockpit`, `docs/local-mvp-cockpit-v0.1.md`);
+- one-command Local MVP verification proof loop (`make verify-local-mvp`, `docs/local-mvp-verification-v0.1.md`);
+- static public demo report/leaderboard for GitHub Pages (`site/demo/`, `docs/public-demo-sample-v0.1.md`);
 - browser-run UX for loopback HTTP agents (`docs/hosted-ux-runner-v0.1.md`);
 - run-level `track` field (`local-public` today; `hosted-verified` reserved for later server-side verified runs);
 - deterministic evaluator with frozen `scoring_schema_v1` (`docs/scoring-schema-v1.md`);
@@ -30,6 +32,14 @@ Current slice:
 - product/technical spec (`docs/product-technical-spec-v0.1.md`);
 - monetization outline (`docs/monetization-v0.md`);
 - unit tests proving score separation, local HTTP adapter behavior, API/web preview behavior, and beta task-pack coverage.
+
+Before manual testing, run the trust-pack proof loop:
+
+```bash
+make verify-local-mvp
+```
+
+It writes `artifacts/local-mvp-verification/local_mvp_verification.json` and `.md`, checks the offline demo run, and verifies `/healthz`, `/cockpit`, `/run`, `/leaderboard`, and the visual report pages. See `docs/local-mvp-verification-v0.1.md`.
 
 Run the offline local MVP demo — no internet, API keys, hosted services, or downloaded model required:
 
@@ -136,6 +146,12 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli leaderboard \
 Run the five local-public pilot fixtures:
 
 ```bash
+make demo-pilots
+```
+
+Equivalent explicit Python command:
+
+```bash
 PYTHONPATH=src python3 -m agentstack_benchmark.cli pilot-run \
   --registry examples/pilots/local_public_v0_1.json \
   --task-pack examples/task_packs/mvp_v0.json \
@@ -144,6 +160,14 @@ PYTHONPATH=src python3 -m agentstack_benchmark.cli pilot-run \
 ```
 
 The pilot fixtures cover OpenAI Agents SDK, LangGraph, Microsoft AutoGen, CrewAI, and Claude Code + MCP as local-safe calibration entries. They do not execute real third-party SDKs, require private keys, deploy hosted infra, or assign `hosted-verified`; each generated run stays `track: local-public`.
+
+Regenerate the static public sample report and leaderboard for GitHub Pages:
+
+```bash
+make public-demo-site
+```
+
+See `docs/public-demo-sample-v0.1.md`. The committed `site/demo/` sample is static and honest: no hosted runner, no checkout, no API keys, and no hidden tasks.
 
 HTTP adapter contract:
 

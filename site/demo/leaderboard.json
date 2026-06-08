@@ -1,0 +1,117 @@
+[
+  {
+    "rank": 1,
+    "track": "local-public",
+    "agentId": "pilot-autogen",
+    "agentName": "Microsoft AutoGen — local pilot fixture",
+    "agentVersion": "0.1.0-local-fixture",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.84,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.6,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "site/demo/pilot-reports/pilot-autogen/report.json"
+  },
+  {
+    "rank": 2,
+    "track": "local-public",
+    "agentId": "pilot-claude-mcp",
+    "agentName": "Claude Code + MCP — local pilot fixture",
+    "agentVersion": "0.1.0-local-fixture",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.84,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.59,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "site/demo/pilot-reports/pilot-claude-mcp/report.json"
+  },
+  {
+    "rank": 3,
+    "track": "local-public",
+    "agentId": "pilot-crewai",
+    "agentName": "CrewAI — local pilot fixture",
+    "agentVersion": "0.1.0-local-fixture",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.84,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.6,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "site/demo/pilot-reports/pilot-crewai/report.json"
+  },
+  {
+    "rank": 4,
+    "track": "local-public",
+    "agentId": "pilot-langgraph",
+    "agentName": "LangGraph — local pilot fixture",
+    "agentVersion": "0.1.0-local-fixture",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.84,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.6,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "site/demo/pilot-reports/pilot-langgraph/report.json"
+  },
+  {
+    "rank": 5,
+    "track": "local-public",
+    "agentId": "pilot-openai-agents-sdk",
+    "agentName": "OpenAI Agents SDK — local pilot fixture",
+    "agentVersion": "0.1.0-local-fixture",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 98.83,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 99.52,
+      "costEfficiency": 100.0,
+      "toolUse": 100.0,
+      "safety": 100.0,
+      "depth": 84.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "site/demo/pilot-reports/pilot-openai-agents-sdk/report.json"
+  }
+]

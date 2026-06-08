@@ -20,6 +20,9 @@ class MakefileAliasTests(unittest.TestCase):
             "demo-local-once:",
             "demo-local-auto:",
             "demo-local-auto-once:",
+            "demo-pilots:",
+            "verify-local-mvp:",
+            "public-demo-site:",
             "cockpit:",
             "serve:",
             "test:",
@@ -29,6 +32,9 @@ class MakefileAliasTests(unittest.TestCase):
         self.assertIn("agentstack_benchmark.cli doctor", text)
         self.assertIn("agentstack_benchmark.cli serve", text)
         self.assertIn("agentstack_benchmark.cli demo-local", text)
+        self.assertIn("agentstack_benchmark.cli pilot-run", text)
+        self.assertIn("agentstack_benchmark.cli verify-local-mvp", text)
+        self.assertIn("agentstack_benchmark.cli public-demo-site", text)
         self.assertIn("PYTHON ?= python3.11", text)
         self.assertIn("--agent-mode auto-local-model", text)
 

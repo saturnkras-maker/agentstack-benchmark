@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentStack Benchmark — sample leaderboard</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07111f; --card:#111d2d; --text:#edf5ff; --muted:#a8b7ca; --accent:#69e0ff; --ok:#7dffb2; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #14395a, var(--bg) 48%); color:var(--text); }
+    main { width:min(1080px, calc(100% - 32px)); margin:0 auto; padding:56px 0; }
+    .hero,.card { background:rgba(17,29,45,.82); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:28px; box-shadow:0 20px 70px rgba(0,0,0,.25); }
+    .eyebrow { color:var(--ok); text-transform:uppercase; letter-spacing:.12em; font-weight:800; }
+    h1 { margin:0; font-size:clamp(36px, 7vw, 70px); line-height:.96; }
+    h2 { margin-top:32px; }
+    p { color:var(--muted); font-size:17px; line-height:1.55; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+    .button { display:inline-flex; padding:12px 18px; border-radius:999px; background:var(--accent); color:#06101d; text-decoration:none; font-weight:800; }
+    .button.secondary { background:rgba(255,255,255,.1); color:var(--text); border:1px solid rgba(255,255,255,.16); }
+    .grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; margin-top:18px; }
+    .wide { margin-top:18px; overflow:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:12px; border-bottom:1px solid rgba(255,255,255,.12); text-align:left; }
+    strong { color:var(--text); }
+    @media (max-width:800px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body><main>
+        <section class="hero">
+          <p class="eyebrow">Static local-public sample leaderboard</p>
+          <h1>5-pilot deterministic fixture leaderboard.</h1>
+          <p>OpenAI Agents SDK, LangGraph, Microsoft AutoGen, CrewAI, Claude Code + MCP</p>
+          <div class="actions"><a class="button" href="report.html">Open sample report</a><a class="button secondary" href="leaderboard.json">Open JSON</a></div>
+        </section>
+        <section class="card wide">
+          <table><thead><tr><th>Rank</th><th>Agent stack</th><th>Track</th><th>Overall</th><th>Tasks</th></tr></thead><tbody>
+        <tr>
+          <td>#1</td>
+          <td>Microsoft AutoGen — local pilot fixture</td>
+          <td>local-public</td>
+          <td>98.84</td>
+          <td>5/5</td>
+        </tr>
+        
+        <tr>
+          <td>#2</td>
+          <td>Claude Code + MCP — local pilot fixture</td>
+          <td>local-public</td>
+          <td>98.84</td>
+          <td>5/5</td>
+        </tr>
+        
+        <tr>
+          <td>#3</td>
+          <td>CrewAI — local pilot fixture</td>
+          <td>local-public</td>
+          <td>98.84</td>
+          <td>5/5</td>
+        </tr>
+        
+        <tr>
+          <td>#4</td>
+          <td>LangGraph — local pilot fixture</td>
+          <td>local-public</td>
+          <td>98.84</td>
+          <td>5/5</td>
+        </tr>
+        
+        <tr>
+          <td>#5</td>
+          <td>OpenAI Agents SDK — local pilot fixture</td>
+          <td>local-public</td>
+          <td>98.83</td>
+          <td>5/5</td>
+        </tr>
+        </tbody></table>
+        </section>
+        </main></body>
+</html>

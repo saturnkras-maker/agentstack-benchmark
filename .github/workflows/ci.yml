@@ -1,0 +1,42 @@
+name: Public beta trust gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  local-mvp:
+    name: Public beta trust gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Unit tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+
+      - name: Compile Python sources
+        run: python -m compileall -q src examples tests
+
+      - name: Lightweight credential pattern scan
+        run: |
+          set -euo pipefail
+          if grep -R -n -E --exclude-dir=.git --exclude-dir=artifacts --exclude='*.md' -- '-----BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY-----|sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9_]{20,}|xox[baprs]-' .; then
+            echo "Credential-like pattern found"
+            exit 1
+          fi
+
+      - name: Offline demo smoke
+        run: make demo-local-once
+
+      - name: Local MVP proof loop
+        run: make verify-local-mvp
