@@ -8,6 +8,7 @@
   "browserRunUx": "loopback-local-ready",
   "localModelAdapter": "loopback-autodetect-ready",
   "firstRunDoctor": "ready",
+  "localMvpCockpit": "ready",
   "localModelFallback": "deterministic-offline-demo",
   "internetRequiredForDemo": false,
   "apiKeysRequiredForDemo": false,

@@ -1,6 +1,6 @@
-.PHONY: help test compile doctor local-model-check demo-local demo-local-once demo-local-auto demo-local-auto-once serve
+.PHONY: help test compile doctor local-model-check demo-local demo-local-once demo-local-auto demo-local-auto-once cockpit serve
 
-PYTHON ?= python3
+PYTHON ?= python3.11
 PYTHONPATH ?= src
 HOST ?= 127.0.0.1
 UI_PORT ?= 8088
@@ -15,6 +15,7 @@ SERVE_ARGS ?=
 APP = PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m agentstack_benchmark.cli
 # Explicit commands exposed by aliases for docs/tests:
 # - agentstack_benchmark.cli doctor
+# - agentstack_benchmark.cli serve
 # - agentstack_benchmark.cli demo-local
 # - --agent-mode auto-local-model
 
@@ -26,6 +27,7 @@ help:
 	@echo "  make local-model-check      # loopback local model autodetect"
 	@echo "  make demo-local-auto        # try local model, fallback to offline demo"
 	@echo "  make demo-local-auto-once   # non-blocking auto-local-model smoke"
+	@echo "  make cockpit                # serve artifacts and open /cockpit in the printed URL"
 	@echo "  make serve                  # serve existing artifacts at local UI"
 	@echo "  make test                   # run unittest suite"
 	@echo "  make compile                # compile Python sources"
@@ -54,6 +56,10 @@ demo-local-auto:
 
 demo-local-auto-once:
 	$(APP) demo-local --agent-mode auto-local-model --host $(HOST) --ui-port $(UI_PORT) --agent-port $(AGENT_PORT) --runs-dir $(RUNS_DIR) --run-id $(RUN_ID) --once $(DEMO_ARGS)
+
+cockpit:
+	@echo "Open cockpit after startup: http://$(HOST):$(UI_PORT)/cockpit"
+	$(APP) serve --host $(HOST) --port $(UI_PORT) --runs-dir $(RUNS_DIR) $(SERVE_ARGS)
 
 serve:
 	$(APP) serve --host $(HOST) --port $(UI_PORT) --runs-dir $(RUNS_DIR) $(SERVE_ARGS)

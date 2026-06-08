@@ -50,6 +50,7 @@
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/offline-local-mvp-demo.md">Offline demo guide</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-model-adapter-v0.1.md">Local model adapter</a>
         <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/first-run-doctor-v0.1.md">First-run doctor</a>
+        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-mvp-cockpit-v0.1.md">Local MVP Cockpit</a>
       </div>
       <div class="status">
         <span class="pill ok">One-command offline demo</span>
@@ -57,6 +58,7 @@
         <span class="pill ok">No API keys</span>
         <span class="pill ok">Optional local model adapter</span>
         <span class="pill ok">First-run doctor</span>
+        <span class="pill ok">Local MVP Cockpit</span>
         <span class="pill ok">Track: local-public</span>
         <span class="pill warn">Hosted-verified: reserved</span>
         <span class="pill warn">Paid checkout: not connected</span>
@@ -68,7 +70,8 @@
         <h2>One-command offline demo</h2>
         <p>Run locally from the repository root:</p>
         <pre><code>make doctor
-make demo-local</code></pre>
+make demo-local
+make cockpit</code></pre>
         <p>Equivalent explicit Python commands: <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor</code> and <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code>.</p>
         <p>Before starting, run <code>make doctor</code> to print exact local commands, URLs, port readiness, and model status.</p>
         <p>Then open <code>http://127.0.0.1:8088/run</code>, use <code>http://127.0.0.1:8765/tasks</code>, and click <strong>Run benchmark</strong>.</p>

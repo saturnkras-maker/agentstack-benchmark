@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from urllib import parse
 
+from .cockpit import build_local_mvp_cockpit_report
 from .leaderboard import collect_leaderboard_rows
 from .run_registry import collect_run_summaries, load_run_report
 from .runner import run_benchmark
@@ -78,6 +79,9 @@ def _render_page(title: str, body: str) -> str:
     .muted {{ color: #a9b5d6; }}
     .grid {{ display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin: 16px 0; }}
     .metric {{ background: #10172d; border-radius: 14px; padding: 14px; }}
+    .steps {{ display: grid; gap: 10px; margin: 16px 0; padding-left: 20px; }}
+    .status-list {{ list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 8px; }}
+    .status-list li {{ background: #10172d; border-radius: 12px; padding: 10px 12px; }}
     .track-badge {{ display: inline-block; border: 1px solid #4f67a8; border-radius: 999px; padding: 2px 8px; color: #c9d6ff; background: #1b2748; font-size: 12px; font-weight: 700; }}
     code {{ background: #10172d; border-radius: 6px; padding: 2px 5px; }}
   </style>
@@ -143,6 +147,7 @@ def _render_home_page(runs_dir: str | Path) -> str:
       </div>
       <div class="actions">
         <a class="button" href="/run">Run benchmark</a>
+        <a href="/cockpit">Local MVP Cockpit</a>
         <a href="/leaderboard">Open leaderboard</a>
         <a href="/api/v1/healthz">Health JSON</a>
         <a href="/api/v1/runs">Runs JSON</a>
@@ -311,6 +316,82 @@ def _render_error_page(title: str, message: str) -> str:
     return _render_page(title, body)
 
 
+def _render_cockpit_page(cockpit: dict[str, Any]) -> str:
+    runs = cockpit["runs"]
+    leader = runs.get("leader")
+    if leader:
+        leader_block = (
+            f"<strong>{html.escape(str(leader['agentName']))}</strong><br>"
+            f"<span class=\"muted\">{html.escape(str(leader['overall']))} overall · "
+            f"{_render_track_badge(str(leader['track']))} · run "
+            f"<code>{html.escape(str(leader['runId']))}</code></span>"
+        )
+    else:
+        leader_block = (
+            "<strong>No reports yet</strong><br>"
+            "<span class=\"muted\">Run the offline demo first.</span>"
+        )
+    recent_rows = "\n".join(
+        "        <li>"
+        f"#{html.escape(str(row['rank']))} "
+        f"<a href=\"/runs/{_quote_run_id(str(row['runId']))}\">"
+        f"{html.escape(str(row['agentName']))}</a> — "
+        f"{html.escape(str(row['overall']))} overall · "
+        f"{html.escape(str(row['tasksPassed']))}/{html.escape(str(row['tasksTotal']))} tasks"
+        "</li>"
+        for row in runs.get("recent", [])
+    )
+    if not recent_rows:
+        recent_rows = "        <li class=\"muted\">No local report artifacts yet.</li>"
+    commands = cockpit["commands"]
+    urls = cockpit["urls"]
+    local_model = cockpit["localModel"]
+    body = f"""    <section class="hero">
+      <p class="eyebrow">Local-public · onboarding cockpit</p>
+      <h1>Local MVP Cockpit</h1>
+      <p class="muted">Ready to test locally: one page for readiness, exact commands, URLs, local model status, and current benchmark runs.</p>
+      <div class="grid">
+        <div class="metric"><strong>Status</strong><br><span class="muted">{html.escape(str(cockpit['status']))} · {html.escape(str(cockpit['recommendedNextAction']))}</span></div>
+        <div class="metric"><strong>Runs</strong><br><span class="muted">{html.escape(str(runs['count']))} local reports</span></div>
+        <div class="metric">{leader_block}</div>
+      </div>
+      <div class="actions">
+        <a class="button" href="/run">Run benchmark</a>
+        <a href="/leaderboard">Open leaderboard</a>
+        <a href="/api/v1/cockpit">Cockpit JSON</a>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Start here</h2>
+      <ol class="steps">
+        <li><code>{html.escape(commands['doctor'])}</code> — check ports, URLs, and local readiness.</li>
+        <li><code>{html.escape(commands['offlineDemo'])}</code> — start the offline demo agent and UI.</li>
+        <li>Open <code>{html.escape(urls['cockpit'])}</code>, then <code>{html.escape(urls['runForm'])}</code>.</li>
+        <li>Use agent endpoint <code>{html.escape(urls['agentEndpoint'])}</code> in the run form.</li>
+      </ol>
+      <div class="callout">
+        <strong>Local model:</strong> {html.escape(str(local_model.get('provider', 'none')))} · {html.escape(str(local_model.get('reason', 'unknown')))}. Try <code>{html.escape(commands['localModelCheck'])}</code>, then <code>{html.escape(commands['autoLocalModel'])}</code>.
+      </div>
+    </section>
+    <section class="card">
+      <h2>Current local runs</h2>
+      <ul class="status-list">
+{recent_rows}
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Safety boundary</h2>
+      <ul class="status-list">
+        <li>No internet required: <strong>{html.escape(str(not cockpit['internetRequired']))}</strong></li>
+        <li>No API keys required: <strong>{html.escape(str(not cockpit['apiKeysRequired']))}</strong></li>
+        <li>Billing checkout connected: <strong>{html.escape(str(cockpit['billingCheckoutConnected']))}</strong></li>
+        <li>Hosted-verified status: <strong>{html.escape(str(cockpit['hostedVerifiedStatus']))}</strong></li>
+      </ul>
+    </section>
+"""
+    return _render_page("Local MVP Cockpit", body)
+
+
 class BenchmarkAPIHandler(BaseHTTPRequestHandler):
     runs_dir: Path
     security_config: SecurityConfig
@@ -328,6 +409,14 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
             return
         if path == "/run":
             self._send_html(_render_run_form_page())
+            return
+        if path == "/cockpit":
+            cockpit = build_local_mvp_cockpit_report(
+                runs_dir=self.runs_dir,
+                repo_root=Path(__file__).resolve().parents[2],
+                probe_local_model=False,
+            )
+            self._send_html(_render_cockpit_page(cockpit))
             return
         if path == "/leaderboard":
             self._send_html(_render_leaderboard_page(self.runs_dir))
@@ -387,6 +476,14 @@ class BenchmarkAPIHandler(BaseHTTPRequestHandler):
                     "runs": collect_run_summaries(self.runs_dir),
                 }
             )
+            return
+        if path == "/api/v1/cockpit":
+            cockpit = build_local_mvp_cockpit_report(
+                runs_dir=self.runs_dir,
+                repo_root=Path(__file__).resolve().parents[2],
+                probe_local_model=False,
+            )
+            self._send_json({"service": SERVICE_NAME, "pricingMode": PRICING_MODE, **cockpit})
             return
         parts = path.split("/")
         if len(parts) == 6 and parts[1:4] == ["api", "v1", "runs"] and parts[5] == "report":

@@ -232,8 +232,38 @@ class APIServerTests(unittest.TestCase):
         self.assertIn("Free beta", html)
         self.assertIn("2 local runs", html)
         self.assertIn('href="/run"', html)
+        self.assertIn('href="/cockpit"', html)
         self.assertIn('href="/leaderboard"', html)
         self.assertIn('href="/runs/good"', html)
+        self.assertNotIn(str(self.tmpdir), html)
+
+    def test_cockpit_api_and_page_render_local_onboarding_without_paths(self) -> None:
+        task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_bad.json", task_pack, self.tmpdir / "runs/bad")
+        run_benchmark(PROJECT_ROOT / "examples/manifests/mock_good.json", task_pack, self.tmpdir / "runs/good")
+        self._server = self._start_server()
+
+        body = self._get_json("/api/v1/cockpit")
+        html = self._get_html("/cockpit")
+
+        self.assertEqual(body["schemaVersion"], "agentstack-benchmark.local-mvp-cockpit.v0.1")
+        self.assertEqual(body["status"], "ready")
+        self.assertEqual(body["track"], "local-public")
+        self.assertEqual(body["runs"]["count"], 2)
+        self.assertEqual(body["runs"]["leader"]["agentId"], "mock-good-agent")
+        self.assertIn("/cockpit", body["urls"]["cockpit"])
+        self.assertIn("make doctor", body["commands"]["doctor"])
+        self.assertIn("make demo-local", body["commands"]["offlineDemo"])
+        self.assertIn("make demo-local-auto", body["commands"]["autoLocalModel"])
+        self.assertIn("Local MVP Cockpit", html)
+        self.assertIn("Ready to test locally", html)
+        self.assertIn("make doctor", html)
+        self.assertIn("make demo-local", html)
+        self.assertIn("make demo-local-auto", html)
+        self.assertIn("Local model", html)
+        self.assertIn("Mock Good Agent", html)
+        self.assertIn('href="/run"', html)
+        self.assertIn('href="/leaderboard"', html)
         self.assertNotIn(str(self.tmpdir), html)
 
     def test_run_form_renders_hosted_ux_entrypoint_without_local_paths(self) -> None:
