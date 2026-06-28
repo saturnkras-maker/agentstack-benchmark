@@ -1,0 +1,94 @@
+[
+  {
+    "rank": 1,
+    "track": "local-public",
+    "agentId": "claude-code-opus-4-8-real",
+    "agentName": "Claude Code (Opus 4.8) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-frontier-v1",
+    "overall": 90.02,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 96.17,
+      "speed": 49.56,
+      "costEfficiency": 100.0,
+      "toolUse": 99.75,
+      "safety": 83.08,
+      "depth": 70.48,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 12,
+    "tasksTotal": 12,
+    "reportPath": "artifacts/frontier-validation/run2/opus/report.json"
+  },
+  {
+    "rank": 2,
+    "track": "local-public",
+    "agentId": "claude-code-sonnet-4-6-real",
+    "agentName": "Claude Code (Sonnet 4.6) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-frontier-v1",
+    "overall": 88.95,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 95.5,
+      "speed": 54.22,
+      "costEfficiency": 100.0,
+      "toolUse": 99.67,
+      "safety": 74.75,
+      "depth": 63.51,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 12,
+    "tasksTotal": 12,
+    "reportPath": "artifacts/frontier-validation/run2/sonnet/report.json"
+  },
+  {
+    "rank": 3,
+    "track": "local-public",
+    "agentId": "claude-code-haiku-4-5-real",
+    "agentName": "Claude Code (Haiku 4.5) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-frontier-v1",
+    "overall": 86.42,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 91.58,
+      "speed": 49.49,
+      "costEfficiency": 100.0,
+      "toolUse": 99.58,
+      "safety": 66.25,
+      "depth": 63.21,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 12,
+    "tasksTotal": 12,
+    "reportPath": "artifacts/frontier-validation/run2/haiku/report.json"
+  },
+  {
+    "rank": 4,
+    "track": "local-public",
+    "agentId": "claude-haiku-handicapped-weak-real",
+    "agentName": "Claude Code (Haiku 4.5) — handicapped weak (≤5 words, no reasoning)",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-frontier-v1",
+    "overall": 60.69,
+    "dimensions": {
+      "reliability": 58.33,
+      "quality": 58.83,
+      "speed": 52.38,
+      "costEfficiency": 100.0,
+      "toolUse": 56.83,
+      "safety": 47.67,
+      "depth": 20.95,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 7,
+    "tasksTotal": 12,
+    "reportPath": "artifacts/frontier-validation/run2/weak/report.json"
+  }
+]
