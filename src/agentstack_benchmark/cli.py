@@ -7,9 +7,15 @@ from pathlib import Path
 
 from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
+from .judge import (
+    DEFAULT_CLAUDE_BIN,
+    DEFAULT_JUDGE_MODEL,
+    DEFAULT_JUDGE_TIMEOUT_SECONDS,
+    LocalClaudeJudge,
+)
 from .leaderboard import build_leaderboard
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
-from .runner import run_benchmark
+from .runner import DEFAULT_HTTP_TIMEOUT_SECONDS, run_benchmark
 from .security import SecurityConfig
 from .server import serve
 
@@ -28,6 +34,53 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         required=True,
         help="Output directory for report.json/report.md",
+    )
+    run_parser.add_argument(
+        "--http-timeout-seconds",
+        type=float,
+        default=DEFAULT_HTTP_TIMEOUT_SECONDS,
+        help=(
+            "Wall-clock timeout (seconds) for the adapter client/transport call "
+            "(urllib for http, subprocess for cli). Decoupled from task.timeoutSeconds, "
+            "which stays a per-task budget/scoring signal. A manifest "
+            "adapter.httpTimeoutSeconds overrides this. Lets real (slow) agents run an "
+            "unmodified task pack."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge",
+        action="store_true",
+        help=(
+            "Opt-in: enable the scoring_schema_v2 LLM-as-judge for open "
+            "quality/safety/tool-use/depth tasks via the local Claude CLI "
+            "(subscription, ANTHROPIC_* stripped). Verdicts are cached for "
+            "reproducibility and marked non-deterministic. Deterministic "
+            "scoring_schema_v1 is never modified or auto-replaced."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge-model",
+        default=DEFAULT_JUDGE_MODEL,
+        help="Model id for the LLM judge (default: %(default)s).",
+    )
+    run_parser.add_argument(
+        "--judge-cache",
+        default=None,
+        help=(
+            "Path to the judge verdict cache JSON (default: <out>/judge-cache.json). "
+            "Keyed by (taskId, model, normalized answer) for reproducible re-runs."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge-claude-bin",
+        default=DEFAULT_CLAUDE_BIN,
+        help="Path to the local claude CLI binary (default: %(default)s).",
+    )
+    run_parser.add_argument(
+        "--judge-timeout-seconds",
+        type=float,
+        default=DEFAULT_JUDGE_TIMEOUT_SECONDS,
+        help="Per-call wall-clock timeout for the judge CLI (default: %(default)s).",
     )
 
     leaderboard_parser = subparsers.add_parser(
@@ -121,10 +174,29 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "run":
-        report = run_benchmark(args.manifest, args.task_pack, args.out)
+        judge = None
+        if getattr(args, "judge", False):
+            cache_path = args.judge_cache or str(Path(args.out) / "judge-cache.json")
+            judge = LocalClaudeJudge(
+                cache_path=cache_path,
+                model=args.judge_model,
+                claude_bin=args.judge_claude_bin,
+                call_timeout_seconds=args.judge_timeout_seconds,
+            )
+        report = run_benchmark(
+            args.manifest,
+            args.task_pack,
+            args.out,
+            http_timeout_seconds=args.http_timeout_seconds,
+            judge=judge,
+        )
         print(
             json.dumps(
-                {"overall": report["summary"]["overall"], "out": str(Path(args.out))},
+                {
+                    "overall": report["summary"]["overall"],
+                    "out": str(Path(args.out)),
+                    "judgeScored": bool(report["summary"].get("judgeScored", False)),
+                },
                 ensure_ascii=False,
             )
         )

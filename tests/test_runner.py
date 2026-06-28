@@ -4,6 +4,7 @@ import json
 import shutil
 import tempfile
 import threading
+import time
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -297,6 +298,108 @@ print(json.dumps({{
         self.assertGreater(report["summary"]["overall"], 90)
         self.assertTrue(all(attempt["verdict"] == "PASS" for attempt in report["attempts"]))
         self.assertEqual(received_task_ids, [task["taskId"] for task in task_pack["tasks"]])
+
+    def test_http_adapter_runs_slow_agent_beyond_task_budget_within_http_timeout(self) -> None:
+        # A real agent (e.g. claude) routinely answers slower than the per-task
+        # budget. The transport timeout must be decoupled from task.timeoutSeconds:
+        # the HTTP call should NOT be killed at the budget, yet the budget must
+        # still drive speed scoring.
+        server_sleep_seconds = 1.0
+        task_budget_seconds = 0.3  # deliberately shorter than the agent latency
+
+        class SlowHTTPAgent(BaseHTTPRequestHandler):
+            def do_POST(self) -> None:
+                content_length = int(self.headers.get("Content-Length", "0"))
+                self.rfile.read(content_length)
+                time.sleep(server_sleep_seconds)
+                response = json.dumps(
+                    {"answer": "slow path ready", "toolTrace": []},
+                    ensure_ascii=False,
+                ).encode("utf-8")
+                try:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(response)))
+                    self.end_headers()
+                    self.wfile.write(response)
+                except (BrokenPipeError, ConnectionResetError, OSError):
+                    # Client already gave up (http-timeout contrast case below).
+                    pass
+
+            def log_message(self, format: str, *args: object) -> None:
+                return
+
+        task_pack = {
+            "taskPackId": "slow-agent-pack",
+            "name": "Slow Agent Pack",
+            "version": "0.1.0",
+            "tasks": [
+                {
+                    "taskId": "slow_task",
+                    "category": "core",
+                    "prompt": "Answer slowly.",
+                    "expected": {"type": "contains", "value": "slow path ready"},
+                    "timeoutSeconds": task_budget_seconds,
+                }
+            ],
+        }
+        task_pack_path = self.tmpdir / "slow_pack.json"
+        task_pack_path.write_text(json.dumps(task_pack), encoding="utf-8")
+
+        server = HTTPServer(("127.0.0.1", 0), SlowHTTPAgent)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            manifest = {
+                "agentId": "slow-http-agent",
+                "name": "Slow HTTP Agent",
+                "version": "0.1.0",
+                "adapter": {
+                    "type": "http",
+                    "endpoint": f"http://127.0.0.1:{server.server_port}/tasks",
+                },
+                "limits": {"timeoutSecondsPerTask": 5, "maxRunsPerTask": 1},
+            }
+            manifest_path = self.tmpdir / "slow_http.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            # http timeout comfortably above agent latency: the slow agent completes
+            # even though it answers well past task.timeoutSeconds.
+            report = run_benchmark(
+                manifest_path,
+                task_pack_path,
+                self.tmpdir / "slow-run",
+                http_timeout_seconds=10.0,
+            )
+
+            # Contrast: an http timeout below the agent latency DOES cut the call off,
+            # proving the http timeout (not task.timeoutSeconds) is the network deadline.
+            timed_out = run_benchmark(
+                manifest_path,
+                task_pack_path,
+                self.tmpdir / "slow-run-timeout",
+                http_timeout_seconds=0.3,
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+        attempt = report["attempts"][0]
+        self.assertEqual(attempt["verdict"], "PASS")
+        self.assertIn("slow path ready", attempt["answer"])
+        # Elapsed exceeds the per-task budget, yet the call was allowed to finish:
+        # the transport timeout is decoupled from task.timeoutSeconds (P4 fix).
+        self.assertGreater(attempt["elapsedSeconds"], task_budget_seconds)
+        # P2 honest-scoring fix: speed reflects real wall-clock latency via the
+        # reference-latency curve, NOT the tiny per-task budget. A ~1s answer is
+        # fast and must score well above zero (the old budget-driven axis wrongly
+        # zeroed every real answer and could rank the slowest agent first).
+        self.assertGreater(attempt["scores"]["speed"], 50.0)
+
+        timed_out_attempt = timed_out["attempts"][0]
+        self.assertEqual(timed_out_attempt["verdict"], "FAIL")
+        self.assertEqual(timed_out_attempt["answer"], "")
 
     def test_leaderboard_ranks_good_agent_first(self) -> None:
         task_pack = PROJECT_ROOT / "examples/task_packs/mvp_v0.json"

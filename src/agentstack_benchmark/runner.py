@@ -1,20 +1,40 @@
 from __future__ import annotations
 
+import http.client
 import json
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from urllib import error, parse, request
 
 from .adapter_contract import build_task_request, normalize_agent_response
-from .evaluator import build_scoring_schema, evaluate_attempt, summarize_scores
+from .evaluator import JudgeFn, build_scoring_schema, evaluate_attempt, summarize_scores
+from .judge import (
+    DEFAULT_JUDGE_MODEL,
+    LocalClaudeJudge,
+    build_scoring_schema_v2,
+)
 from .reproducibility import build_reproducibility_metadata, redact_value
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 from .tracks import validate_local_public_task_pack
 
+# Default wall-clock timeout (seconds) for the adapter client/transport call
+# (urllib for http adapters, subprocess for cli adapters). This is intentionally
+# decoupled from task.timeoutSeconds, which stays a per-task budget/scoring signal.
+# Real agents (e.g. claude) routinely answer slower than a task budget, so the
+# transport timeout must be generous enough to let them respond without editing
+# the task pack.
+DEFAULT_HTTP_TIMEOUT_SECONDS = 120.0
 
-def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir: str | Path) -> dict[str, Any]:
+
+def run_benchmark(
+    manifest_path: str | Path,
+    task_pack_path: str | Path,
+    out_dir: str | Path,
+    http_timeout_seconds: float = DEFAULT_HTTP_TIMEOUT_SECONDS,
+    judge: Optional[JudgeFn] = None,
+) -> dict[str, Any]:
     manifest_path = Path(manifest_path)
     task_pack_path = Path(task_pack_path)
     out_dir = Path(out_dir)
@@ -26,11 +46,12 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
     _validate_task_pack(task_pack)
     validate_local_public_task_pack(task_pack)
 
+    client_timeout_seconds = _resolve_client_timeout(manifest, http_timeout_seconds)
     project_root = manifest_path.parent.parent.parent
     attempts = []
     for task in task_pack["tasks"]:
-        output, elapsed = _invoke_agent(manifest, task, project_root)
-        attempts.append(evaluate_attempt(task, output, elapsed))
+        output, elapsed = _invoke_agent(manifest, task, project_root, client_timeout_seconds)
+        attempts.append(evaluate_attempt(task, output, elapsed, judge=judge))
 
     score_summary = summarize_scores(attempts)
     redacted_attempts, redacted_occurrences = redact_value(attempts)
@@ -66,6 +87,11 @@ def run_benchmark(manifest_path: str | Path, task_pack_path: str | Path, out_dir
         ),
         "attempts": base_report["attempts"],
     }
+    # Opt-in v2 metadata lives OUTSIDE the v1 artifact-hash field set
+    # (schemaVersion/track/agent/taskPack/scoringSchema/summary/attempts), so the
+    # frozen v1 schema block and a non-judge run's artifactHash are unaffected.
+    if judge is not None and any(item.get("judgeScored") for item in attempts):
+        report["scoringSchemaV2"] = build_scoring_schema_v2()
 
     (out_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     (out_dir / "report.md").write_text(render_markdown_report(report), encoding="utf-8")
@@ -79,7 +105,13 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         f"Agent: `{report['agent']['agentId']}` v{report['agent']['version']}",
         f"Task pack: `{report['taskPack']['taskPackId']}` v{report['taskPack']['version']}",
         f"Track: `{report['track']}`",
-        f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`",
+        f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`"
+        + (
+            f" + `{report['scoringSchemaV2']['schemaVersion']}` "
+            "(LLM-judge, non-deterministic, cached)"
+            if "scoringSchemaV2" in report
+            else ""
+        ),
         f"Overall score: **{report['summary']['overall']}**",
         "",
         "## Reproducibility",
@@ -100,22 +132,57 @@ def render_markdown_report(report: dict[str, Any]) -> str:
     lines.extend(["", "## Task attempts"])
     for attempt in report["attempts"]:
         score_text = ", ".join(f"{key}={value}" for key, value in attempt["scores"].items())
+        judged = ""
+        if attempt.get("judgeScored"):
+            jr = attempt.get("judge", {})
+            judged = (
+                f" [judge: {'PASS' if jr.get('pass') else 'FAIL'} "
+                f"{jr.get('score')} cached={jr.get('cached')} — {jr.get('reason')}]"
+            )
         lines.append(
             f"- `{attempt['taskId']}` ({attempt['category']}): {attempt['verdict']} "
-            f"in {attempt['elapsedSeconds']}s — scores: {score_text} — {attempt['answer']}"
+            f"in {attempt['elapsedSeconds']}s — scores: {score_text}{judged} — {attempt['answer']}"
         )
     lines.append("")
     return "\n".join(lines)
 
 
-def _invoke_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: Path) -> tuple[dict[str, Any], float]:
+def _invoke_agent(
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+    project_root: Path,
+    client_timeout_seconds: float,
+) -> tuple[dict[str, Any], float]:
     adapter = manifest.get("adapter", {})
     adapter_type = adapter.get("type")
     if adapter_type == "cli":
-        return _invoke_cli_agent(manifest, task, project_root)
+        return _invoke_cli_agent(manifest, task, project_root, client_timeout_seconds)
     if adapter_type == "http":
-        return _invoke_http_agent(manifest, task)
+        return _invoke_http_agent(manifest, task, client_timeout_seconds)
     raise ValueError("adapter.type must be one of: cli, http")
+
+
+def _resolve_client_timeout(manifest: dict[str, Any], http_timeout_seconds: float) -> float:
+    """Resolve the adapter client/transport timeout.
+
+    Precedence: per-agent ``adapter.httpTimeoutSeconds`` override, then the
+    run-level ``http_timeout_seconds`` (CLI ``--http-timeout-seconds``, default
+    ``DEFAULT_HTTP_TIMEOUT_SECONDS``). Never derived from ``task.timeoutSeconds``.
+    """
+    adapter = manifest.get("adapter", {})
+    override = adapter.get("httpTimeoutSeconds")
+    value = float(override if override is not None else http_timeout_seconds)
+    if value <= 0:
+        raise ValueError("http timeout seconds must be a positive number")
+    return value
+
+
+def _task_budget_seconds(manifest: dict[str, Any], task: dict[str, Any]) -> float:
+    """Per-task budget signal used for the adapter payload and speed scoring.
+
+    This is NOT the transport timeout; see ``_resolve_client_timeout``.
+    """
+    return float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
 
 
 def _build_task_payload(
@@ -125,14 +192,19 @@ def _build_task_payload(
     return build_task_request(task, default_timeout_seconds=default_timeout_seconds)
 
 
-def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_root: Path) -> tuple[dict[str, Any], float]:
+def _invoke_cli_agent(
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+    project_root: Path,
+    client_timeout_seconds: float,
+) -> tuple[dict[str, Any], float]:
     adapter = manifest.get("adapter", {})
     command = adapter.get("command")
     if not isinstance(command, list) or not all(isinstance(part, str) for part in command):
         raise ValueError("adapter.command must be a string array")
 
-    timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
-    payload = json.dumps(_build_task_payload(task, timeout), ensure_ascii=False)
+    task_budget_seconds = _task_budget_seconds(manifest, task)
+    payload = json.dumps(_build_task_payload(task, task_budget_seconds), ensure_ascii=False)
 
     started = time.monotonic()
     result = subprocess.run(
@@ -142,7 +214,7 @@ def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_ro
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=timeout,
+        timeout=client_timeout_seconds,
         check=False,
     )
     elapsed = time.monotonic() - started
@@ -164,15 +236,19 @@ def _invoke_cli_agent(manifest: dict[str, Any], task: dict[str, Any], project_ro
     return normalize_agent_response(output), elapsed
 
 
-def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[dict[str, Any], float]:
+def _invoke_http_agent(
+    manifest: dict[str, Any],
+    task: dict[str, Any],
+    client_timeout_seconds: float,
+) -> tuple[dict[str, Any], float]:
     adapter = manifest.get("adapter", {})
     endpoint = adapter.get("endpoint")
     if not isinstance(endpoint, str) or not endpoint:
         raise ValueError("adapter.endpoint must be a non-empty string")
     _validate_local_http_endpoint(endpoint)
 
-    timeout = float(task.get("timeoutSeconds", manifest.get("limits", {}).get("timeoutSecondsPerTask", 10)))
-    payload = json.dumps(_build_task_payload(task, timeout), ensure_ascii=False).encode("utf-8")
+    task_budget_seconds = _task_budget_seconds(manifest, task)
+    payload = json.dumps(_build_task_payload(task, task_budget_seconds), ensure_ascii=False).encode("utf-8")
     http_request = request.Request(
         endpoint,
         data=payload,
@@ -182,14 +258,16 @@ def _invoke_http_agent(manifest: dict[str, Any], task: dict[str, Any]) -> tuple[
 
     started = time.monotonic()
     try:
-        with request.urlopen(http_request, timeout=timeout) as response:
+        with request.urlopen(http_request, timeout=client_timeout_seconds) as response:
             response_body = response.read().decode("utf-8")
-    except (TimeoutError, error.URLError) as exc:
+    except (TimeoutError, error.URLError, http.client.HTTPException, ConnectionError, OSError) as exc:
+        # A flaky/crashing agent (e.g. RemoteDisconnected mid-stream, connection
+        # reset) must degrade to a per-task runtimeError, never crash the whole run.
         elapsed = time.monotonic() - started
         return {
             "answer": "",
             "toolTrace": [],
-            "runtimeError": f"http_error={exc}",
+            "runtimeError": f"http_error={type(exc).__name__}: {exc}",
         }, elapsed
     elapsed = time.monotonic() - started
 
