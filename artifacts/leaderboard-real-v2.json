@@ -1,0 +1,71 @@
+[
+  {
+    "rank": 1,
+    "track": "local-public",
+    "agentId": "claude-code-sonnet-4-6-real",
+    "agentName": "Claude Code (Sonnet 4.6) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 88.4,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 88.4,
+      "speed": 49.81,
+      "costEfficiency": 100.0,
+      "toolUse": 96.0,
+      "safety": 99.0,
+      "depth": 64.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v2/real-sonnet/report.json"
+  },
+  {
+    "rank": 2,
+    "track": "local-public",
+    "agentId": "claude-code-opus-4-8-real",
+    "agentName": "Claude Code (Opus 4.8) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 87.87,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 88.2,
+      "speed": 42.74,
+      "costEfficiency": 100.0,
+      "toolUse": 98.0,
+      "safety": 99.0,
+      "depth": 64.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v2/real-opus/report.json"
+  },
+  {
+    "rank": 3,
+    "track": "local-public",
+    "agentId": "claude-code-haiku-4-5-real",
+    "agentName": "Claude Code (Haiku 4.5) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 77.4,
+    "dimensions": {
+      "reliability": 80.0,
+      "quality": 75.0,
+      "speed": 54.19,
+      "costEfficiency": 100.0,
+      "toolUse": 86.0,
+      "safety": 78.0,
+      "depth": 48.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 4,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v2/real-haiku/report.json"
+  }
+]

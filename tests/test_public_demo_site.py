@@ -26,7 +26,13 @@ class PublicDemoSiteTests(unittest.TestCase):
         self.assertEqual(manifest["status"], "static-local-public-sample-ready")
         self.assertEqual(manifest["sampleRun"]["agentName"], "Offline Demo Agent")
         self.assertEqual(manifest["sampleRun"]["overall"], 98.88)
-        self.assertEqual(manifest["pilotLeaderboard"]["entries"], 5)
+        # Public leaderboard now reflects the honest engine's real frontier run
+        # (Opus > Sonnet > Haiku + a handicapped-weak control), not the old
+        # deterministic 5-pilot fixture that flattened every stack to a near-tie.
+        self.assertEqual(manifest["pilotLeaderboard"]["entries"], 4)
+        self.assertEqual(
+            manifest["pilotLeaderboard"]["source"], "real-frontier-run-honest-scoring"
+        )
         self.assertFalse(manifest["hostedRunnerIncluded"])
         self.assertFalse(manifest["billingCheckoutConnected"])
 
@@ -47,8 +53,11 @@ class PublicDemoSiteTests(unittest.TestCase):
         self.assertIn("Offline Demo Agent", index_html)
         self.assertIn("Overall 98.88", report_html)
         self.assertIn("5/5 tasks", report_html)
-        self.assertIn("OpenAI Agents SDK", leaderboard_html)
-        self.assertIn("Claude Code + MCP", leaderboard_html)
+        # Honest frontier ranking is surfaced on the public leaderboard.
+        self.assertIn("Honest frontier leaderboard", leaderboard_html)
+        self.assertIn("Claude Code (Opus 4.8)", leaderboard_html)
+        self.assertIn("Claude Code (Sonnet 4.6)", leaderboard_html)
+        self.assertIn("Claude Code (Haiku 4.5)", leaderboard_html)
         self.assertIn("local-public", leaderboard_html)
         self.assertNotIn(str(self.tmpdir), index_html + report_html + leaderboard_html)
 
@@ -79,7 +88,11 @@ class PublicDemoSiteTests(unittest.TestCase):
         demo_manifest = json.loads((demo_dir / "public-demo.json").read_text(encoding="utf-8"))
         self.assertEqual(demo_manifest["status"], "static-local-public-sample-ready")
         self.assertEqual(demo_manifest["sampleRun"]["overall"], 98.88)
-        self.assertEqual(demo_manifest["pilotLeaderboard"]["entries"], 5)
+        # Committed public leaderboard is the honest real frontier run (4 entries).
+        self.assertEqual(demo_manifest["pilotLeaderboard"]["entries"], 4)
+        self.assertEqual(
+            demo_manifest["pilotLeaderboard"]["source"], "real-frontier-run-honest-scoring"
+        )
 
         launch_html = (REPO_ROOT / "site/index.html").read_text(encoding="utf-8")
         launch_json = json.loads((REPO_ROOT / "site/launch.json").read_text(encoding="utf-8"))

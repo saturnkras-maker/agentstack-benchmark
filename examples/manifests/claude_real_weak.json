@@ -1,0 +1,26 @@
+{
+  "agentId": "claude-haiku-handicapped-weak-real",
+  "name": "Claude Code (Haiku 4.5) — handicapped weak (≤5 words, no reasoning)",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "http",
+    "endpoint": "http://127.0.0.1:8802/tasks"
+  },
+  "model": {
+    "provider": "anthropic-subscription",
+    "name": "claude-haiku-4-5-20251001"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": false,
+    "memory": false,
+    "skills": false,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 120,
+    "maxRunsPerTask": 1
+  },
+  "notes": "Deliberately-weak REAL agent: same Haiku model and real inference as the competent Haiku tier, but the agent appends a handicap system prompt ('Answer in at most 5 words. Do not show any reasoning, steps, or explanation. Output only the final short answer.'). It exists to prove the benchmark spans weak->strong on a diverse field; it is NOT a separate model."
+}

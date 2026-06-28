@@ -11,9 +11,10 @@
     "tasksTotal": 5
   },
   "pilotLeaderboard": {
-    "entries": 5,
+    "entries": 4,
     "registry": "examples/pilots/local_public_v0_1.json",
-    "mode": "fixture-adapter"
+    "mode": "fixture-adapter",
+    "source": "real-frontier-run-honest-scoring"
   },
   "hostedRunnerIncluded": false,
   "billingCheckoutConnected": false,

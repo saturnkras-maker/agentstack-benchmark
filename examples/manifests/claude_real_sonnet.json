@@ -1,0 +1,25 @@
+{
+  "agentId": "claude-code-sonnet-4-6-real",
+  "name": "Claude Code (Sonnet 4.6) — real",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "http",
+    "endpoint": "http://127.0.0.1:8800/tasks"
+  },
+  "model": {
+    "provider": "anthropic-subscription",
+    "name": "claude-sonnet-4-6"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": false,
+    "memory": false,
+    "skills": false,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 120,
+    "maxRunsPerTask": 1
+  }
+}

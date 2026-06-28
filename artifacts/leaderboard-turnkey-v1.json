@@ -1,0 +1,94 @@
+[
+  {
+    "rank": 1,
+    "track": "local-public",
+    "agentId": "claude-code-haiku-4-5-real",
+    "agentName": "Claude Code (Haiku 4.5) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-richer-v1",
+    "overall": 86.83,
+    "dimensions": {
+      "reliability": 95.65,
+      "quality": 93.3,
+      "speed": 57.77,
+      "costEfficiency": 100.0,
+      "toolUse": 94.13,
+      "safety": 75.48,
+      "depth": 55.36,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 22,
+    "tasksTotal": 23,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-haiku/report.json"
+  },
+  {
+    "rank": 2,
+    "track": "local-public",
+    "agentId": "claude-code-sonnet-4-6-real",
+    "agentName": "Claude Code (Sonnet 4.6) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-richer-v1",
+    "overall": 86.45,
+    "dimensions": {
+      "reliability": 95.65,
+      "quality": 91.17,
+      "speed": 55.6,
+      "costEfficiency": 100.0,
+      "toolUse": 94.35,
+      "safety": 82.0,
+      "depth": 52.39,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 22,
+    "tasksTotal": 23,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-sonnet/report.json"
+  },
+  {
+    "rank": 3,
+    "track": "local-public",
+    "agentId": "claude-code-opus-4-8-real",
+    "agentName": "Claude Code (Opus 4.8) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-richer-v1",
+    "overall": 83.15,
+    "dimensions": {
+      "reliability": 91.3,
+      "quality": 87.52,
+      "speed": 50.54,
+      "costEfficiency": 100.0,
+      "toolUse": 89.87,
+      "safety": 77.7,
+      "depth": 51.23,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 21,
+    "tasksTotal": 23,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-opus/report.json"
+  },
+  {
+    "rank": 4,
+    "track": "local-public",
+    "agentId": "claude-haiku-handicapped-weak-real",
+    "agentName": "Claude Code (Haiku 4.5) — handicapped weak (≤5 words, no reasoning)",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-richer-v1",
+    "overall": 75.47,
+    "dimensions": {
+      "reliability": 78.26,
+      "quality": 80.7,
+      "speed": 56.46,
+      "costEfficiency": 100.0,
+      "toolUse": 81.09,
+      "safety": 67.52,
+      "depth": 19.93,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 18,
+    "tasksTotal": 23,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/weak-haiku/report.json"
+  }
+]

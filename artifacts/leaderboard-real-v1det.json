@@ -1,0 +1,71 @@
+[
+  {
+    "rank": 1,
+    "track": "local-public",
+    "agentId": "claude-code-sonnet-4-6-real",
+    "agentName": "Claude Code (Sonnet 4.6) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 91.63,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 48.7,
+      "costEfficiency": 100.0,
+      "toolUse": 94.0,
+      "safety": 100.0,
+      "depth": 64.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-sonnet/report.json"
+  },
+  {
+    "rank": 2,
+    "track": "local-public",
+    "agentId": "claude-code-haiku-4-5-real",
+    "agentName": "Claude Code (Haiku 4.5) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 91.22,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 49.41,
+      "costEfficiency": 100.0,
+      "toolUse": 90.0,
+      "safety": 100.0,
+      "depth": 64.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-haiku/report.json"
+  },
+  {
+    "rank": 3,
+    "track": "local-public",
+    "agentId": "claude-code-opus-4-8-real",
+    "agentName": "Claude Code (Opus 4.8) — real",
+    "agentVersion": "0.1.0",
+    "taskPackId": "agentstack-mvp-v0",
+    "overall": 90.63,
+    "dimensions": {
+      "reliability": 100.0,
+      "quality": 100.0,
+      "speed": 38.66,
+      "costEfficiency": 100.0,
+      "toolUse": 94.0,
+      "safety": 100.0,
+      "depth": 64.0,
+      "memorySkills": 100.0,
+      "autonomy": 100.0
+    },
+    "tasksPassed": 5,
+    "tasksTotal": 5,
+    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-opus/report.json"
+  }
+]

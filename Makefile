@@ -1,6 +1,9 @@
 .PHONY: help test compile doctor local-model-check demo-local demo-local-once demo-local-auto demo-local-auto-once demo-pilots verify-local-mvp public-demo-site cockpit serve
 
-PYTHON ?= python3.11
+# Prefer python3.11 when available; otherwise fall back to python3 so the local
+# MVP aliases work on machines without a 3.11-specific binary. Override with
+# `make <target> PYTHON=...` to pin an interpreter explicitly.
+PYTHON ?= $(shell command -v python3.11 >/dev/null 2>&1 && echo python3.11 || echo python3)
 PYTHONPATH ?= src
 HOST ?= 127.0.0.1
 UI_PORT ?= 8088

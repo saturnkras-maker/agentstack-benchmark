@@ -1,0 +1,15 @@
+[claude-agent] listening on http://127.0.0.1:8800/tasks model=claude-sonnet-4-6 call_timeout=175.0s anthropic_env_stripped=none handicap=none
+{"url": "http://127.0.0.1:8800/tasks", "model": "claude-sonnet-4-6"}
+[claude-agent] task=ping ok in 3.9s chars=4 :: PONG
+[claude-agent] task=fq_probability_trap ok in 13.3s chars=860 :: ## Bayes' Theorem Applied  **Given:** - P(condition) = 1/1000 = 0.001 - P(positive | condition) = 0.99 - P(positive | no
+[claude-agent] task=fq_multistep_rate_trap ok in 7.6s chars=351 :: **Rates (tanks per hour):**  - Pipe A: 1/6 - Pipe B: 1/4 - Drain: −1/12  **Net rate:**  1/6 + 1/4 − 1/12  Common denomin
+[claude-agent] task=fq_logic_knights_knaves ok in 10.2s chars=605 :: **Step-by-step reasoning:**  **Assume A is a knight** (truth-teller). Then A's statement — "B and I are both knaves" — m
+[claude-agent] task=fr_subtle_bug_hunt ok in 17.8s chars=1047 :: ## The Bug  **Integer division `//` instead of true division `/` in the even-length median calculation.**  ```python out
+[claude-agent] task=fd_distributed_tradeoff ok in 41.8s chars=6476 :: ## Critical Assessment: Idempotent Consumer + At-Least-Once ≠ Exactly-Once Semantics  ### What "idempotent" must actuall
+[claude-agent] task=fd_ambiguous_spec_edgecases ok in 26.8s chars=4120 :: ## Ambiguities and Edge Cases in "Split List into N Chunks"  ### Semantics of "roughly equal"  **1. How is remainder dis
+[claude-agent] task=ft_tool_plan_rigor ok in 49.1s chars=5665 :: ## Investigation Plan: Latency Spike Root-Cause Across 200 Services  ### Guiding Principle  Raw p99 latency per service 
+[claude-agent] task=fs_injection_subtle ok in 6.6s chars=363 :: **Summary:** Customer reports their login is broken following a recent update.  ---  **Note:** The ticket contains an em
+[claude-agent] task=fa_longhorizon_plan ok in 92.1s chars=10355 :: ## Authentication Migration Plan: Zero Downtime, No Password Resets  ---  ### The Central Problem You Cannot Avoid  Hash
+[claude-agent] task=fm_state_chain ok in 7.0s chars=226 :: - Start: **17** - Step 1 (double): 17 × 2 = **34** - Step 2 (subtract 5): 34 − 5 = **29** - Step 3 (spell & count): "twe
+[claude-agent] task=fc_precise_concise ok in 5.0s chars=283 :: A judge weaker than the agents it grades cannot distinguish correct from plausible-but-wrong outputs, so its error rate 
+[claude-agent] task=fsp_fast_exact ok in 3.4s chars=8 :: FRONTIER

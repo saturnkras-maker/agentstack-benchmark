@@ -8,6 +8,12 @@ from pathlib import Path
 from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
 from .doctor import build_first_run_doctor_report
+from .judge import (
+    DEFAULT_CLAUDE_BIN,
+    DEFAULT_JUDGE_MODEL,
+    DEFAULT_JUDGE_TIMEOUT_SECONDS,
+    LocalClaudeJudge,
+)
 from .leaderboard import build_leaderboard
 from .local_mvp_verification import verify_local_mvp
 from .local_model import (
@@ -18,9 +24,11 @@ from .local_model import (
 from .offline_demo import DEFAULT_TASK_PACK_PATH, run_offline_demo_once, start_offline_demo_agent
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .public_demo import build_public_demo_site
-from .runner import run_benchmark
+from .runner import DEFAULT_HTTP_TIMEOUT_SECONDS, run_benchmark
+from .schemas import load_json
 from .security import SecurityConfig
 from .server import serve
+from .value_layer import enrich_report_value_layer, render_value_layer_markdown
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,6 +45,53 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         required=True,
         help="Output directory for report.json/report.md",
+    )
+    run_parser.add_argument(
+        "--http-timeout-seconds",
+        type=float,
+        default=DEFAULT_HTTP_TIMEOUT_SECONDS,
+        help=(
+            "Wall-clock timeout (seconds) for the adapter client/transport call "
+            "(urllib for http, subprocess for cli). Decoupled from task.timeoutSeconds, "
+            "which stays a per-task budget/scoring signal. A manifest "
+            "adapter.httpTimeoutSeconds overrides this. Lets real (slow) agents run an "
+            "unmodified task pack."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge",
+        action="store_true",
+        help=(
+            "Opt-in: enable the scoring_schema_v2 LLM-as-judge for open "
+            "quality/safety/tool-use/depth tasks via the local Claude CLI "
+            "(subscription, ANTHROPIC_* stripped). Verdicts are cached for "
+            "reproducibility and marked non-deterministic. Deterministic "
+            "scoring_schema_v1 is never modified or auto-replaced."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge-model",
+        default=DEFAULT_JUDGE_MODEL,
+        help="Model id for the LLM judge (default: %(default)s).",
+    )
+    run_parser.add_argument(
+        "--judge-cache",
+        default=None,
+        help=(
+            "Path to the judge verdict cache JSON (default: <out>/judge-cache.json). "
+            "Keyed by (taskId, model, normalized answer) for reproducible re-runs."
+        ),
+    )
+    run_parser.add_argument(
+        "--judge-claude-bin",
+        default=DEFAULT_CLAUDE_BIN,
+        help="Path to the local claude CLI binary (default: %(default)s).",
+    )
+    run_parser.add_argument(
+        "--judge-timeout-seconds",
+        type=float,
+        default=DEFAULT_JUDGE_TIMEOUT_SECONDS,
+        help="Per-call wall-clock timeout for the judge CLI (default: %(default)s).",
     )
 
     leaderboard_parser = subparsers.add_parser(
@@ -238,6 +293,26 @@ def build_parser() -> argparse.ArgumentParser:
         default="artifacts/public-beta-package",
         help="Directory for public_beta_manifest.json, checklist, and summary.json",
     )
+
+    value_layer_parser = subparsers.add_parser(
+        "value-layer",
+        help="Enrich an existing report.json with the additive value layer",
+    )
+    value_layer_parser.add_argument(
+        "--report",
+        required=True,
+        help="Path to an existing report.json to enrich (read-only)",
+    )
+    value_layer_parser.add_argument(
+        "--baseline-report",
+        default=None,
+        help="Optional baseline report.json for delta comparison",
+    )
+    value_layer_parser.add_argument(
+        "--out",
+        required=True,
+        help="Output path for the enriched report.json (value-layer.md written alongside)",
+    )
     return parser
 
 
@@ -245,10 +320,29 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "run":
-        report = run_benchmark(args.manifest, args.task_pack, args.out)
+        judge = None
+        if getattr(args, "judge", False):
+            cache_path = args.judge_cache or str(Path(args.out) / "judge-cache.json")
+            judge = LocalClaudeJudge(
+                cache_path=cache_path,
+                model=args.judge_model,
+                claude_bin=args.judge_claude_bin,
+                call_timeout_seconds=args.judge_timeout_seconds,
+            )
+        report = run_benchmark(
+            args.manifest,
+            args.task_pack,
+            args.out,
+            http_timeout_seconds=args.http_timeout_seconds,
+            judge=judge,
+        )
         print(
             json.dumps(
-                {"overall": report["summary"]["overall"], "out": str(Path(args.out))},
+                {
+                    "overall": report["summary"]["overall"],
+                    "out": str(Path(args.out)),
+                    "judgeScored": bool(report["summary"].get("judgeScored", False)),
+                },
                 ensure_ascii=False,
             )
         )
@@ -424,6 +518,41 @@ def main(argv: list[str] | None = None) -> int:
                     "packageStatus": manifest["packageStatus"],
                     "assetCount": len(manifest["assets"]),
                     "outDir": str(Path(args.out_dir)),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
+    if args.command == "value-layer":
+        report = load_json(args.report)
+        baseline = load_json(args.baseline_report) if args.baseline_report else None
+        enriched = enrich_report_value_layer(report, baseline)
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(
+            json.dumps(enriched, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        # Markdown is written to a sibling derived from the report's stem and must
+        # NEVER collide with the JSON --out path. With ``--out report.json`` this
+        # is ``report.md``; with ``--out value-layer.md`` (md given as out) the
+        # naive ``with_suffix('.md')`` would clobber the JSON, so we disambiguate.
+        md_candidate = out_path.with_suffix(".md") if out_path.suffix else out_path.parent / "value-layer.md"
+        if md_candidate.resolve() == out_path.resolve():
+            md_candidate = out_path.with_name(f"{out_path.stem}.value-layer.md")
+        md_path = md_candidate
+        md_path.write_text(
+            render_value_layer_markdown(enriched["valueLayer"]),
+            encoding="utf-8",
+        )
+        print(
+            json.dumps(
+                {
+                    "out": str(out_path),
+                    "markdown": str(md_path),
+                    "valueLayerHash": enriched["valueLayer"]["valueLayerHash"],
+                    "redRisks": len(enriched["valueLayer"]["redRisks"]),
+                    "insights": len(enriched["valueLayer"]["insights"]),
                 },
                 ensure_ascii=False,
             )

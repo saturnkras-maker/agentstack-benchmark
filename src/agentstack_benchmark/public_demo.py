@@ -16,6 +16,15 @@ from .schemas import stable_json_hash
 
 PUBLIC_DEMO_SCHEMA_VERSION = "agentstack-benchmark.public-demo.v0.1"
 
+# Committed real, honest-scored frontier run used to drive the PUBLIC leaderboard.
+# When present, the public leaderboard reflects the honest engine's true frontier
+# ranking (Opus > Sonnet > Haiku, with a handicapped-weak control) instead of the
+# old deterministic 5-pilot fixture that flattened every stack to a near-tie. Real
+# speed and overall are preserved verbatim — they are NOT clobbered to 100 — so the
+# public surface shows honest differentiation. Falls back to the pilot fixtures
+# only if this committed run is missing.
+PUBLIC_FRONTIER_RUN_DIR = "artifacts/frontier-validation/run2"
+
 
 def build_public_demo_site(
     repo_root: str | Path = ".",
@@ -57,8 +66,28 @@ def build_public_demo_site(
         out_dir=pilot_runs_dir,
     )
     leaderboard_path = generated_dir / "pilot-leaderboard.json"
-    raw_rows = build_leaderboard(pilot_runs_dir, leaderboard_path)
-    leaderboard_rows = _make_static_leaderboard_rows(raw_rows)
+
+    # Prefer the committed real, honest-scored frontier run for the public
+    # leaderboard so it shows the true Opus > Sonnet > Haiku ranking under the
+    # honest engine. Fall back to the deterministic pilot fixtures only if the
+    # frontier run is absent.
+    frontier_run_dir = repo_root / PUBLIC_FRONTIER_RUN_DIR
+    if _has_run_reports(frontier_run_dir):
+        raw_rows = build_leaderboard(frontier_run_dir, leaderboard_path)
+        leaderboard_rows = _make_honest_leaderboard_rows(raw_rows)
+        leaderboard_source = "real-frontier-run-honest-scoring"
+        leaderboard_title = "Honest frontier leaderboard — Opus &gt; Sonnet &gt; Haiku."
+        leaderboard_caption = (
+            "Real local-public runs scored by the honest engine "
+            "(scoring_schema_v1 + opt-in LLM-judge). Speed and overall are the "
+            "true measured values, not flattened placeholders."
+        )
+    else:
+        raw_rows = build_leaderboard(pilot_runs_dir, leaderboard_path)
+        leaderboard_rows = _make_static_leaderboard_rows(raw_rows)
+        leaderboard_source = "deterministic-pilot-fixtures"
+        leaderboard_title = "5-pilot deterministic fixture leaderboard."
+        leaderboard_caption = ""
 
     public_demo_manifest = {
         "schemaVersion": PUBLIC_DEMO_SCHEMA_VERSION,
@@ -76,6 +105,7 @@ def build_public_demo_site(
             "entries": len(leaderboard_rows),
             "registry": "examples/pilots/local_public_v0_1.json",
             "mode": registry["pilots"][0]["localPilotMode"],
+            "source": leaderboard_source,
         },
         "hostedRunnerIncluded": False,
         "billingCheckoutConnected": False,
@@ -111,7 +141,12 @@ def build_public_demo_site(
         encoding="utf-8",
     )
     (out_path / "leaderboard.html").write_text(
-        _render_static_leaderboard(leaderboard_rows, pilot_reports),
+        _render_static_leaderboard(
+            leaderboard_rows,
+            pilot_reports,
+            title=leaderboard_title,
+            caption=leaderboard_caption,
+        ),
         encoding="utf-8",
     )
     shutil.rmtree(generated_dir)
@@ -148,6 +183,34 @@ def _make_static_leaderboard_rows(rows: list[dict[str, Any]]) -> list[dict[str, 
         sanitized["dimensions"] = dict(sanitized["dimensions"])
         sanitized["dimensions"]["speed"] = 100.0
         sanitized["overall"] = _weighted_overall_from_dimensions(sanitized["dimensions"])
+        static_rows.append(sanitized)
+    static_rows.sort(key=lambda item: (-float(item["overall"]), item["agentId"]))
+    for index, row in enumerate(static_rows, start=1):
+        row["rank"] = index
+    return static_rows
+
+
+def _has_run_reports(runs_dir: Path) -> bool:
+    """True if ``runs_dir`` holds at least one ``<run>/report.json`` to rank."""
+    runs_dir = Path(runs_dir)
+    if not runs_dir.is_dir():
+        return False
+    return any(child.joinpath("report.json").is_file() for child in runs_dir.iterdir() if child.is_dir())
+
+
+def _make_honest_leaderboard_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Static rows for the public leaderboard that PRESERVE honest scoring.
+
+    Unlike :func:`_make_static_leaderboard_rows` (the legacy fixture path, which
+    overwrites ``speed`` with 100 and recomputes ``overall`` — flattening real
+    differences), this keeps the real measured ``overall``/``speed`` and ranking
+    from the honest engine. Only the report path is sanitized; ordering is the
+    leaderboard's own honest rank.
+    """
+    static_rows: list[dict[str, Any]] = []
+    for row in rows:
+        sanitized = _sanitize_leaderboard_row(row)
+        sanitized["dimensions"] = dict(sanitized["dimensions"])
         static_rows.append(sanitized)
     static_rows.sort(key=lambda item: (-float(item["overall"]), item["agentId"]))
     for index, row in enumerate(static_rows, start=1):
@@ -243,7 +306,12 @@ def _render_static_report(report: dict[str, Any]) -> str:
     )
 
 
-def _render_static_leaderboard(rows: list[dict[str, Any]], pilot_reports: list[dict[str, Any]]) -> str:
+def _render_static_leaderboard(
+    rows: list[dict[str, Any]],
+    pilot_reports: list[dict[str, Any]],
+    title: str = "5-pilot deterministic fixture leaderboard.",
+    caption: str = "",
+) -> str:
     boundaries = {item["agentId"]: item["report"].get("agent", {}).get("name", item["agentId"]) for item in pilot_reports}
     row_html = "".join(
         f"""
@@ -257,14 +325,17 @@ def _render_static_leaderboard(rows: list[dict[str, Any]], pilot_reports: list[d
         """
         for row in rows
     )
-    pilot_names = ", ".join(_e(value.split(" — ")[0]) for value in boundaries.values())
+    if caption:
+        subline = _e(caption)
+    else:
+        subline = ", ".join(_e(value.split(" — ")[0]) for value in boundaries.values())
     return _page(
         "AgentStack Benchmark — sample leaderboard",
         f"""
         <section class="hero">
           <p class="eyebrow">Static local-public sample leaderboard</p>
-          <h1>5-pilot deterministic fixture leaderboard.</h1>
-          <p>{pilot_names}</p>
+          <h1>{title}</h1>
+          <p>{subline}</p>
           <div class="actions"><a class="button" href="report.html">Open sample report</a><a class="button secondary" href="leaderboard.json">Open JSON</a></div>
         </section>
         <section class="card wide">

@@ -1,0 +1,8 @@
+usage: claude_real_http_agent.py [-h] [--host HOST] [--port PORT]
+                                 [--claude-bin CLAUDE_BIN] [--model MODEL]
+                                 [--call-timeout CALL_TIMEOUT]
+                                 [--max-attempts MAX_ATTEMPTS]
+                                 [--retry-backoff RETRY_BACKOFF]
+                                 [--system-prompt SYSTEM_PROMPT]
+claude_real_http_agent.py: error: argument --port: invalid int value: '8800 claude-sonnet-4-6 sonnet'
+haiku'

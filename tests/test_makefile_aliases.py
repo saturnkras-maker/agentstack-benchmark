@@ -35,7 +35,9 @@ class MakefileAliasTests(unittest.TestCase):
         self.assertIn("agentstack_benchmark.cli pilot-run", text)
         self.assertIn("agentstack_benchmark.cli verify-local-mvp", text)
         self.assertIn("agentstack_benchmark.cli public-demo-site", text)
-        self.assertIn("PYTHON ?= python3.11", text)
+        # PYTHON prefers python3.11 but falls back to python3 when 3.11 is absent.
+        self.assertIn("PYTHON ?=", text)
+        self.assertIn("python3.11", text)
         self.assertIn("--agent-mode auto-local-model", text)
 
     def test_make_doctor_smoke_prints_ready_json(self) -> None:
