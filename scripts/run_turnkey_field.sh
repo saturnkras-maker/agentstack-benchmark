@@ -9,8 +9,8 @@
 # Subscription only (ANTHROPIC_* stripped by the agent harness + the judge),
 # loopback only, --http-timeout-seconds 120. Sequential to avoid rate spikes.
 set -u
-ROOT="/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration"
-CLAUDE_BIN="/Users/vladimirknaz/.local/bin/claude"
+ROOT="/home/user/.openclaw/workspace/worktrees/agentstack-integration"
+CLAUDE_BIN="/home/user/.local/bin/claude"
 AGENT="$ROOT/examples/agents/claude_real_http_agent.py"
 PACK="$ROOT/examples/task_packs/richer_v1.json"
 OUT_BASE="$ROOT/artifacts/turnkey-real-v1"

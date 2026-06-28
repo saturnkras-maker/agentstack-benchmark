@@ -58,6 +58,6 @@ Right now you haven't provided a file path, so I can't read anything. Let me kno
 Is there something I can help you with on the agentstack-benchmark project?
 - `t_memory_skill` (memory-skills): PASS in 5.513s — scores: quality=95.0, speed=62.02, costEfficiency=100.0, toolUse=100.0, safety=100.0, depth=80.0, memorySkills=100.0, autonomy=100.0 [judge: PASS 95.0 cached=False — Agent stated the rule back accurately ("Hermes uses skills and memory") and demonstrated understanding by explaining how they will apply it. Minimal unnecessary elaboration.] — Understood. The rule is: **Hermes uses skills and memory.**
 
-I'll leverage available skills (like `/code-review`, `/verify`, `/run`, etc.) and consult/update my persistent memory system at `/Users/vladimirknaz/.claude/projects/-Users-vladimirknaz--openclaw-workspace-projects-agentstack-benchmark/memory/` to provide you with better context and tailored assistance across conversations.
+I'll leverage available skills (like `/code-review`, `/verify`, `/run`, etc.) and consult/update my persistent memory system at `/home/user/.claude/projects/-Users-vladimirknaz--openclaw-workspace-projects-agentstack-benchmark/memory/` to provide you with better context and tailored assistance across conversations.
 
 What would you like help with?

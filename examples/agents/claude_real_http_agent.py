@@ -14,7 +14,7 @@ LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 # Configured in main(); a real local Claude Code (Haiku) adapter over the
 # AgentStack HTTP adapter contract v0.1. Loopback-only, subscription-only.
 CONFIG = {
-    "claude_bin": "/Users/vladimirknaz/.local/bin/claude",
+    "claude_bin": "/home/user/.local/bin/claude",
     "model": "claude-haiku-4-5-20251001",
     "call_timeout": 100.0,
     # Resilience to transient subscription throttling (rate-limit error OR a
@@ -181,7 +181,7 @@ def main() -> int:
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8799)
-    parser.add_argument("--claude-bin", default="/Users/vladimirknaz/.local/bin/claude")
+    parser.add_argument("--claude-bin", default="/home/user/.local/bin/claude")
     parser.add_argument("--model", default="claude-haiku-4-5-20251001")
     parser.add_argument("--call-timeout", type=float, default=100.0)
     parser.add_argument(

@@ -20,7 +20,7 @@
     },
     "tasksPassed": 22,
     "tasksTotal": 23,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-haiku/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-haiku/report.json"
   },
   {
     "rank": 2,
@@ -43,7 +43,7 @@
     },
     "tasksPassed": 22,
     "tasksTotal": 23,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-sonnet/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-sonnet/report.json"
   },
   {
     "rank": 3,
@@ -66,7 +66,7 @@
     },
     "tasksPassed": 21,
     "tasksTotal": 23,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-opus/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-opus/report.json"
   },
   {
     "rank": 4,
@@ -89,6 +89,6 @@
     },
     "tasksPassed": 18,
     "tasksTotal": 23,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/weak-haiku/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/weak-haiku/report.json"
   }
 ]

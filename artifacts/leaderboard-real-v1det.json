@@ -20,7 +20,7 @@
     },
     "tasksPassed": 5,
     "tasksTotal": 5,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-sonnet/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-sonnet/report.json"
   },
   {
     "rank": 2,
@@ -43,7 +43,7 @@
     },
     "tasksPassed": 5,
     "tasksTotal": 5,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-haiku/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-haiku/report.json"
   },
   {
     "rank": 3,
@@ -66,6 +66,6 @@
     },
     "tasksPassed": 5,
     "tasksTotal": 5,
-    "reportPath": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-opus/report.json"
+    "reportPath": "/home/user/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring/artifacts/real-runs-v1det/real-opus/report.json"
   }
 ]

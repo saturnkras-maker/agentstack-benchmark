@@ -354,7 +354,7 @@ This slice proves the kernel before UI/payment complexity.
 
 ## 14. Current coordination state
 
-- Raskovalobot consult packet created: `/Users/vladimirknaz/.openclaw/workspace/projects/agentstack-benchmark/task-packets/raskovalobot-consult-2026-06-07.md`
+- Raskovalobot consult packet created: `/home/user/.openclaw/workspace/projects/agentstack-benchmark/task-packets/raskovalobot-consult-2026-06-07.md`
 - Telegram visible handoff sent to topic 4269, message id `22328`.
 - Agent relay event delivered/spooled: `030bf5cb9f4f9543efee94cb8d8b844247a021061c29b8185610a61eb47a50d9`.
 - Subagent CLI/delegate attempts failed with provider `Broken pipe`; parent Hermes continues implementation and will integrate Raskovalobot feedback when it arrives.

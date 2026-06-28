@@ -3,8 +3,8 @@
 # --judge). Subscription only (ANTHROPIC_* stripped by the agent harness),
 # loopback only, --http-timeout-seconds 120. Sequential to avoid rate spikes.
 set -u
-ROOT="/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring"
-CLAUDE_BIN="/Users/vladimirknaz/.local/bin/claude"
+ROOT="/home/user/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring"
+CLAUDE_BIN="/home/user/.local/bin/claude"
 AGENT="$ROOT/examples/agents/claude_real_http_agent.py"
 OUT_BASE="$ROOT/artifacts/real-runs-v2"
 JUDGE_MODEL="claude-haiku-4-5-20251001"

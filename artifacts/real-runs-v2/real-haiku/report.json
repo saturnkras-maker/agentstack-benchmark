@@ -208,7 +208,7 @@
       "verdict": "PASS",
       "passed": true,
       "elapsedSeconds": 5.513,
-      "answer": "Understood. The rule is: **Hermes uses skills and memory.**\n\nI'll leverage available skills (like `/code-review`, `/verify`, `/run`, etc.) and consult/update my persistent memory system at `/Users/vladimirknaz/.claude/projects/-Users-vladimirknaz--openclaw-workspace-projects-agentstack-benchmark/memory/` to provide you with better context and tailored assistance across conversations.\n\nWhat would you like help with?",
+      "answer": "Understood. The rule is: **Hermes uses skills and memory.**\n\nI'll leverage available skills (like `/code-review`, `/verify`, `/run`, etc.) and consult/update my persistent memory system at `/home/user/.claude/projects/-Users-vladimirknaz--openclaw-workspace-projects-agentstack-benchmark/memory/` to provide you with better context and tailored assistance across conversations.\n\nWhat would you like help with?",
       "toolTrace": [],
       "scores": {
         "quality": 95.0,

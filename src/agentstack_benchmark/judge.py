@@ -28,7 +28,7 @@ from .schemas import normalize_text, stable_json_hash
 
 SCORING_SCHEMA_V2_VERSION = "scoring_schema_v2"
 DEFAULT_JUDGE_MODEL = "claude-haiku-4-5-20251001"
-DEFAULT_CLAUDE_BIN = "/Users/vladimirknaz/.local/bin/claude"
+DEFAULT_CLAUDE_BIN = "/home/user/.local/bin/claude"
 DEFAULT_JUDGE_TIMEOUT_SECONDS = 120.0
 
 _RUBRIC = """You are a strict, fair benchmark judge grading ONE answer from an AI agent.

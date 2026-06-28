@@ -2,8 +2,8 @@
 # P2 validation companion: same 3 real tiers but DETERMINISTIC path only
 # (no --judge), to show the default scoring is already sensible.
 set -u
-ROOT="/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring"
-CLAUDE_BIN="/Users/vladimirknaz/.local/bin/claude"
+ROOT="/home/user/.openclaw/workspace/worktrees/agentstack-p2-honest-scoring"
+CLAUDE_BIN="/home/user/.local/bin/claude"
 AGENT="$ROOT/examples/agents/claude_real_http_agent.py"
 OUT_BASE="$ROOT/artifacts/real-runs-v1det"
 cd "$ROOT" || exit 2
