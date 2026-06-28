@@ -10,8 +10,10 @@ from .beta_package import build_public_beta_package
 from .leaderboard import build_leaderboard
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
 from .runner import run_benchmark
+from .schemas import load_json
 from .security import SecurityConfig
 from .server import serve
+from .value_layer import enrich_report_value_layer, render_value_layer_markdown
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -114,6 +116,26 @@ def build_parser() -> argparse.ArgumentParser:
         default="artifacts/public-beta-package",
         help="Directory for public_beta_manifest.json, checklist, and summary.json",
     )
+
+    value_layer_parser = subparsers.add_parser(
+        "value-layer",
+        help="Enrich an existing report.json with the additive value layer",
+    )
+    value_layer_parser.add_argument(
+        "--report",
+        required=True,
+        help="Path to an existing report.json to enrich (read-only)",
+    )
+    value_layer_parser.add_argument(
+        "--baseline-report",
+        default=None,
+        help="Optional baseline report.json for delta comparison",
+    )
+    value_layer_parser.add_argument(
+        "--out",
+        required=True,
+        help="Output path for the enriched report.json (value-layer.md written alongside)",
+    )
     return parser
 
 
@@ -172,6 +194,34 @@ def main(argv: list[str] | None = None) -> int:
                     "packageStatus": manifest["packageStatus"],
                     "assetCount": len(manifest["assets"]),
                     "outDir": str(Path(args.out_dir)),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 0
+    if args.command == "value-layer":
+        report = load_json(args.report)
+        baseline = load_json(args.baseline_report) if args.baseline_report else None
+        enriched = enrich_report_value_layer(report, baseline)
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(
+            json.dumps(enriched, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        md_path = out_path.with_suffix(".md") if out_path.suffix else out_path.parent / "value-layer.md"
+        md_path.write_text(
+            render_value_layer_markdown(enriched["valueLayer"]),
+            encoding="utf-8",
+        )
+        print(
+            json.dumps(
+                {
+                    "out": str(out_path),
+                    "markdown": str(md_path),
+                    "valueLayerHash": enriched["valueLayer"]["valueLayerHash"],
+                    "redRisks": len(enriched["valueLayer"]["redRisks"]),
+                    "insights": len(enriched["valueLayer"]["insights"]),
                 },
                 ensure_ascii=False,
             )
