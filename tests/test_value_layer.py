@@ -12,6 +12,7 @@ from agentstack_benchmark.reproducibility import (
     REPORT_HASH_FIELDS,
     compute_report_artifact_hash,
 )
+from agentstack_benchmark.schemas import stable_json_hash
 from agentstack_benchmark.value_layer import (
     ROLE_WEIGHTS,
     SCORECARD_AXES,
@@ -238,12 +239,22 @@ class BaselineCompareTests(unittest.TestCase):
 
 
 class EnrichmentTests(unittest.TestCase):
-    def test_value_layer_hash_is_deterministic(self) -> None:
-        report = _make_report(GOOD_DIMENSIONS, GOOD_ATTEMPTS)
-        vl1 = build_value_layer(report)
-        vl2 = build_value_layer(report)
-        self.assertEqual(vl1["valueLayerHash"], vl2["valueLayerHash"])
-        self.assertEqual(len(vl1["valueLayerHash"]), 64)
+    def test_value_layer_hash_is_honest_self_hash_of_content(self) -> None:
+        # Meaningful (not tautological "same call twice == same hash"): assert the
+        # stored hash IS the stable hash of the value-layer payload with the hash
+        # field removed — proving it is a real content fingerprint of
+        # role-fit/radar/insights/risks/baseline, not a constant or a hash of
+        # something unrelated. Recomputing the excluded-self hash from the
+        # persisted payload must reproduce it byte-for-byte.
+        vl = build_value_layer(_make_report(GOOD_DIMENSIONS, GOOD_ATTEMPTS))
+        stored = vl["valueLayerHash"]
+        self.assertEqual(len(stored), 64)
+        payload_without_hash = {k: v for k, v in vl.items() if k != "valueLayerHash"}
+        self.assertEqual(stored, stable_json_hash(payload_without_hash))
+        # And it is genuinely content-derived: perturbing one axis flips the hash.
+        perturbed = dict(GOOD_DIMENSIONS)
+        perturbed["safety"] = perturbed["safety"] - 1.0
+        self.assertNotEqual(stored, build_value_layer(_make_report(perturbed, GOOD_ATTEMPTS))["valueLayerHash"])
 
     def test_value_layer_hash_changes_with_content(self) -> None:
         good = build_value_layer(_make_report(GOOD_DIMENSIONS, GOOD_ATTEMPTS))
@@ -354,6 +365,90 @@ class CliTests(unittest.TestCase):
         enriched = json.loads(out_path.read_text(encoding="utf-8"))
         self.assertEqual(enriched["valueLayer"]["baselineCompare"]["status"], "configured")
         self.assertGreater(enriched["valueLayer"]["baselineCompare"]["overall"]["delta"], 0.0)
+
+    def test_cli_md_out_does_not_clobber_json_out(self) -> None:
+        # Backlog (a): even when --out itself is a .md path, the markdown render
+        # must NOT overwrite the JSON written to --out. The JSON must survive and
+        # remain parseable; the markdown lands on a disambiguated sibling.
+        report = _make_report(GOOD_DIMENSIONS, GOOD_ATTEMPTS)
+        report_path = self.tmpdir / "report.json"
+        report_path.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
+        out_path = self.tmpdir / "value-layer.md"  # .md given as the JSON out
+
+        rc = main(["value-layer", "--report", str(report_path), "--out", str(out_path)])
+        self.assertEqual(rc, 0)
+        # The --out path still holds valid JSON (was not clobbered by markdown).
+        enriched = json.loads(out_path.read_text(encoding="utf-8"))
+        self.assertIn("valueLayer", enriched)
+        # The markdown sibling exists separately and is not JSON.
+        md_sibling = self.tmpdir / "value-layer.value-layer.md"
+        self.assertTrue(md_sibling.exists())
+        self.assertTrue(md_sibling.read_text(encoding="utf-8").startswith("# Value Layer"))
+
+
+class CoercionRobustnessTests(unittest.TestCase):
+    """Backlog (e): a partial / foreign report.json must not crash enrichment."""
+
+    def test_enrichment_survives_null_and_nonnumeric_dimensions(self) -> None:
+        report = _make_report(dict(GOOD_DIMENSIONS), GOOD_ATTEMPTS)
+        report["summary"]["dimensions"]["safety"] = None
+        report["summary"]["dimensions"]["quality"] = "not-a-number"
+        report["summary"]["overall"] = None
+        enriched = enrich_report_value_layer(report)
+        vl = enriched["valueLayer"]
+        # Bad axes coerced to 0.0 -> radar still has all nine axes, no exception.
+        by_axis = {a["axis"]: a["score"] for a in vl["radar"]["axes"]}
+        self.assertEqual(by_axis["safety"], 0.0)
+        self.assertEqual(by_axis["quality"], 0.0)
+
+    def test_enrichment_survives_nondict_summary_and_attempts(self) -> None:
+        report = {"summary": "broken", "attempts": "also-broken"}
+        enriched = enrich_report_value_layer(report)  # must not raise
+        self.assertEqual(set(enriched["valueLayer"]["roleFit"]), set(ROLE_WEIGHTS))
+        self.assertEqual(enriched["valueLayer"]["radar"]["axisCount"], 9)
+
+    def test_enrichment_survives_garbage_redaction_count(self) -> None:
+        report = _make_report(dict(GOOD_DIMENSIONS), GOOD_ATTEMPTS)
+        report["reproducibility"] = {"redaction": {"applied": True, "redactedOccurrences": None}}
+        enriched = enrich_report_value_layer(report)  # must not raise
+        risks = [r for r in enriched["valueLayer"]["redRisks"] if r["type"] == "redaction_signals"]
+        self.assertEqual(len(risks), 1)
+        self.assertEqual(risks[0]["redactedOccurrences"], 0)
+
+    def test_baseline_delta_normalizes_negative_zero(self) -> None:
+        # Backlog (d): equal current/baseline must give +0.0, never -0.0, so the
+        # serialized value-layer (and its hash) is stable.
+        current = _make_report(dict(GOOD_DIMENSIONS), GOOD_ATTEMPTS, overall=90.0)
+        baseline = _make_report(dict(GOOD_DIMENSIONS), GOOD_ATTEMPTS, overall=90.0)
+        compare = build_baseline_compare(current, baseline)
+        for entry in compare["axes"]:
+            self.assertEqual(entry["delta"], 0.0)
+            # Reject the signed negative zero specifically.
+            self.assertFalse(str(entry["delta"]).startswith("-"))
+        self.assertEqual(json.dumps(compare["overall"]["delta"]), "0.0")
+
+
+class AttemptsInsightTests(unittest.TestCase):
+    """Backlog (b): build_auto_insights must actually use ``attempts``."""
+
+    def test_consistency_insight_positive_on_clean_sweep(self) -> None:
+        insights = build_auto_insights(GOOD_DIMENSIONS, GOOD_ATTEMPTS)
+        consistency = [i for i in insights if i["type"] == "consistency"]
+        self.assertEqual(len(consistency), 1)
+        self.assertEqual(consistency[0]["severity"], "positive")
+
+    def test_consistency_insight_warns_on_failures(self) -> None:
+        insights = build_auto_insights(GOOD_DIMENSIONS, BAD_ATTEMPTS)
+        consistency = [i for i in insights if i["type"] == "consistency"]
+        self.assertEqual(len(consistency), 1)
+        self.assertEqual(consistency[0]["severity"], "warning")
+
+    def test_insights_depend_on_attempts_not_just_dimensions(self) -> None:
+        # Same dimensions, different attempts -> different insight set, proving
+        # the ``attempts`` parameter is load-bearing (no longer dead).
+        passing = build_auto_insights(GOOD_DIMENSIONS, GOOD_ATTEMPTS)
+        failing = build_auto_insights(GOOD_DIMENSIONS, BAD_ATTEMPTS)
+        self.assertNotEqual(passing, failing)
 
 
 if __name__ == "__main__":

@@ -281,7 +281,14 @@ def main(argv: list[str] | None = None) -> int:
             json.dumps(enriched, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-        md_path = out_path.with_suffix(".md") if out_path.suffix else out_path.parent / "value-layer.md"
+        # Markdown is written to a sibling derived from the report's stem and must
+        # NEVER collide with the JSON --out path. With ``--out report.json`` this
+        # is ``report.md``; with ``--out value-layer.md`` (md given as out) the
+        # naive ``with_suffix('.md')`` would clobber the JSON, so we disambiguate.
+        md_candidate = out_path.with_suffix(".md") if out_path.suffix else out_path.parent / "value-layer.md"
+        if md_candidate.resolve() == out_path.resolve():
+            md_candidate = out_path.with_name(f"{out_path.stem}.value-layer.md")
+        md_path = md_candidate
         md_path.write_text(
             render_value_layer_markdown(enriched["valueLayer"]),
             encoding="utf-8",

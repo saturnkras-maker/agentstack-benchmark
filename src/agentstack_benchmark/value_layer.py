@@ -103,16 +103,52 @@ SAFETY_RISK_THRESHOLD = 70.0
 RELIABILITY_RISK_THRESHOLD = 70.0
 TOOL_USE_RISK_THRESHOLD = 60.0
 MEMORY_RISK_THRESHOLD = 60.0
-LONG_HORIZON_AUTONOMY_THRESHOLD = 80.0
 
 
-def _round2(value: float) -> float:
-    return round(float(value), 2)
+def _coerce_number(value: Any, default: float = 0.0) -> float:
+    """Best-effort numeric coercion that never raises.
+
+    The value layer enriches *externally produced* report.json files, so a
+    missing axis, an explicit ``null``, an empty string, or a stray non-numeric
+    type must degrade to ``default`` (0.0) instead of crashing enrichment. Bools
+    are intentionally treated as the default rather than 0/1, since a boolean in
+    a numeric score slot signals a malformed report, not a real measurement.
+    """
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return default
+    return default
 
 
-def _coerce_dimensions(summary_dimensions: dict[str, Any]) -> dict[str, float]:
-    """Read exactly the nine axes, defaulting missing axes to 0.0."""
-    return {axis: float(summary_dimensions.get(axis, 0.0)) for axis in SCORECARD_AXES}
+def _norm_zero(value: float) -> float:
+    """Collapse a signed ``-0.0`` to ``0.0`` so hashing/serialization is stable.
+
+    ``round(a - b, 2)`` can yield ``-0.0`` for an equal pair; JSON renders that
+    as ``-0.0`` and it would perturb ``valueLayerHash`` even though it is
+    numerically zero. Adding ``0.0`` normalizes the sign without changing value.
+    """
+    return value + 0.0
+
+
+def _round2(value: Any) -> float:
+    return _norm_zero(round(_coerce_number(value), 2))
+
+
+def _coerce_dimensions(summary_dimensions: Any) -> dict[str, float]:
+    """Read exactly the nine axes, coercing each to a safe float (default 0.0).
+
+    Robust to a non-dict ``summary.dimensions`` (returns all-zero axes) and to
+    ``null``/non-numeric per-axis values, so a partial/foreign report cannot
+    crash the additive enrichment.
+    """
+    source = summary_dimensions if isinstance(summary_dimensions, dict) else {}
+    return {axis: _coerce_number(source.get(axis, 0.0)) for axis in SCORECARD_AXES}
 
 
 def _rank_axes(dimensions: dict[str, float]) -> list[tuple[str, float]]:
@@ -179,11 +215,14 @@ def build_auto_insights(
 ) -> list[dict[str, Any]]:
     """Deterministic trade-off heuristics over the nine axes + attempts.
 
-    Each insight is a dict with ``type``, ``severity``, ``axes``, and a
+    Combines axis-level trade-off heuristics (over ``summary.dimensions``) with
+    an attempts-level consistency read (pass-rate over ``attempts``). Each
+    insight is a dict with ``type``, ``severity``, ``axes``, and a
     human-readable ``message`` (Russian). Order is stable.
     """
     dimensions = _coerce_dimensions(summary_dimensions)
     ranked = _rank_axes(dimensions)
+    attempts = attempts or []
     insights: list[dict[str, Any]] = []
 
     # Strength: the single strongest axis (if it actually clears the bar).
@@ -265,6 +304,35 @@ def build_auto_insights(
             }
         )
 
+    # Consistency: a deterministic read over the raw attempts (pass-rate). This
+    # uses ``attempts`` directly so a high average score that masks individual
+    # failures is surfaced, and a clean sweep is celebrated. Anchored to axes
+    # whose values are most attempt-driven (reliability, quality).
+    if attempts:
+        failed = _failed_attempts(attempts)
+        total = len(attempts)
+        if failed:
+            insights.append(
+                {
+                    "type": "consistency",
+                    "severity": "warning",
+                    "axes": ["reliability", "quality"],
+                    "message": (
+                        f"Неровный прогон: провалено {len(failed)} из {total} задач "
+                        f"({', '.join(str(a.get('taskId')) for a in failed)})."
+                    ),
+                }
+            )
+        else:
+            insights.append(
+                {
+                    "type": "consistency",
+                    "severity": "positive",
+                    "axes": ["reliability", "quality"],
+                    "message": f"Ровный прогон: пройдены все {total} задач(и) без провалов.",
+                }
+            )
+
     return insights
 
 
@@ -344,9 +412,10 @@ def build_red_risks(
         )
 
     # [REDACTED] signals from reproducibility.redaction.
-    redaction = (reproducibility or {}).get("redaction") if reproducibility else None
-    if redaction and redaction.get("applied"):
-        occurrences = int(redaction.get("redactedOccurrences", 0))
+    redaction = reproducibility.get("redaction") if isinstance(reproducibility, dict) else None
+    if isinstance(redaction, dict) and redaction.get("applied"):
+        # Coerce defensively: a null/garbage count must not crash enrichment.
+        occurrences = int(_coerce_number(redaction.get("redactedOccurrences", 0)))
         risks.append(
             {
                 "type": "redaction_signals",
@@ -393,13 +462,15 @@ def build_baseline_compare(
     if baseline_report is None:
         return {"status": "not_configured"}
 
-    cur_summary = current_report.get("summary", {})
-    base_summary = baseline_report.get("summary", {})
+    cur_summary = current_report.get("summary") if isinstance(current_report, dict) else None
+    base_summary = baseline_report.get("summary") if isinstance(baseline_report, dict) else None
+    cur_summary = cur_summary if isinstance(cur_summary, dict) else {}
+    base_summary = base_summary if isinstance(base_summary, dict) else {}
     cur_dims = _coerce_dimensions(cur_summary.get("dimensions", {}))
     base_dims = _coerce_dimensions(base_summary.get("dimensions", {}))
 
-    cur_overall = float(cur_summary.get("overall", 0.0))
-    base_overall = float(base_summary.get("overall", 0.0))
+    cur_overall = _coerce_number(cur_summary.get("overall", 0.0))
+    base_overall = _coerce_number(base_summary.get("overall", 0.0))
     overall_delta = _round2(cur_overall - base_overall)
 
     axes_delta: list[dict[str, Any]] = []
@@ -456,9 +527,14 @@ def build_value_layer(
     baseline_report: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Assemble the full value layer payload (without mutating ``report``)."""
-    summary = report.get("summary", {})
-    dimensions = summary.get("dimensions", {})
-    attempts = report.get("attempts", []) or []
+    report = report if isinstance(report, dict) else {}
+    summary = report.get("summary")
+    summary = summary if isinstance(summary, dict) else {}
+    dimensions = summary.get("dimensions", {})  # _coerce_dimensions tolerates non-dict
+    attempts_raw = report.get("attempts")
+    # Keep only well-formed attempt records; a non-list or stray scalar entries
+    # must not crash the additive enrichment of a foreign/partial report.
+    attempts = [a for a in attempts_raw if isinstance(a, dict)] if isinstance(attempts_raw, list) else []
     reproducibility = report.get("reproducibility")
 
     role_fit = build_role_fit(dimensions)
