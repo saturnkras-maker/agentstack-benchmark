@@ -1,0 +1,25 @@
+{
+  "agentId": "claude-code-opus-4-8-real",
+  "name": "Claude Code (Opus 4.8) — real",
+  "version": "0.1.0",
+  "adapter": {
+    "type": "http",
+    "endpoint": "http://127.0.0.1:8801/tasks"
+  },
+  "model": {
+    "provider": "anthropic-subscription",
+    "name": "claude-opus-4-8"
+  },
+  "capabilities": {
+    "browser": false,
+    "terminal": false,
+    "files": false,
+    "memory": false,
+    "skills": false,
+    "mcp": false
+  },
+  "limits": {
+    "timeoutSecondsPerTask": 120,
+    "maxRunsPerTask": 1
+  }
+}

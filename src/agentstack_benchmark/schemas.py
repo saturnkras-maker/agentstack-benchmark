@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -43,3 +44,44 @@ def canonicalize_report(report: dict[str, Any]) -> dict[str, Any]:
 
 def normalize_text(value: str) -> str:
     return " ".join(value.lower().strip().split())
+
+
+def normalize_for_match(value: str) -> str:
+    """Deterministic, language-agnostic normalization for answer matching.
+
+    Beyond :func:`normalize_text` (lowercase + whitespace collapse), this folds
+    Unicode to its compatibility form, casefolds (locale-independent lower for
+    non-ASCII scripts incl. Cyrillic/German), strips combining marks, and drops
+    punctuation so that correct answers are not penalised by trivial surface
+    differences (case, accents, quotes, trailing periods, en/em dashes). It is
+    used only for scoring matches — never for redaction or hashing — so the
+    frozen ``scoring_schema_v1`` artifact hash composition is unaffected.
+    """
+    folded = unicodedata.normalize("NFKD", value).casefold()
+    out_chars: list[str] = []
+    for ch in folded:
+        category = unicodedata.category(ch)
+        if category.startswith("M"):
+            # Combining mark (accent) — drop so "é" == "e".
+            continue
+        if category.startswith("P") or category.startswith("S"):
+            # Punctuation/symbol — treat as a separator.
+            out_chars.append(" ")
+            continue
+        out_chars.append(ch)
+    return " ".join("".join(out_chars).split())
+
+
+def match_tokens(answer: str, expected_value: str) -> bool:
+    """All whitespace-separated tokens of ``expected_value`` appear in ``answer``.
+
+    Order-independent multi-keyword containment over the normalized token sets.
+    A multi-word expectation like ``"quality speed safety"`` therefore matches an
+    answer that mentions all three keywords in any order or wording — fixing the
+    exact-substring brittleness — while still requiring every keyword to be present.
+    """
+    answer_tokens = set(normalize_for_match(answer).split())
+    expected_tokens = normalize_for_match(expected_value).split()
+    if not expected_tokens:
+        return True
+    return all(token in answer_tokens for token in expected_tokens)

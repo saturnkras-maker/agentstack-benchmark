@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import http.client
 import json
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from urllib import error, parse, request
 
 from .adapter_contract import build_task_request, normalize_agent_response
-from .evaluator import build_scoring_schema, evaluate_attempt, summarize_scores
+from .evaluator import JudgeFn, build_scoring_schema, evaluate_attempt, summarize_scores
+from .judge import (
+    DEFAULT_JUDGE_MODEL,
+    LocalClaudeJudge,
+    build_scoring_schema_v2,
+)
 from .reproducibility import build_reproducibility_metadata, redact_value
 from .schemas import RUN_TRACK_LOCAL_PUBLIC, load_json, stable_json_hash
 from .tracks import validate_local_public_task_pack
@@ -27,6 +33,7 @@ def run_benchmark(
     task_pack_path: str | Path,
     out_dir: str | Path,
     http_timeout_seconds: float = DEFAULT_HTTP_TIMEOUT_SECONDS,
+    judge: Optional[JudgeFn] = None,
 ) -> dict[str, Any]:
     manifest_path = Path(manifest_path)
     task_pack_path = Path(task_pack_path)
@@ -44,7 +51,7 @@ def run_benchmark(
     attempts = []
     for task in task_pack["tasks"]:
         output, elapsed = _invoke_agent(manifest, task, project_root, client_timeout_seconds)
-        attempts.append(evaluate_attempt(task, output, elapsed))
+        attempts.append(evaluate_attempt(task, output, elapsed, judge=judge))
 
     score_summary = summarize_scores(attempts)
     redacted_attempts, redacted_occurrences = redact_value(attempts)
@@ -80,6 +87,11 @@ def run_benchmark(
         ),
         "attempts": base_report["attempts"],
     }
+    # Opt-in v2 metadata lives OUTSIDE the v1 artifact-hash field set
+    # (schemaVersion/track/agent/taskPack/scoringSchema/summary/attempts), so the
+    # frozen v1 schema block and a non-judge run's artifactHash are unaffected.
+    if judge is not None and any(item.get("judgeScored") for item in attempts):
+        report["scoringSchemaV2"] = build_scoring_schema_v2()
 
     (out_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     (out_dir / "report.md").write_text(render_markdown_report(report), encoding="utf-8")
@@ -93,7 +105,13 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         f"Agent: `{report['agent']['agentId']}` v{report['agent']['version']}",
         f"Task pack: `{report['taskPack']['taskPackId']}` v{report['taskPack']['version']}",
         f"Track: `{report['track']}`",
-        f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`",
+        f"Scoring schema: `{report['scoringSchema']['schemaVersion']}`"
+        + (
+            f" + `{report['scoringSchemaV2']['schemaVersion']}` "
+            "(LLM-judge, non-deterministic, cached)"
+            if "scoringSchemaV2" in report
+            else ""
+        ),
         f"Overall score: **{report['summary']['overall']}**",
         "",
         "## Reproducibility",
@@ -114,9 +132,16 @@ def render_markdown_report(report: dict[str, Any]) -> str:
     lines.extend(["", "## Task attempts"])
     for attempt in report["attempts"]:
         score_text = ", ".join(f"{key}={value}" for key, value in attempt["scores"].items())
+        judged = ""
+        if attempt.get("judgeScored"):
+            jr = attempt.get("judge", {})
+            judged = (
+                f" [judge: {'PASS' if jr.get('pass') else 'FAIL'} "
+                f"{jr.get('score')} cached={jr.get('cached')} — {jr.get('reason')}]"
+            )
         lines.append(
             f"- `{attempt['taskId']}` ({attempt['category']}): {attempt['verdict']} "
-            f"in {attempt['elapsedSeconds']}s — scores: {score_text} — {attempt['answer']}"
+            f"in {attempt['elapsedSeconds']}s — scores: {score_text}{judged} — {attempt['answer']}"
         )
     lines.append("")
     return "\n".join(lines)
@@ -235,12 +260,14 @@ def _invoke_http_agent(
     try:
         with request.urlopen(http_request, timeout=client_timeout_seconds) as response:
             response_body = response.read().decode("utf-8")
-    except (TimeoutError, error.URLError) as exc:
+    except (TimeoutError, error.URLError, http.client.HTTPException, ConnectionError, OSError) as exc:
+        # A flaky/crashing agent (e.g. RemoteDisconnected mid-stream, connection
+        # reset) must degrade to a per-task runtimeError, never crash the whole run.
         elapsed = time.monotonic() - started
         return {
             "answer": "",
             "toolTrace": [],
-            "runtimeError": f"http_error={exc}",
+            "runtimeError": f"http_error={type(exc).__name__}: {exc}",
         }, elapsed
     elapsed = time.monotonic() - started
 

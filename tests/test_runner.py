@@ -388,10 +388,14 @@ print(json.dumps({{
         attempt = report["attempts"][0]
         self.assertEqual(attempt["verdict"], "PASS")
         self.assertIn("slow path ready", attempt["answer"])
-        # Elapsed exceeds the per-task budget, yet the call was allowed to finish...
+        # Elapsed exceeds the per-task budget, yet the call was allowed to finish:
+        # the transport timeout is decoupled from task.timeoutSeconds (P4 fix).
         self.assertGreater(attempt["elapsedSeconds"], task_budget_seconds)
-        # ...and the budget still governs speed scoring (elapsed >= budget => 0).
-        self.assertEqual(attempt["scores"]["speed"], 0.0)
+        # P2 honest-scoring fix: speed reflects real wall-clock latency via the
+        # reference-latency curve, NOT the tiny per-task budget. A ~1s answer is
+        # fast and must score well above zero (the old budget-driven axis wrongly
+        # zeroed every real answer and could rank the slowest agent first).
+        self.assertGreater(attempt["scores"]["speed"], 50.0)
 
         timed_out_attempt = timed_out["attempts"][0]
         self.assertEqual(timed_out_attempt["verdict"], "FAIL")
