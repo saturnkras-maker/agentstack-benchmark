@@ -9,7 +9,7 @@ from .adapter_contract import build_adapter_contract
 from .beta_package import build_public_beta_package
 from .leaderboard import build_leaderboard
 from .pilots import DEFAULT_PILOT_REGISTRY_PATH, run_local_pilots
-from .runner import run_benchmark
+from .runner import DEFAULT_HTTP_TIMEOUT_SECONDS, run_benchmark
 from .security import SecurityConfig
 from .server import serve
 
@@ -28,6 +28,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         required=True,
         help="Output directory for report.json/report.md",
+    )
+    run_parser.add_argument(
+        "--http-timeout-seconds",
+        type=float,
+        default=DEFAULT_HTTP_TIMEOUT_SECONDS,
+        help=(
+            "Wall-clock timeout (seconds) for the adapter client/transport call "
+            "(urllib for http, subprocess for cli). Decoupled from task.timeoutSeconds, "
+            "which stays a per-task budget/scoring signal. A manifest "
+            "adapter.httpTimeoutSeconds overrides this. Lets real (slow) agents run an "
+            "unmodified task pack."
+        ),
     )
 
     leaderboard_parser = subparsers.add_parser(
@@ -121,7 +133,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "run":
-        report = run_benchmark(args.manifest, args.task_pack, args.out)
+        report = run_benchmark(
+            args.manifest,
+            args.task_pack,
+            args.out,
+            http_timeout_seconds=args.http_timeout_seconds,
+        )
         print(
             json.dumps(
                 {"overall": report["summary"]["overall"], "out": str(Path(args.out))},
