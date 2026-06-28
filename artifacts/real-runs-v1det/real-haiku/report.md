@@ -63,6 +63,6 @@ Is there something I can help you with on this project? I can see you're working
 
 This means I should:
 1. **Use skills** — Invoke available skills (via the Skill tool) when the user's request matches a skill's purpose, rather than solving it solo or with basic tools.
-2. **Use memory** — Build and maintain the persistent memory system (`/home/user/.claude/projects/-Users-vladimirknaz--openclaw-workspace-projects-agentstack-benchmark/memory/`) to record context, preferences, decisions, and project state that will inform future conversations with you.
+2. **Use memory** — Build and maintain the persistent memory system (`/home/user/.claude/projects/-Users-user--openclaw-workspace-projects-agentstack-benchmark/memory/`) to record context, preferences, decisions, and project state that will inform future conversations with you.
 
 Both enable better continuity and more targeted help across sessions.
