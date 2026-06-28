@@ -1,0 +1,19 @@
+=== TIER real-haiku (model=claude-haiku-4-5-20251001 port=8799 handicap=no) ===
+  agent ready (pid=9338); running RICHER benchmark with --judge ...
+{"overall": 86.83, "out": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-haiku", "judgeScored": true}
+  tier real-haiku done (rc=0), report: /Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-haiku/report.json
+=== TIER real-sonnet (model=claude-sonnet-4-6 port=8800 handicap=no) ===
+  agent ready (pid=13712); running RICHER benchmark with --judge ...
+{"overall": 86.45, "out": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-sonnet", "judgeScored": true}
+  tier real-sonnet done (rc=0), report: /Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-sonnet/report.json
+=== TIER real-opus (model=claude-opus-4-8 port=8801 handicap=no) ===
+  agent ready (pid=19027); running RICHER benchmark with --judge ...
+{"overall": 83.15, "out": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-opus", "judgeScored": true}
+  tier real-opus done (rc=0), report: /Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/real-opus/report.json
+=== TIER weak-haiku (model=claude-haiku-4-5-20251001 port=8802 handicap=yes) ===
+  agent ready (pid=24086); running RICHER benchmark with --judge ...
+{"overall": 75.47, "out": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/weak-haiku", "judgeScored": true}
+  tier weak-haiku done (rc=0), report: /Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/turnkey-real-v1/weak-haiku/report.json
+=== building turnkey diverse-field leaderboard ===
+{"entries": 4, "out": "/Users/vladimirknaz/.openclaw/workspace/worktrees/agentstack-integration/artifacts/leaderboard-turnkey-v1.json"}
+ALL TURNKEY TIERS DONE
