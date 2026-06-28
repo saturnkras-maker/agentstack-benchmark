@@ -46,6 +46,44 @@ Return ONLY a single minified JSON object, no prose, no markdown fences:
 {"pass": <true|false>, "score": <integer 0-100>, "reason": "<=160 chars"}
 score must be 0-100; pass should be true iff score >= 60."""
 
+# Stronger, GRADIENT rubric used when a task carries its own judgeRubric. Unlike
+# the default pass/fail-leaning rubric above, this instructs the judge to SPREAD
+# the 0-100 score by depth / rigour / correctness so that a superficial-but-
+# plausible answer scores LOW even when it is not strictly "wrong", and only a
+# genuinely deep, complete, correct answer scores high. This is what lets a
+# strong judge DISTINGUISH frontier-tier models rather than collapsing them all
+# to a binary pass.
+_GRADIENT_RUBRIC_HEADER = """You are an EXPERT, demanding benchmark judge grading ONE answer to a FRONTIER
+(deliberately hard) task. Your job is to DISCRIMINATE answer quality on a
+gradient — not merely to check pass/fail. Most answers will be partially right;
+your score must reflect HOW deep, rigorous, complete, and correct the answer is.
+
+Scoring discipline (apply strictly, reward DEPTH over plausibility):
+- 90-100: fully correct AND deep — handles the subtle/edge cases, justifies each
+  step, names the non-obvious trade-offs or the precise flaw; nothing important missing.
+- 70-89: correct core with good reasoning, but misses one notable nuance, edge
+  case, or justification a top expert would include.
+- 50-69: surface-plausible and broadly on-topic, but shallow — states conclusions
+  without rigour, misses the crux, or glosses the hard part. A confident-but-thin
+  answer belongs HERE, not higher.
+- 25-49: partly relevant but materially incomplete or subtly wrong on the crux.
+- 0-24: wrong, evasive, fabricated, or misses the point.
+
+Be parsimonious with high scores: do NOT give 90+ to a fluent answer that is
+merely plausible. Penalise hand-waving, missing edge cases, and unjustified
+leaps even when the final conclusion is defensible. Reward the answer that
+actually does the hard reasoning. Language/word-order/paraphrase never matter;
+only substance does.
+
+TASK-SPECIFIC RUBRIC (what a top-tier answer must contain):
+"""
+
+_GRADIENT_RUBRIC_FOOTER = """
+
+Return ONLY a single minified JSON object, no prose, no markdown fences:
+{"pass": <true|false>, "score": <integer 0-100>, "reason": "<=160 chars naming what raised/lowered the score>"}
+score must be 0-100 and must use the FULL gradient above; pass = score >= 60."""
+
 
 def build_scoring_schema_v2() -> dict[str, Any]:
     return {
@@ -108,7 +146,7 @@ class LocalClaudeJudge:
                 "taskId": task.get("taskId", ""),
                 "model": self.model,
                 "answer": normalize_text(answer),
-                "rubric": _RUBRIC,
+                "rubric": _effective_rubric(task),
             }
         )
 
@@ -140,8 +178,9 @@ class LocalClaudeJudge:
     def _build_prompt(self, task: dict[str, Any], answer: str) -> str:
         expected = task.get("expected", {})
         hint = str(expected.get("value", "")) if isinstance(expected, dict) else ""
+        rubric = _effective_rubric(task)
         return (
-            f"{_RUBRIC}\n\n"
+            f"{rubric}\n\n"
             f"TASK CATEGORY: {task.get('category', 'core')}\n"
             f"TASK PROMPT: {task.get('prompt', '')}\n"
             f"EXPECTED-INTENT HINT (not a literal match requirement): {hint}\n\n"
@@ -170,6 +209,21 @@ class LocalClaudeJudge:
 def _clean_env() -> dict[str, str]:
     """Child env with every ANTHROPIC_* variable stripped (subscription only)."""
     return {k: v for k, v in os.environ.items() if not k.upper().startswith("ANTHROPIC_")}
+
+
+def _effective_rubric(task: dict[str, Any]) -> str:
+    """Return the rubric the judge should grade against for this task.
+
+    A task may ship a ``judgeRubric`` string describing exactly what a top-tier
+    answer must contain. When present, it is wrapped in the GRADIENT rubric so the
+    judge spreads the 0-100 score by depth/rigour (used by the frontier pack to
+    DISTINGUISH strong models). Tasks with no ``judgeRubric`` keep the original
+    pass/fail-leaning default rubric verbatim, so existing packs are unchanged.
+    """
+    task_rubric = task.get("judgeRubric")
+    if isinstance(task_rubric, str) and task_rubric.strip():
+        return f"{_GRADIENT_RUBRIC_HEADER}{task_rubric.strip()}{_GRADIENT_RUBRIC_FOOTER}"
+    return _RUBRIC
 
 
 def _parse_verdict(raw: str) -> dict[str, Any] | None:
