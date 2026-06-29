@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AgentStack Benchmark — offline local MVP</title>
-  <meta name="description" content="AgentStack Benchmark is a local-public benchmark package for evaluating full AI agent stacks with a one-command offline demo.">
+  <title>AgentStack Benchmark — карта силы AI-агента</title>
+  <meta name="description" content="AgentStack Benchmark — «3DMark для AI-агентов». Локальный бенчмарк, который честно оценивает весь стек агента одной командой и без интернета.">
   <style>
     :root { color-scheme: dark; --bg: #07111f; --card: #111d2d; --text: #edf5ff; --muted: #a8b7ca; --accent: #69e0ff; --ok: #7dffb2; --warn: #ffd37d; }
     * { box-sizing: border-box; }
@@ -14,13 +14,18 @@
     .eyebrow { color: var(--ok); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
     h1 { font-size: clamp(40px, 8vw, 82px); line-height: .95; margin: 0; }
     h2 { margin: 0 0 12px; font-size: 26px; }
+    h3 { margin: 0 0 6px; font-size: 18px; }
     p { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 800px; }
     pre { overflow-x: auto; margin: 0; padding: 16px; border-radius: 16px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.1); }
     .actions { display: flex; flex-wrap: wrap; gap: 12px; }
     a.button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; color: #04121d; background: var(--accent); text-decoration: none; font-weight: 800; }
+    a.button.cta { font-size: 19px; padding: 16px 28px; }
     a.button.secondary { color: var(--text); background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+    .steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
     .card { padding: 22px; background: rgba(17,29,45,.78); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; }
+    .stepcard { padding: 22px; background: rgba(17,29,45,.78); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; }
+    .stepnum { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; background: var(--accent); color: #04121d; font-weight: 900; margin-bottom: 10px; }
     .card strong { display: block; margin-bottom: 8px; color: var(--text); }
     code { color: var(--ok); }
     .status { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
@@ -28,99 +33,147 @@
     .pill.ok { color: var(--ok); }
     .pill.warn { color: var(--warn); }
     footer { color: var(--muted); padding-top: 32px; font-size: 14px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .hero { padding: 28px; } }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: 1fr; } .hero { padding: 28px; } }
   </style>
 </head>
 <body>
   <main>
     <section class="hero">
-      <div class="eyebrow">Local-public beta · Offline local MVP</div>
-      <h1>3DMark-style benchmark for AI agent stacks.</h1>
+      <div class="eyebrow">Локальная бета · офлайн MVP</div>
+      <h1>Карта силы AI-агента. «3DMark для AI-агентов».</h1>
       <p>
-        AgentStack Benchmark evaluates the whole agent construction — model, prompts, tools,
-        memory, orchestration, speed, cost, safety, and reproducibility — not only the base model.
+        AgentStack Benchmark оценивает всю конструкцию агента — модель, промпты, инструменты,
+        память, оркестрацию, скорость, стоимость, безопасность и воспроизводимость, — а не только базовую модель.
       </p>
       <p>
-        The current MVP is touchable locally: start the offline demo, open the browser UI,
-        click <strong>Run benchmark</strong>, and inspect a visual report/leaderboard.
+        Прогон трогается руками локально: поднимаете офлайн-демо, открываете браузер,
+        жмёте <strong>«Протестировать своего агента»</strong> и смотрите визуальный scorecard и лидерборд.
       </p>
       <div class="actions">
-        <a class="button" href="https://github.com/saturnkras-maker/agentstack-benchmark">View repository</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/archive/refs/heads/main.zip">Download ZIP</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/offline-local-mvp-demo.md">Offline demo guide</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-model-adapter-v0.1.md">Local model adapter</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/first-run-doctor-v0.1.md">First-run doctor</a>
-        <a class="button secondary" href="https://github.com/saturnkras-maker/agentstack-benchmark/blob/main/docs/local-mvp-cockpit-v0.1.md">Local MVP Cockpit</a>
-        <a class="button secondary" href="demo/report.html">Open sample report</a>
-        <a class="button secondary" href="demo/leaderboard.html">Open sample leaderboard</a>
+        <a class="button cta" href="https://github.com/saturnkras-maker/agentstack-benchmark">Протестировать своего агента</a>
+        <a class="button secondary" href="#how">Как протестировать</a>
+        <a class="button secondary" href="demo/leaderboard.html">Пример лидерборда</a>
+        <a class="button secondary" href="demo/report.html">Пример scorecard</a>
       </div>
       <div class="status">
-        <span class="pill ok">One-command offline demo</span>
-        <span class="pill ok">No internet</span>
-        <span class="pill ok">No API keys</span>
-        <span class="pill ok">Optional local model adapter</span>
+        <span class="pill ok">Офлайн-демо одной командой</span>
+        <span class="pill ok">Без интернета</span>
+        <span class="pill ok">Без API-ключей</span>
+        <span class="pill ok">Опциональный локальный модельный адаптер</span>
         <span class="pill ok">First-run doctor</span>
         <span class="pill ok">Local MVP Cockpit</span>
-        <span class="pill ok">Static public demo sample</span>
-        <span class="pill ok">Local MVP verification proof</span>
-        <span class="pill ok">Track: local-public</span>
-        <span class="pill warn">Hosted-verified: reserved</span>
-        <span class="pill warn">Paid checkout: not connected</span>
+        <span class="pill ok">Статический публичный пример</span>
+        <span class="pill ok">Доказательство локальной проверки MVP</span>
+        <span class="pill ok">Трек: local-public</span>
+        <span class="pill warn">Hosted-verified: зарезервирован</span>
+        <span class="pill warn">Платный чекаут: не подключён</span>
       </div>
     </section>
 
-    <section class="grid" aria-label="Offline MVP quick start">
+    <section id="how" class="steps" aria-label="Как протестировать своего агента">
+      <article class="stepcard" style="grid-column: 1 / -1;">
+        <h2>Как протестировать своего агента — 4 шага</h2>
+        <p>Путь очевиден за 10 секунд: поднимите эндпоинт → впишите адрес → прогон → scorecard.</p>
+      </article>
+      <article class="stepcard">
+        <span class="stepnum">1</span>
+        <h3>Поднимите агента как локальный HTTP-эндпоинт</h3>
+        <p>По контракту адаптера: принимает <code>POST</code> с задачей и отвечает JSON
+        <code>{"answer": "…", "toolTrace": []}</code>. Эндпоинт обязан быть локальным
+        (<code>127.0.0.1</code> / <code>localhost</code>). Копипастный пример:</p>
+        <pre><code># my_agent.py — минимальный HTTP-агент под контракт AgentStack.
+# Запуск:  python3 my_agent.py   (слушает http://127.0.0.1:8765/tasks)
+import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+class Agent(BaseHTTPRequestHandler):
+    def do_POST(self):
+        n = int(self.headers.get("Content-Length", "0"))
+        task = json.loads(self.rfile.read(n) or b"{}")
+        # Вызовите свой стек/модель и верните финальный ответ строкой.
+        answer = f"Решаю {task.get('taskId')}: " + str(task.get("prompt", ""))[:200]
+        body = json.dumps({"answer": answer, "toolTrace": []}).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+    def log_message(self, *a): pass
+
+HTTPServer(("127.0.0.1", 8765), Agent).serve_forever()</code></pre>
+      </article>
+      <article class="stepcard">
+        <span class="stepnum">2</span>
+        <h3>Впишите endpoint и имя</h3>
+        <p>Откройте форму прогона <code>http://127.0.0.1:8088/run</code> и укажите адрес агента
+        (например <code>http://127.0.0.1:8765/tasks</code>), его имя и версию.</p>
+      </article>
+      <article class="stepcard">
+        <span class="stepnum">3</span>
+        <h3>Запустите прогон</h3>
+        <p>Бенчмарк прогонит набор задач через вашего агента и честно оценит стек по 9 осям:
+        качество, надёжность, инструменты, безопасность, скорость, стоимость, глубина, память, автономность.</p>
+      </article>
+      <article class="stepcard">
+        <span class="stepnum">4</span>
+        <h3>Получите scorecard и поделитесь</h3>
+        <p>Радар по осям, ролевая пригодность и потасковые результаты PASS / ЧАСТИЧНО / FAIL
+        с совпавшими ключевыми словами. Скачайте отчёт (HTML → «Печать → Сохранить как PDF»), JSON или Markdown.</p>
+      </article>
+    </section>
+
+    <section class="grid" aria-label="Офлайн MVP — быстрый старт">
       <article class="card" style="grid-column: 1 / -1;">
-        <h2>One-command offline demo</h2>
-        <p>Run locally from the repository root:</p>
+        <h2>Офлайн-демо одной командой</h2>
+        <p>Запуск локально из корня репозитория:</p>
         <pre><code>make doctor
 make demo-local
 make cockpit
 make verify-local-mvp
 make demo-pilots</code></pre>
-        <p>Equivalent explicit Python commands: <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor</code> and <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code>.</p>
-        <p>Before starting, run <code>make doctor</code> to print exact local commands, URLs, port readiness, and model status.</p>
-        <p>Then open <code>http://127.0.0.1:8088/run</code>, use <code>http://127.0.0.1:8765/tasks</code>, and click <strong>Run benchmark</strong>.</p>
-        <p>Optional local model path: run <code>make local-model-check</code>, then <code>make demo-local-auto</code> — it wraps <code>--agent-mode auto-local-model</code>. If no loopback model is available, the deterministic offline demo remains the fallback.</p>
+        <p>Эквивалентные явные команды Python: <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor</code> и <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code>.</p>
+        <p>Перед стартом запустите <code>make doctor</code> — он печатает точные команды, URL, готовность портов и статус модели.</p>
+        <p>Затем откройте <code>http://127.0.0.1:8088/run</code>, используйте <code>http://127.0.0.1:8765/tasks</code> и нажмите <strong>«Протестировать своего агента»</strong>.</p>
+        <p>Опциональный путь с локальной моделью: <code>make local-model-check</code>, затем <code>make demo-local-auto</code> — это обёртка над <code>--agent-mode auto-local-model</code>. Если локальной модели нет, остаётся детерминированное офлайн-демо как fallback.</p>
       </article>
     </section>
 
-    <section class="grid" aria-label="Beta highlights">
+    <section class="grid" aria-label="Что внутри">
       <article class="card">
-        <strong>Touchable UX/UI</strong>
-        <p>Local browser flow renders a run form, visual report, dimension scorecards, and leaderboard from local artifacts.</p>
+        <strong>Трогаемый UX/UI</strong>
+        <p>Локальный браузерный поток рендерит форму прогона, визуальный scorecard, оси оценки и лидерборд из локальных артефактов.</p>
       </article>
       <article class="card">
-        <strong>Agent-stack contract</strong>
-        <p>Adapters use a documented HTTP/stdin contract so frameworks can plug in without changing the scoring core.</p>
+        <strong>Контракт агент-стека</strong>
+        <p>Адаптеры используют документированный HTTP/stdin-контракт, чтобы фреймворки подключались без изменения ядра оценки.</p>
       </article>
       <article class="card">
-        <strong>Safe track boundary</strong>
-        <p><code>local-public</code> runs are local and reproducible. <code>hosted-verified</code> is server-side only and cannot be self-assigned locally.</p>
+        <strong>Безопасная граница треков</strong>
+        <p><code>local-public</code> — локально и воспроизводимо. <code>hosted-verified</code> — только серверная сторона, его нельзя присвоить себе локально.</p>
       </article>
       <article class="card" style="grid-column: 1 / -1;">
-        <strong>Static sample before clone</strong>
-        <p>Open <a href="demo/report.html">sample report</a> or <a href="demo/leaderboard.html">sample leaderboard</a>. Repository path: <code>site/demo/report.html</code>. This is a static local-public sample, not hosted execution.</p>
+        <strong>Статический пример до клонирования</strong>
+        <p>Откройте <a href="demo/report.html">пример scorecard</a> или <a href="demo/leaderboard.html">пример лидерборда</a>. Путь в репозитории: <code>site/demo/report.html</code>. Это статический local-public пример, не хостинговое исполнение.</p>
       </article>
     </section>
 
-    <section class="grid" aria-label="Pricing and launch status">
+    <section class="grid" aria-label="Цены и статус запуска">
       <article class="card">
-        <h2>Free beta</h2>
-        <p>$0. Offline demo agent, local run package, pilot fixtures, local preview server, and public checklist.</p>
+        <h2>Бесплатная бета</h2>
+        <p>$0. Офлайн-демо агента, локальный пакет прогона, пилот-фикстуры, локальный preview-сервер и публичный чеклист.</p>
       </article>
       <article class="card">
-        <h2>Verified track</h2>
-        <p>Reserved for hosted server-side runner, hidden tasks, verified badges, and anti-cheat controls. Not live in this beta.</p>
+        <h2>Verified-трек</h2>
+        <p>Зарезервирован для серверного раннера, скрытых задач, verified-бейджей и анти-чит-контролей. В этой бете не активен.</p>
       </article>
       <article class="card">
-        <h2>Billing</h2>
-        <p>Payment checkout is intentionally not connected until a merchant provider, product IDs, legal copy, and webhook verification are configured.</p>
+        <h2>Биллинг</h2>
+        <p>Платёжный чекаут намеренно не подключён до настройки провайдера, product ID, юридического текста и проверки вебхуков.</p>
       </article>
     </section>
 
     <footer>
-      Public launch surface generated from the main branch. No production secrets, API keys, private model credentials, or payment credentials are embedded in this page.
+      Публичная страница запуска сгенерирована из ветки main. На странице нет продакшн-секретов, API-ключей, приватных модельных кредов или платёжных данных.
     </footer>
   </main>
 </body>
