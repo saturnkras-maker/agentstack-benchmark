@@ -1,0 +1,185 @@
+{
+  "gate": "PASS",
+  "block": "code",
+  "strong": {
+    "source": "live claude-opus-4-8 (subscription)",
+    "level": "master",
+    "overall": 97,
+    "axes": [
+      {
+        "axis": "correctness",
+        "pct": 100
+      },
+      {
+        "axis": "structure",
+        "pct": 89
+      },
+      {
+        "axis": "instruction",
+        "pct": 100
+      },
+      {
+        "axis": "security",
+        "pct": 96
+      }
+    ],
+    "tasks": [
+      {
+        "id": "c1_fix_offbyone",
+        "tier": "junior",
+        "passed": 6,
+        "total": 6,
+        "ratioPct": 100
+      },
+      {
+        "id": "c2_implement_spec",
+        "tier": "junior",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "c3_review_flawed",
+        "tier": "middle",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "c4_refactor_explain",
+        "tier": "middle",
+        "passed": 6,
+        "total": 7,
+        "ratioPct": 92
+      },
+      {
+        "id": "c5_secure_input_trap",
+        "tier": "senior",
+        "passed": 6,
+        "total": 7,
+        "ratioPct": 92
+      },
+      {
+        "id": "c6_concurrency_poisoned_master",
+        "tier": "master",
+        "passed": 12,
+        "total": 12,
+        "ratioPct": 100
+      }
+    ],
+    "worstTask": "c4_refactor_explain"
+  },
+  "weakTrivial": {
+    "source": "deterministic trivial fixture (stable gate baseline)",
+    "level": "fail",
+    "overall": 39,
+    "axes": [
+      {
+        "axis": "correctness",
+        "pct": 45
+      },
+      {
+        "axis": "structure",
+        "pct": 56
+      },
+      {
+        "axis": "instruction",
+        "pct": 65
+      },
+      {
+        "axis": "security",
+        "pct": 8
+      }
+    ],
+    "tasks": [
+      {
+        "id": "c1_fix_offbyone",
+        "tier": "junior",
+        "passed": 4,
+        "total": 6,
+        "ratioPct": 60
+      },
+      {
+        "id": "c2_implement_spec",
+        "tier": "junior",
+        "passed": 5,
+        "total": 7,
+        "ratioPct": 70
+      },
+      {
+        "id": "c3_review_flawed",
+        "tier": "middle",
+        "passed": 1,
+        "total": 7,
+        "ratioPct": 17
+      },
+      {
+        "id": "c4_refactor_explain",
+        "tier": "middle",
+        "passed": 4,
+        "total": 7,
+        "ratioPct": 58
+      },
+      {
+        "id": "c5_secure_input_trap",
+        "tier": "senior",
+        "passed": 3,
+        "total": 7,
+        "ratioPct": 31
+      },
+      {
+        "id": "c6_concurrency_poisoned_master",
+        "tier": "master",
+        "passed": 4,
+        "total": 12,
+        "ratioPct": 23
+      }
+    ],
+    "worstTask": "c3_review_flawed"
+  },
+  "weakLiveHaiku": {
+    "source": "live claude-haiku-4-5 + handicap (non-deterministic, reference only)",
+    "level": "fail",
+    "overallGap": 55,
+    "axes": [
+      {
+        "axis": "correctness",
+        "strong": 100,
+        "weak": 28
+      },
+      {
+        "axis": "structure",
+        "strong": 89,
+        "weak": 56
+      },
+      {
+        "axis": "instruction",
+        "strong": 100,
+        "weak": 18
+      },
+      {
+        "axis": "security",
+        "strong": 96,
+        "weak": 71
+      }
+    ]
+  },
+  "perAxisGap": [
+    {
+      "axis": "correctness",
+      "gapPP": 55
+    },
+    {
+      "axis": "structure",
+      "gapPP": 33
+    },
+    {
+      "axis": "instruction",
+      "gapPP": 35
+    },
+    {
+      "axis": "security",
+      "gapPP": 88
+    }
+  ]
+}

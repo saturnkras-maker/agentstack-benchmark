@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentStack — для разработчиков</title>
+  <meta name="description" content="Полный авто-прогон AgentStack по контракту: 9 осей, cockpit, адаптеры, детерминированный скоринг.">
+  <style>
+    :root{--bg:#070d18;--line:rgba(255,255,255,.10);--text:#eef5ff;--muted:#9fb0c6;--accent:#69e0ff;--accent2:#7d9bff;--ok:#7dffb2;--shadow:0 24px 70px rgba(0,0,0,.45)}
+    *{box-sizing:border-box}html,body{margin:0}
+    body{font-family:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);
+      background:radial-gradient(900px 600px at 12% -5%,rgba(105,224,255,.16),transparent 55%),var(--bg);line-height:1.6}
+    a{color:var(--accent)}
+    .wrap{width:min(880px,calc(100% - 36px));margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+    .brand{font-weight:800;font-size:18px;display:flex;gap:9px;align-items:center}
+    .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent)}
+    .nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:15px;margin-left:18px}
+    h1{font-size:clamp(28px,4.5vw,40px);margin:24px 0 8px}
+    .sub{color:var(--muted);font-size:17px;margin:0 0 26px}
+    .panel{background:linear-gradient(160deg,rgba(16,30,49,.92),rgba(12,22,38,.92));border:1px solid var(--line);
+      border-radius:20px;padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
+    h2{font-size:21px;margin:0 0 10px}
+    code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    code{color:var(--ok);background:rgba(125,255,178,.08);padding:1px 6px;border-radius:6px;font-size:14px}
+    pre{background:#0a1322;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;font-size:13.5px;color:#d6e4f3}
+    ul{color:var(--muted);padding-left:20px}ul li{margin:6px 0}
+    .axes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .ax{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}
+    .ax b{display:block;color:#dceaf8}
+    footer{color:var(--muted);font-size:13px;padding:24px 0 60px;border-top:1px solid var(--line)}
+    @media(max-width:720px){.axes{grid-template-columns:1fr 1fr}.nav{display:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span> AgentStack</div>
+      <nav class="nav"><a href="index.html">На главную</a><a href="demo/index.html">Пример отчёта</a></nav>
+    </div>
+
+    <h1>Для разработчиков: полный авто-прогон</h1>
+    <p class="sub">Публичная проверка на главной — это экспресс-срез по тексту ответов (4 оси). Полная картина агента снимается автоматическим прогоном по контракту — здесь живёт вся техническая часть.</p>
+
+    <div class="panel">
+      <h2>Экспресс (сайт) vs полный прогон (cockpit)</h2>
+      <p style="color:var(--muted)">Экспресс честно меряет только то, что видно в одном текстовом ответе. Память, реальный tool-use, автономность, восстановление после ошибки и стоимость на объёме одним ответом не измерить — для них нужен живой прогон агента в песочнице.</p>
+      <div class="axes">
+        <div class="ax"><b>quality</b>глубина и качество</div>
+        <div class="ax"><b>reliability</b>стабильность повторов</div>
+        <div class="ax"><b>toolUse</b>реальные tool-trace</div>
+        <div class="ax"><b>safety</b>инъекции, секреты</div>
+        <div class="ax"><b>speed</b>латентность</div>
+        <div class="ax"><b>costEfficiency</b>токены/деньги</div>
+        <div class="ax"><b>depth</b>краевые случаи</div>
+        <div class="ax"><b>memorySkills</b>память и навыки</div>
+        <div class="ax"><b>autonomy</b>длинные цепочки</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Адаптер-контракт</h2>
+      <p style="color:var(--muted)">Агент подключается через документированный HTTP/stdin-контракт (adapter/endpoint), поэтому любой фреймворк встраивается без изменения ядра скоринга. Прогон детерминирован: канонический порядок полей, хэши артефактов, метаданные дисперсии/доверительного интервала, редакция секрето-подобных строк.</p>
+      <pre>$ agentstack run --pack richer_v1 --adapter http://localhost:8080/agent \
+    --track local-public --out report.json</pre>
+      <ul>
+        <li><code>local-public</code> — локальный воспроизводимый прогон (то, что на сайте по духу).</li>
+        <li><code>hosted-verified</code> — серверный прогон со скрытыми задачами, его нельзя присвоить себе локально (анти-чит).</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>Прозрачность скоринга</h2>
+      <p style="color:var(--muted)">И экспресс, и полный прогон используют детерминированные чек-листы (must-have ключи/структуры/паттерны → баллы по осям). LLM-as-judge в ядро скоринга не входит. Результат экспресс-проверки на сайте считается полностью на стороне браузера — задание и ответы пользователя не покидают устройство.</p>
+    </div>
+
+    <footer>Полный прогон, контракт адаптеров и cockpit — в репозитории проекта. Экспресс-сайт намеренно не содержит сетевых вызовов с заданием/ответами.</footer>
+  </div>
+</body>
+</html>

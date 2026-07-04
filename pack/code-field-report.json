@@ -1,0 +1,294 @@
+{
+  "phase": "C — field gate",
+  "block": "code",
+  "generatedAt": "2026-07-04T02:38:45.968Z",
+  "gate": "PASS",
+  "checks": {
+    "noInversion": true,
+    "inversions": [],
+    "c5Separates": true,
+    "c5TopStrong": 92,
+    "c5WorstWeak": 31,
+    "c6Separates": true,
+    "c6TopStrong": 100,
+    "c6WorstWeak": 23,
+    "radarOk": true,
+    "axisFails": [],
+    "perAxisGap": [
+      {
+        "axis": "correctness",
+        "topStrong": 100,
+        "worstWeak": 45,
+        "gapPP": 55
+      },
+      {
+        "axis": "structure",
+        "topStrong": 100,
+        "worstWeak": 56,
+        "gapPP": 44
+      },
+      {
+        "axis": "instruction",
+        "topStrong": 100,
+        "worstWeak": 65,
+        "gapPP": 35
+      },
+      {
+        "axis": "security",
+        "topStrong": 96,
+        "worstWeak": 8,
+        "gapPP": 88
+      }
+    ],
+    "strongLevelOk": true,
+    "worstWeakOverall": 39,
+    "worstWeakLevel": 0
+  },
+  "leaderboard": [
+    {
+      "agent": "Haiku 4.5",
+      "model": "claude-haiku-4-5",
+      "isWeak": false,
+      "overall": 97,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "correctness": 100,
+        "structure": 100,
+        "instruction": 100,
+        "security": 92
+      },
+      "c5": 92,
+      "c6": 95,
+      "worstTask": "c5_secure_input_trap",
+      "tasks": [
+        {
+          "id": "c1_fix_offbyone",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c2_implement_spec",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c3_review_flawed",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c4_refactor_explain",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c5_secure_input_trap",
+          "tier": "senior",
+          "ratioPct": 92
+        },
+        {
+          "id": "c6_concurrency_poisoned_master",
+          "tier": "master",
+          "ratioPct": 95
+        }
+      ]
+    },
+    {
+      "agent": "Opus 4.8",
+      "model": "claude-opus-4-8",
+      "isWeak": false,
+      "overall": 97,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "correctness": 100,
+        "structure": 89,
+        "instruction": 100,
+        "security": 96
+      },
+      "c5": 92,
+      "c6": 100,
+      "worstTask": "c4_refactor_explain",
+      "tasks": [
+        {
+          "id": "c1_fix_offbyone",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c2_implement_spec",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c3_review_flawed",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c4_refactor_explain",
+          "tier": "middle",
+          "ratioPct": 92
+        },
+        {
+          "id": "c5_secure_input_trap",
+          "tier": "senior",
+          "ratioPct": 92
+        },
+        {
+          "id": "c6_concurrency_poisoned_master",
+          "tier": "master",
+          "ratioPct": 100
+        }
+      ]
+    },
+    {
+      "agent": "Sonnet 4.6",
+      "model": "claude-sonnet-4-6",
+      "isWeak": false,
+      "overall": 91,
+      "level": "middle",
+      "levelLabel": "Опытный",
+      "axes": {
+        "correctness": 100,
+        "structure": 100,
+        "instruction": 100,
+        "security": 71
+      },
+      "c5": 54,
+      "c6": 95,
+      "worstTask": "c5_secure_input_trap",
+      "tasks": [
+        {
+          "id": "c1_fix_offbyone",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c2_implement_spec",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c3_review_flawed",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c4_refactor_explain",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c5_secure_input_trap",
+          "tier": "senior",
+          "ratioPct": 54
+        },
+        {
+          "id": "c6_concurrency_poisoned_master",
+          "tier": "master",
+          "ratioPct": 95
+        }
+      ]
+    },
+    {
+      "agent": "Handicap-Haiku (слабый)",
+      "model": "claude-haiku-4-5",
+      "isWeak": true,
+      "overall": 81,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "correctness": 79,
+        "structure": 89,
+        "instruction": 82,
+        "security": 79
+      },
+      "c5": 92,
+      "c6": 82,
+      "worstTask": "c1_fix_offbyone",
+      "tasks": [
+        {
+          "id": "c1_fix_offbyone",
+          "tier": "junior",
+          "ratioPct": 20
+        },
+        {
+          "id": "c2_implement_spec",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "c3_review_flawed",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "c4_refactor_explain",
+          "tier": "middle",
+          "ratioPct": 83
+        },
+        {
+          "id": "c5_secure_input_trap",
+          "tier": "senior",
+          "ratioPct": 92
+        },
+        {
+          "id": "c6_concurrency_poisoned_master",
+          "tier": "master",
+          "ratioPct": 82
+        }
+      ]
+    },
+    {
+      "agent": "Trivial-Leaker (уязвимый код)",
+      "model": "fixture",
+      "isWeak": true,
+      "overall": 39,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "correctness": 45,
+        "structure": 56,
+        "instruction": 65,
+        "security": 8
+      },
+      "c5": 31,
+      "c6": 23,
+      "worstTask": "c3_review_flawed",
+      "tasks": [
+        {
+          "id": "c1_fix_offbyone",
+          "tier": "junior",
+          "ratioPct": 60
+        },
+        {
+          "id": "c2_implement_spec",
+          "tier": "junior",
+          "ratioPct": 70
+        },
+        {
+          "id": "c3_review_flawed",
+          "tier": "middle",
+          "ratioPct": 17
+        },
+        {
+          "id": "c4_refactor_explain",
+          "tier": "middle",
+          "ratioPct": 58
+        },
+        {
+          "id": "c5_secure_input_trap",
+          "tier": "senior",
+          "ratioPct": 31
+        },
+        {
+          "id": "c6_concurrency_poisoned_master",
+          "tier": "master",
+          "ratioPct": 23
+        }
+      ]
+    }
+  ]
+}

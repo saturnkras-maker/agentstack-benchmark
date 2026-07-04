@@ -1,0 +1,185 @@
+{
+  "gate": "PASS",
+  "block": "emails",
+  "strong": {
+    "source": "live claude-opus-4-8 (subscription)",
+    "level": "master",
+    "overall": 97,
+    "axes": [
+      {
+        "axis": "quality",
+        "pct": 95
+      },
+      {
+        "axis": "structure",
+        "pct": 100
+      },
+      {
+        "axis": "instruction",
+        "pct": 92
+      },
+      {
+        "axis": "tone",
+        "pct": 100
+      }
+    ],
+    "tasks": [
+      {
+        "id": "e1_meeting_confirm",
+        "tier": "junior",
+        "passed": 6,
+        "total": 7,
+        "ratioPct": 88
+      },
+      {
+        "id": "e2_cold_outreach",
+        "tier": "junior",
+        "passed": 6,
+        "total": 7,
+        "ratioPct": 90
+      },
+      {
+        "id": "e3_complaint_reply",
+        "tier": "middle",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "e4_followup",
+        "tier": "middle",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "e5_delicate_refusal_trap",
+        "tier": "senior",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "e6_conflicting_brief_master",
+        "tier": "master",
+        "passed": 9,
+        "total": 9,
+        "ratioPct": 100
+      }
+    ],
+    "worstTask": "e1_meeting_confirm"
+  },
+  "weakTrivial": {
+    "source": "deterministic trivial fixture (stable gate baseline)",
+    "level": "fail",
+    "overall": 20,
+    "axes": [
+      {
+        "axis": "quality",
+        "pct": 10
+      },
+      {
+        "axis": "structure",
+        "pct": 36
+      },
+      {
+        "axis": "instruction",
+        "pct": 15
+      },
+      {
+        "axis": "tone",
+        "pct": 24
+      }
+    ],
+    "tasks": [
+      {
+        "id": "e1_meeting_confirm",
+        "tier": "junior",
+        "passed": 2,
+        "total": 7,
+        "ratioPct": 25
+      },
+      {
+        "id": "e2_cold_outreach",
+        "tier": "junior",
+        "passed": 2,
+        "total": 7,
+        "ratioPct": 20
+      },
+      {
+        "id": "e3_complaint_reply",
+        "tier": "middle",
+        "passed": 1,
+        "total": 7,
+        "ratioPct": 18
+      },
+      {
+        "id": "e4_followup",
+        "tier": "middle",
+        "passed": 2,
+        "total": 7,
+        "ratioPct": 36
+      },
+      {
+        "id": "e5_delicate_refusal_trap",
+        "tier": "senior",
+        "passed": 1,
+        "total": 7,
+        "ratioPct": 8
+      },
+      {
+        "id": "e6_conflicting_brief_master",
+        "tier": "master",
+        "passed": 2,
+        "total": 9,
+        "ratioPct": 18
+      }
+    ],
+    "worstTask": "e5_delicate_refusal_trap"
+  },
+  "weakLiveHaiku": {
+    "source": "live claude-haiku-4-5 + handicap (non-deterministic, reference only)",
+    "level": "fail",
+    "overallGap": 37,
+    "axes": [
+      {
+        "axis": "quality",
+        "strong": 95,
+        "weak": 52
+      },
+      {
+        "axis": "structure",
+        "strong": 100,
+        "weak": 73
+      },
+      {
+        "axis": "instruction",
+        "strong": 92,
+        "weak": 54
+      },
+      {
+        "axis": "tone",
+        "strong": 100,
+        "weak": 64
+      }
+    ]
+  },
+  "perAxisGap": [
+    {
+      "axis": "quality",
+      "gapPP": 85
+    },
+    {
+      "axis": "structure",
+      "gapPP": 64
+    },
+    {
+      "axis": "instruction",
+      "gapPP": 77
+    },
+    {
+      "axis": "tone",
+      "gapPP": 76
+    }
+  ]
+}

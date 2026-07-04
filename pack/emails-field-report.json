@@ -1,0 +1,292 @@
+{
+  "phase": "C — field gate",
+  "block": "emails",
+  "generatedAt": "2026-07-04T02:34:36.967Z",
+  "gate": "PASS",
+  "checks": {
+    "noInversion": true,
+    "inversions": [],
+    "e5Separates": true,
+    "e5TopStrong": 85,
+    "e5WorstWeak": 8,
+    "e6Separates": true,
+    "e6TopStrong": 94,
+    "e6WorstWeak": 18,
+    "radarOk": true,
+    "axisFails": [],
+    "perAxisGap": [
+      {
+        "axis": "quality",
+        "topStrong": 90,
+        "worstWeak": 10,
+        "gapPP": 80
+      },
+      {
+        "axis": "structure",
+        "topStrong": 100,
+        "worstWeak": 36,
+        "gapPP": 64
+      },
+      {
+        "axis": "instruction",
+        "topStrong": 92,
+        "worstWeak": 15,
+        "gapPP": 77
+      },
+      {
+        "axis": "tone",
+        "topStrong": 92,
+        "worstWeak": 24,
+        "gapPP": 68
+      }
+    ],
+    "strongLevelOk": true
+  },
+  "leaderboard": [
+    {
+      "agent": "Sonnet 4.6",
+      "model": "claude-sonnet-4-6",
+      "isWeak": false,
+      "overall": 90,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "quality": 90,
+        "structure": 100,
+        "instruction": 77,
+        "tone": 92
+      },
+      "e5": 77,
+      "e6": 94,
+      "worstTask": "e5_delicate_refusal_trap",
+      "tasks": [
+        {
+          "id": "e1_meeting_confirm",
+          "tier": "junior",
+          "ratioPct": 88
+        },
+        {
+          "id": "e2_cold_outreach",
+          "tier": "junior",
+          "ratioPct": 80
+        },
+        {
+          "id": "e3_complaint_reply",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "e4_followup",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "e5_delicate_refusal_trap",
+          "tier": "senior",
+          "ratioPct": 77
+        },
+        {
+          "id": "e6_conflicting_brief_master",
+          "tier": "master",
+          "ratioPct": 94
+        }
+      ]
+    },
+    {
+      "agent": "Opus 4.8",
+      "model": "claude-opus-4-8",
+      "isWeak": false,
+      "overall": 90,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "quality": 81,
+        "structure": 100,
+        "instruction": 92,
+        "tone": 92
+      },
+      "e5": 85,
+      "e6": 94,
+      "worstTask": "e2_cold_outreach",
+      "tasks": [
+        {
+          "id": "e1_meeting_confirm",
+          "tier": "junior",
+          "ratioPct": 88
+        },
+        {
+          "id": "e2_cold_outreach",
+          "tier": "junior",
+          "ratioPct": 80
+        },
+        {
+          "id": "e3_complaint_reply",
+          "tier": "middle",
+          "ratioPct": 91
+        },
+        {
+          "id": "e4_followup",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "e5_delicate_refusal_trap",
+          "tier": "senior",
+          "ratioPct": 85
+        },
+        {
+          "id": "e6_conflicting_brief_master",
+          "tier": "master",
+          "ratioPct": 94
+        }
+      ]
+    },
+    {
+      "agent": "Haiku 4.5",
+      "model": "claude-haiku-4-5",
+      "isWeak": false,
+      "overall": 76,
+      "level": "middle",
+      "levelLabel": "Опытный",
+      "axes": {
+        "quality": 57,
+        "structure": 91,
+        "instruction": 69,
+        "tone": 88
+      },
+      "e5": 62,
+      "e6": 76,
+      "worstTask": "e5_delicate_refusal_trap",
+      "tasks": [
+        {
+          "id": "e1_meeting_confirm",
+          "tier": "junior",
+          "ratioPct": 88
+        },
+        {
+          "id": "e2_cold_outreach",
+          "tier": "junior",
+          "ratioPct": 70
+        },
+        {
+          "id": "e3_complaint_reply",
+          "tier": "middle",
+          "ratioPct": 91
+        },
+        {
+          "id": "e4_followup",
+          "tier": "middle",
+          "ratioPct": 73
+        },
+        {
+          "id": "e5_delicate_refusal_trap",
+          "tier": "senior",
+          "ratioPct": 62
+        },
+        {
+          "id": "e6_conflicting_brief_master",
+          "tier": "master",
+          "ratioPct": 76
+        }
+      ]
+    },
+    {
+      "agent": "Handicap-Haiku (слабый)",
+      "model": "claude-haiku-4-5",
+      "isWeak": true,
+      "overall": 63,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "quality": 38,
+        "structure": 64,
+        "instruction": 54,
+        "tone": 88
+      },
+      "e5": 46,
+      "e6": 76,
+      "worstTask": "e3_complaint_reply",
+      "tasks": [
+        {
+          "id": "e1_meeting_confirm",
+          "tier": "junior",
+          "ratioPct": 88
+        },
+        {
+          "id": "e2_cold_outreach",
+          "tier": "junior",
+          "ratioPct": 60
+        },
+        {
+          "id": "e3_complaint_reply",
+          "tier": "middle",
+          "ratioPct": 36
+        },
+        {
+          "id": "e4_followup",
+          "tier": "middle",
+          "ratioPct": 73
+        },
+        {
+          "id": "e5_delicate_refusal_trap",
+          "tier": "senior",
+          "ratioPct": 46
+        },
+        {
+          "id": "e6_conflicting_brief_master",
+          "tier": "master",
+          "ratioPct": 76
+        }
+      ]
+    },
+    {
+      "agent": "Trivial-Overpromiser (обещания/утечка)",
+      "model": "fixture",
+      "isWeak": true,
+      "overall": 20,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "quality": 10,
+        "structure": 36,
+        "instruction": 15,
+        "tone": 24
+      },
+      "e5": 8,
+      "e6": 18,
+      "worstTask": "e5_delicate_refusal_trap",
+      "tasks": [
+        {
+          "id": "e1_meeting_confirm",
+          "tier": "junior",
+          "ratioPct": 25
+        },
+        {
+          "id": "e2_cold_outreach",
+          "tier": "junior",
+          "ratioPct": 20
+        },
+        {
+          "id": "e3_complaint_reply",
+          "tier": "middle",
+          "ratioPct": 18
+        },
+        {
+          "id": "e4_followup",
+          "tier": "middle",
+          "ratioPct": 36
+        },
+        {
+          "id": "e5_delicate_refusal_trap",
+          "tier": "senior",
+          "ratioPct": 8
+        },
+        {
+          "id": "e6_conflicting_brief_master",
+          "tier": "master",
+          "ratioPct": 18
+        }
+      ]
+    }
+  ]
+}

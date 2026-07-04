@@ -3,178 +3,614 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AgentStack Benchmark — карта силы AI-агента</title>
-  <meta name="description" content="AgentStack Benchmark — «3DMark для AI-агентов». Локальный бенчмарк, который честно оценивает весь стек агента одной командой и без интернета.">
+  <title>AgentStack — узнай, где твой ИИ-помощник сломается</title>
+  <meta name="description" content="Проверь своего ИИ-помощника на задачах-ловушках — письма, код, таблицы. Радар покажет, где он незаметно сломается, до того как доверишь ему деньги, почту или клиентов. Считается у вас в браузере.">
+  <meta property="og:title" content="Где твой ИИ-помощник сломается в реальной работе?">
+  <meta property="og:description" content="Задачи-ловушки на письма, код и таблицы. Радар покажет красные зоны твоего ИИ. ~10 минут, без кода. Приватно — в браузере.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Где твой ИИ-помощник сломается в реальной работе?">
+  <meta name="twitter:description" content="Задачи-ловушки на письма, код и таблицы. Радар покажет красные зоны твоего ИИ. ~10 минут, без кода.">
+  <meta name="twitter:image" content="og.png">
   <style>
-    :root { color-scheme: dark; --bg: #07111f; --card: #111d2d; --text: #edf5ff; --muted: #a8b7ca; --accent: #69e0ff; --ok: #7dffb2; --warn: #ffd37d; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #14395a, var(--bg) 46%); color: var(--text); }
-    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 64px 0; }
-    .hero { display: grid; gap: 24px; padding: 48px; background: linear-gradient(135deg, rgba(105,224,255,.12), rgba(125,255,178,.08)); border: 1px solid rgba(255,255,255,.12); border-radius: 28px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
-    .eyebrow { color: var(--ok); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
-    h1 { font-size: clamp(40px, 8vw, 82px); line-height: .95; margin: 0; }
-    h2 { margin: 0 0 12px; font-size: 26px; }
-    h3 { margin: 0 0 6px; font-size: 18px; }
-    p { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 800px; }
-    pre { overflow-x: auto; margin: 0; padding: 16px; border-radius: 16px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.1); }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-    a.button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; color: #04121d; background: var(--accent); text-decoration: none; font-weight: 800; }
-    a.button.cta { font-size: 19px; padding: 16px 28px; }
-    a.button.secondary { color: var(--text); background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
-    .steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
-    .card { padding: 22px; background: rgba(17,29,45,.78); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; }
-    .stepcard { padding: 22px; background: rgba(17,29,45,.78); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; }
-    .stepnum { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; background: var(--accent); color: #04121d; font-weight: 900; margin-bottom: 10px; }
-    .card strong { display: block; margin-bottom: 8px; color: var(--text); }
-    code { color: var(--ok); }
-    .status { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-    .pill { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); border: 1px solid rgba(255,255,255,.1); }
-    .pill.ok { color: var(--ok); }
-    .pill.warn { color: var(--warn); }
-    footer { color: var(--muted); padding-top: 32px; font-size: 14px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: 1fr; } .hero { padding: 28px; } }
+    :root{
+      --bg:#070d18; --bg2:#0c1626; --card:#101e31; --line:rgba(255,255,255,.10);
+      --text:#eef5ff; --muted:#9fb0c6; --accent:#69e0ff; --accent2:#7d9bff;
+      --ok:#7dffb2; --warn:#ffd37d; --bad:#ff6b6b;
+      --radius:22px; --shadow:0 24px 70px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      font-family:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 12% -5%, rgba(105,224,255,.16), transparent 55%),
+        radial-gradient(800px 600px at 95% 10%, rgba(125,155,255,.14), transparent 55%),
+        var(--bg);
+      -webkit-font-smoothing:antialiased; line-height:1.55;
+    }
+    a{color:var(--accent)}
+    .wrap{width:min(1120px,calc(100% - 36px));margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+    .brand{font-weight:800;letter-spacing:.02em;font-size:18px;display:flex;gap:9px;align-items:center}
+    .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent)}
+    .nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:15px;margin-left:18px}
+    .nav a:hover{color:var(--text)}
+
+    .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;
+      padding:15px 26px;border-radius:999px;font-weight:800;font-size:17px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04121d;
+      box-shadow:0 12px 34px rgba(105,224,255,.28);transition:transform .15s ease,box-shadow .15s}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+    .btn.ghost{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--line);box-shadow:none}
+    .btn.sm{padding:11px 18px;font-size:15px}
+
+    section[hidden]{display:none}
+
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:38px;align-items:center;padding:30px 0 56px}
+    .eyebrow{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12.5px;margin-bottom:14px}
+    h1{font-size:clamp(27px,5vw,52px);line-height:1.08;margin:0 0 18px;letter-spacing:-.01em;
+      overflow-wrap:break-word;hyphens:auto}
+    .lead{color:var(--muted);font-size:clamp(17px,2.2vw,20px);max-width:560px;margin:0 0 26px}
+    .hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+    .privacy{display:inline-flex;gap:9px;align-items:center;margin-top:22px;color:var(--muted);
+      background:rgba(125,255,178,.08);border:1px solid rgba(125,255,178,.22);
+      padding:10px 14px;border-radius:14px;font-size:14.5px}
+    .privacy b{color:var(--ok);font-weight:700}
+    .howto{color:var(--muted);font-size:14.5px;margin-top:16px;max-width:560px;line-height:1.5}
+    .share-social{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+    .share-social .soc-label{color:var(--muted);font-size:13px;margin-right:2px}
+    .soc{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
+      border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:700;transition:.15s}
+    .soc:hover{border-color:var(--accent);background:rgba(105,224,255,.12);transform:translateY(-1px)}
+    .track-progress{margin:0 0 18px;padding:11px 15px;border-radius:12px;font-size:14.5px;color:var(--ok);
+      background:rgba(125,255,178,.08);border:1px solid rgba(125,255,178,.22)}
+    .track-progress b{color:var(--text)}
+    .radar-card{background:linear-gradient(160deg,rgba(16,30,49,.9),rgba(12,22,38,.9));
+      border:1px solid var(--line);border-radius:26px;padding:22px;box-shadow:var(--shadow)}
+    .radar-card .cap{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:6px}
+    .radar-card .cap .live{color:var(--accent);font-weight:700}
+    .radar-host{aspect-ratio:1/1;width:100%}
+    .radar-foot{margin-top:8px;color:var(--muted);font-size:13px;text-align:center}
+    .redzone{color:var(--bad);font-weight:700}
+
+    .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-bottom:54px}
+    .trust .t{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+    .trust .t b{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+    .trust .t span{color:var(--muted);font-size:14px}
+
+    .panel{background:linear-gradient(160deg,rgba(16,30,49,.92),rgba(12,22,38,.92));
+      border:1px solid var(--line);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);margin:18px 0 60px}
+    .step-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+    .step-num{width:30px;height:30px;border-radius:50%;background:rgba(105,224,255,.15);color:var(--accent);
+      display:grid;place-items:center;font-weight:800;font-size:15px}
+    h2{font-size:clamp(24px,3vw,30px);margin:0}
+    .sub{color:var(--muted);margin:4px 0 24px;font-size:16px}
+
+    .blocks{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:26px}
+    .blk{cursor:pointer;text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--line);
+      border-radius:18px;padding:20px;color:var(--text);transition:.15s}
+    .blk:hover{border-color:rgba(105,224,255,.4)}
+    .blk.sel{border-color:var(--accent);background:rgba(105,224,255,.12);box-shadow:0 0 0 1px var(--accent) inset}
+    .blk .ic{font-size:26px}
+    .blk b{display:block;margin-top:8px;font-size:16px}
+    .blk span{display:block;color:var(--muted);font-size:13.5px;margin-top:4px}
+    .blk .meta{display:inline-block;margin-top:10px;font-size:12px;color:var(--accent);
+      background:rgba(105,224,255,.1);border:1px solid rgba(105,224,255,.25);border-radius:999px;padding:3px 10px}
+
+    /* Экран выбора КАТЕГОРИИ (3 группы) */
+    .cats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
+    .cat{cursor:pointer;text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--line);
+      border-radius:20px;padding:24px 22px;color:var(--text);transition:.15s;position:relative}
+    .cat:hover{transform:translateY(-2px)}
+    .cat .ic{font-size:32px}
+    .cat b{display:block;margin-top:12px;font-size:19px}
+    .cat .cat-sub{display:block;color:var(--muted);font-size:13.5px;margin-top:6px;line-height:1.5}
+    .cat .cat-list{display:block;margin-top:12px;color:var(--accent);font-size:13px;font-weight:600}
+    .cat.soft{border-color:rgba(105,224,255,.35)}
+    .cat.soft:hover{border-color:var(--accent);box-shadow:0 12px 30px rgba(105,224,255,.18)}
+    .cat.soft .ic,.cat.soft .cat-list{color:var(--accent)}
+    .cat.hard{border-color:rgba(255,180,110,.35)}
+    .cat.hard:hover{border-color:#ffb46e;box-shadow:0 12px 30px rgba(255,180,110,.18)}
+    .cat.hard .ic,.cat.hard .cat-list{color:#ffb46e}
+    .cat.roles-cat{border-color:rgba(125,255,178,.35)}
+    .cat.roles-cat:hover{border-color:var(--ok);box-shadow:0 12px 30px rgba(125,255,178,.18)}
+    .cat.roles-cat .ic,.cat.roles-cat .cat-list{color:var(--ok)}
+    .cat .cat-cross{display:inline-block;margin-top:10px;font-size:11.5px;color:var(--muted);
+      background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+    .catback{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+    .catback .crumb{color:var(--accent);font-weight:700}
+
+    .failcard{background:linear-gradient(160deg,rgba(40,16,22,.92),rgba(28,12,18,.92));
+      border:1px solid rgba(255,107,107,.35);border-radius:18px;padding:22px;margin-bottom:22px}
+    .failcard .fc-eyebrow{color:var(--bad);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:12px}
+    .failcard h3{margin:8px 0 6px;font-size:20px}
+    .failcard .fc-where{color:#ffd0d0;font-size:15px;margin-bottom:10px}
+    .failcard .fc-why{color:var(--text);font-size:15px;line-height:1.55}
+    .failcard .fc-cost{margin-top:12px;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.25);
+      border-radius:12px;padding:10px 14px;color:#ffdede;font-size:14px}
+    .failcard.allgood{background:linear-gradient(160deg,rgba(16,40,28,.92),rgba(12,30,22,.92));border-color:rgba(125,255,178,.35)}
+    .failcard.allgood .fc-eyebrow{color:var(--ok)}
+
+    .levelband{display:flex;gap:16px;align-items:center;background:rgba(255,255,255,.03);
+      border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin-bottom:18px}
+    .levelpill{flex:0 0 auto;padding:10px 18px;border-radius:14px;font-weight:800;font-size:18px}
+    .levelpill.master{background:linear-gradient(135deg,rgba(105,224,255,.22),rgba(125,255,178,.20));color:#aef7ff;border:1px solid rgba(105,224,255,.5);box-shadow:0 0 22px rgba(105,224,255,.25)}
+    .levelpill.senior{background:rgba(125,255,178,.16);color:var(--ok);border:1px solid rgba(125,255,178,.35)}
+    .levelpill.middle{background:rgba(255,211,125,.16);color:var(--warn);border:1px solid rgba(255,211,125,.35)}
+    .levelpill.junior{background:rgba(255,170,110,.16);color:#ffb074;border:1px solid rgba(255,170,110,.35)}
+    .levelpill.fail{background:rgba(255,107,107,.16);color:var(--bad);border:1px solid rgba(255,107,107,.35)}
+    .levelband .lb-meta b{font-size:15px}
+    .levelband .lb-meta span{display:block;color:var(--muted);font-size:13.5px;margin-top:3px}
+    .ladder{display:flex;gap:8px;margin-top:8px}
+    .ladder .st{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+    .ladder .st.on{color:#04121d;background:var(--accent);border-color:var(--accent);font-weight:700}
+
+    .anticheat{margin-top:18px;background:rgba(255,211,125,.07);border:1px solid rgba(255,211,125,.25);
+      border-radius:12px;padding:12px 14px;color:#f4e2bd;font-size:13.5px}
+    .anticheat b{color:var(--warn)}
+    .attempts{margin-top:8px;color:var(--muted);font-size:13px}
+    .copypaste-flag{margin-top:10px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);
+      border-radius:12px;padding:10px 14px;color:#ffc4c4;font-size:13.5px}
+
+    .roles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:26px}
+    .role{cursor:pointer;text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--line);
+      border-radius:16px;padding:16px;color:var(--text);transition:.15s}
+    .role:hover{border-color:rgba(105,224,255,.4)}
+    .role.sel{border-color:var(--accent);background:rgba(105,224,255,.12);box-shadow:0 0 0 1px var(--accent) inset}
+    .role .ic{font-size:22px}
+    .role b{display:block;margin-top:8px;font-size:15px}
+    .role span{color:var(--muted);font-size:12.5px}
+
+    .copy-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:6px 0 20px}
+    .hint{color:var(--muted);font-size:14px}
+    #answer-fields{display:grid;gap:16px;margin-top:6px}
+    .ans-box{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .ans-label{display:block;font-weight:700;font-size:14.5px;margin-bottom:8px;color:#dceaf8}
+    .ans-input{width:100%;min-height:96px;resize:vertical;background:#0a1322;color:var(--text);
+      border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14.5px;font-family:inherit;line-height:1.5}
+    .ans-input:focus{outline:none;border-color:var(--accent)}
+    .build-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:22px}
+    #fill-count{color:var(--muted);font-size:14px}
+
+    .result-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+    .res-radar-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:18px}
+    .res-radar-host{aspect-ratio:1/1;width:100%}
+    .res-note{color:var(--muted);font-size:13px;text-align:center;margin-top:4px}
+    .fit{display:flex;gap:18px;align-items:center;background:rgba(255,255,255,.03);
+      border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:18px}
+    .fit-ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+      background:conic-gradient(var(--ok) 0deg,rgba(255,255,255,.08) 0deg)}
+    .fit-ring .inner{width:70px;height:70px;border-radius:50%;background:var(--card);display:grid;place-items:center}
+    .fit-ring .inner b{font-size:26px}
+    .fit-meta b{font-size:15px}
+    .fit-meta .role{color:var(--accent);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+    .fit-meta .risk{color:var(--muted);font-size:14px;margin-top:4px}
+    .block-title{font-weight:800;margin:22px 0 10px;font-size:15px;letter-spacing:.02em}
+    .risk-item{display:block;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);
+      border-radius:12px;padding:12px 14px;margin-bottom:10px}
+    .risk-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bad);margin-right:8px}
+    .risk-why{color:var(--muted);font-size:13.5px;margin-top:4px}
+    .risk-ok{color:var(--muted);background:rgba(125,255,178,.07);border:1px solid rgba(125,255,178,.2);
+      border-radius:12px;padding:12px 14px;font-size:14px}
+
+    .task-acc{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+    .task-acc summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;justify-content:space-between;
+      gap:10px;font-weight:700;font-size:14.5px}
+    .task-acc summary::-webkit-details-marker{display:none}
+    .acc-frac{color:var(--accent);font-weight:800;white-space:nowrap}
+    .acc-body{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 16px 16px}
+    .acc-h{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .acc-h.good{color:var(--ok)} .acc-h.bad{color:var(--bad)}
+    .chk{font-size:13.5px;padding:3px 0;color:#cfe0f1}
+    .chk.good{color:#bdf6d4} .chk.bad{color:#ffc4c4}
+
+    .upsell{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px}
+    .lock{background:rgba(255,255,255,.025);border:1px dashed var(--line);border-radius:14px;padding:16px;color:var(--muted)}
+    .lock b{color:#cdd;display:block;margin-bottom:4px;font-size:14.5px}
+    .lock .tag{display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);
+      background:rgba(105,224,255,.1);border:1px solid rgba(105,224,255,.25);border-radius:999px;padding:3px 10px}
+
+    .share{margin-top:24px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:16px}
+    .share input{width:100%;background:#0a1322;border:1px solid var(--line);border-radius:10px;
+      color:var(--muted);padding:10px;font-size:13px;margin-top:8px}
+    #shared-note{background:rgba(105,224,255,.1);border:1px solid rgba(105,224,255,.3);
+      border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:14px}
+
+    footer{color:var(--muted);font-size:13.5px;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:30px}
+
+    @media (max-width:880px){
+      .hero{grid-template-columns:1fr;gap:26px}
+      .trust{grid-template-columns:1fr}
+      .roles{grid-template-columns:repeat(2,1fr)}
+      .result-grid{grid-template-columns:1fr}
+      .acc-body{grid-template-columns:1fr}
+      .upsell{grid-template-columns:1fr}
+      .panel{padding:22px}
+      .nav{display:none}
+    }
   </style>
 </head>
 <body>
-  <main>
-    <section class="hero">
-      <div class="eyebrow">Локальная бета · офлайн MVP</div>
-      <h1>Карта силы AI-агента. «3DMark для AI-агентов».</h1>
-      <p>
-        AgentStack Benchmark оценивает всю конструкцию агента — модель, промпты, инструменты,
-        память, оркестрацию, скорость, стоимость, безопасность и воспроизводимость, — а не только базовую модель.
-      </p>
-      <p>
-        Прогон трогается руками локально: поднимаете офлайн-демо, открываете браузер,
-        жмёте <strong>«Протестировать своего агента»</strong> и смотрите визуальный scorecard и лидерборд.
-      </p>
-      <div class="actions">
-        <a class="button cta" href="https://github.com/saturnkras-maker/agentstack-benchmark">Протестировать своего агента</a>
-        <a class="button secondary" href="#how">Как протестировать</a>
-        <a class="button secondary" href="demo/leaderboard.html">Пример лидерборда</a>
-        <a class="button secondary" href="demo/report.html">Пример scorecard</a>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span> AgentStack</div>
+      <nav class="nav">
+        <a href="demo/index.html">Пример отчёта</a>
+        <a href="developers.html">Для разработчиков</a>
+      </nav>
+    </div>
+
+    <!-- HERO -->
+    <section id="screen-hero">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Проверка ИИ-помощника</div>
+          <h1>Узнай, где твой ИИ-помощник сломается в реальной работе — до того как доверишь ему деньги, почту или клиентов.</h1>
+          <p class="lead">Работает с любым ИИ — ChatGPT, Claude или твой бот. ~10 минут, без кода.</p>
+          <div class="hero-cta">
+            <button class="btn" id="btn-start">Дать своему ИИ задание-ловушку →</button>
+            <button class="btn ghost" id="btn-demo">Посмотреть пример отчёта</button>
+          </div>
+          <div class="howto">Копируешь задание → прогоняешь у своего ChatGPT или Claude → вставляешь ответ обратно. Радар за ~10 минут, без кода.</div>
+          <div class="privacy">🔒 <span><b>Считается у тебя в браузере</b> — мы не видим ни задание, ни ответы.</span></div>
+        </div>
+        <div class="radar-card">
+          <div class="cap"><span>Пример: реальный прогон</span><span class="live">● Claude Haiku 4.5</span></div>
+          <div class="radar-host" id="hero-radar"></div>
+          <div class="radar-foot">Устоял против прямой инъекции ✓ — но <span class="redzone">переврал суть документа и не вывел обязательное поле риска</span>. Глубина — 44%. Доверил бы ему свой договор?</div>
+        </div>
       </div>
-      <div class="status">
-        <span class="pill ok">Офлайн-демо одной командой</span>
-        <span class="pill ok">Без интернета</span>
-        <span class="pill ok">Без API-ключей</span>
-        <span class="pill ok">Опциональный локальный модельный адаптер</span>
-        <span class="pill ok">First-run doctor</span>
-        <span class="pill ok">Local MVP Cockpit</span>
-        <span class="pill ok">Статический публичный пример</span>
-        <span class="pill ok">Доказательство локальной проверки MVP</span>
-        <span class="pill ok">Трек: local-public</span>
-        <span class="pill warn">Hosted-verified: зарезервирован</span>
-        <span class="pill warn">Платный чекаут: не подключён</span>
+
+      <div class="trust">
+        <div class="t"><b>Без кода и без установки</b><span>Скопировал задание → вставил ответы своего ИИ → получил радар.</span></div>
+        <div class="t"><b>Прозрачный скоринг</b><span>По каждой оси видно «совпало M/N» — никакой магии и чёрных ящиков.</span></div>
+        <div class="t"><b>Приватно по-настоящему</b><span>Ни задание, ни ответы не уходят в сеть. Всё считает твой браузер.</span></div>
       </div>
     </section>
 
-    <section id="how" class="steps" aria-label="Как протестировать своего агента">
-      <article class="stepcard" style="grid-column: 1 / -1;">
-        <h2>Как протестировать своего агента — 4 шага</h2>
-        <p>Путь очевиден за 10 секунд: поднимите эндпоинт → впишите адрес → прогон → scorecard.</p>
-      </article>
-      <article class="stepcard">
-        <span class="stepnum">1</span>
-        <h3>Поднимите агента как локальный HTTP-эндпоинт</h3>
-        <p>По контракту адаптера: принимает <code>POST</code> с задачей и отвечает JSON
-        <code>{"answer": "…", "toolTrace": []}</code>. Эндпоинт обязан быть локальным
-        (<code>127.0.0.1</code> / <code>localhost</code>). Копипастный пример:</p>
-        <pre><code># my_agent.py — минимальный HTTP-агент под контракт AgentStack.
-# Запуск:  python3 my_agent.py   (слушает http://127.0.0.1:8765/tasks)
-import json
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-class Agent(BaseHTTPRequestHandler):
-    def do_POST(self):
-        n = int(self.headers.get("Content-Length", "0"))
-        task = json.loads(self.rfile.read(n) or b"{}")
-        # Вызовите свой стек/модель и верните финальный ответ строкой.
-        answer = f"Решаю {task.get('taskId')}: " + str(task.get("prompt", ""))[:200]
-        body = json.dumps({"answer": answer, "toolTrace": []}).encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-    def log_message(self, *a): pass
-
-HTTPServer(("127.0.0.1", 8765), Agent).serve_forever()</code></pre>
-      </article>
-      <article class="stepcard">
-        <span class="stepnum">2</span>
-        <h3>Впишите endpoint и имя</h3>
-        <p>Откройте форму прогона <code>http://127.0.0.1:8088/run</code> и укажите адрес агента
-        (например <code>http://127.0.0.1:8765/tasks</code>), его имя и версию.</p>
-      </article>
-      <article class="stepcard">
-        <span class="stepnum">3</span>
-        <h3>Запустите прогон</h3>
-        <p>Бенчмарк прогонит набор задач через вашего агента и честно оценит стек по 9 осям:
-        качество, надёжность, инструменты, безопасность, скорость, стоимость, глубина, память, автономность.</p>
-      </article>
-      <article class="stepcard">
-        <span class="stepnum">4</span>
-        <h3>Получите scorecard и поделитесь</h3>
-        <p>Радар по осям, ролевая пригодность и потасковые результаты PASS / ЧАСТИЧНО / FAIL
-        с совпавшими ключевыми словами. Скачайте отчёт (HTML → «Печать → Сохранить как PDF»), JSON или Markdown.</p>
-      </article>
+    <!-- CATEGORY SELECT (3 категории) -->
+    <section id="screen-category" hidden>
+      <div class="panel">
+        <div class="step-head"><span class="step-num">1</span><h2>Что проверяем у твоего ИИ?</h2></div>
+        <p class="sub">Выбери направление. Внутри — конкретные наборы задач по нарастающей сложности.</p>
+        <div class="track-progress" id="track-progress" hidden></div>
+        <div class="cats">
+          <button class="cat soft" data-cat="soft">
+            <div class="ic">🟦</div><b>Мягкие навыки</b>
+            <span class="cat-sub">Общение с людьми: письма, тон, деликатные отказы. Где ИИ незаметнее всего подводит.</span>
+            <span class="cat-list">Письма →</span>
+            <span class="cat-cross">+ устойчивость к ловушкам</span>
+          </button>
+          <button class="cat hard" data-cat="hard">
+            <div class="ic">🟧</div><b>Твёрдые навыки</b>
+            <span class="cat-sub">Точная работа: код и таблицы. Где важны корректность, формат и честность цифр.</span>
+            <span class="cat-list">Код · Таблицы →</span>
+          </button>
+          <button class="cat roles-cat" data-cat="roles">
+            <div class="ic">🟩</div><b>Роли</b>
+            <span class="cat-sub">Подбор под конкретную работу: насколько ИИ годится под твою роль и где он опасен именно для неё.</span>
+            <span class="cat-list">Проверка под роль →</span>
+          </button>
+        </div>
+        <div class="build-row">
+          <button class="btn ghost sm" data-back-hero>← На главную</button>
+        </div>
+      </div>
     </section>
 
-    <section class="grid" aria-label="Офлайн MVP — быстрый старт">
-      <article class="card" style="grid-column: 1 / -1;">
-        <h2>Офлайн-демо одной командой</h2>
-        <p>Запуск локально из корня репозитория:</p>
-        <pre><code>make doctor
-make demo-local
-make cockpit
-make verify-local-mvp
-make demo-pilots</code></pre>
-        <p>Эквивалентные явные команды Python: <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli doctor</code> и <code>PYTHONPATH=src python3 -m agentstack_benchmark.cli demo-local</code>.</p>
-        <p>Перед стартом запустите <code>make doctor</code> — он печатает точные команды, URL, готовность портов и статус модели.</p>
-        <p>Затем откройте <code>http://127.0.0.1:8088/run</code>, используйте <code>http://127.0.0.1:8765/tasks</code> и нажмите <strong>«Протестировать своего агента»</strong>.</p>
-        <p>Опциональный путь с локальной моделью: <code>make local-model-check</code>, затем <code>make demo-local-auto</code> — это обёртка над <code>--agent-mode auto-local-model</code>. Если локальной модели нет, остаётся детерминированное офлайн-демо как fallback.</p>
-      </article>
+    <!-- BLOCK SELECT (внутри категории) -->
+    <section id="screen-block" hidden>
+      <div class="panel">
+        <div class="catback">Категория: <span class="crumb" id="cat-crumb">—</span></div>
+        <div class="step-head"><span class="step-num">2</span><h2 id="block-heading">Выбери набор задач</h2></div>
+        <p class="sub" id="block-sub">Каждый набор идёт по нарастающей сложности — уровень покажет результат.</p>
+        <div class="blocks" id="block-list"></div>
+        <div class="build-row">
+          <button class="btn" id="btn-block-next">Дальше →</button>
+          <button class="btn ghost sm" data-back-cat>← К категориям</button>
+        </div>
+      </div>
     </section>
 
-    <section class="grid" aria-label="Что внутри">
-      <article class="card">
-        <strong>Трогаемый UX/UI</strong>
-        <p>Локальный браузерный поток рендерит форму прогона, визуальный scorecard, оси оценки и лидерборд из локальных артефактов.</p>
-      </article>
-      <article class="card">
-        <strong>Контракт агент-стека</strong>
-        <p>Адаптеры используют документированный HTTP/stdin-контракт, чтобы фреймворки подключались без изменения ядра оценки.</p>
-      </article>
-      <article class="card">
-        <strong>Безопасная граница треков</strong>
-        <p><code>local-public</code> — локально и воспроизводимо. <code>hosted-verified</code> — только серверная сторона, его нельзя присвоить себе локально.</p>
-      </article>
-      <article class="card" style="grid-column: 1 / -1;">
-        <strong>Статический пример до клонирования</strong>
-        <p>Откройте <a href="demo/report.html">пример scorecard</a> или <a href="demo/leaderboard.html">пример лидерборда</a>. Путь в репозитории: <code>site/demo/report.html</code>. Это статический local-public пример, не хостинговое исполнение.</p>
-      </article>
+    <!-- STEP 1 -->
+    <section id="screen-step1" hidden>
+      <div class="panel">
+        <div class="step-head"><span class="step-num">1</span><h2>Под какую работу проверяем?</h2></div>
+        <p class="sub">Роль настраивает fit-score и «где опасен». Сами задачи одинаковы для всех.</p>
+        <div class="roles">
+          <button class="role" data-role="manager"><div class="ic">🧭</div><b>Руководитель</b><span>решения, деньги, риски</span></button>
+          <button class="role" data-role="researcher"><div class="ic">🔬</div><b>Исследователь</b><span>анализ, глубина, выводы</span></button>
+          <button class="role" data-role="engineer"><div class="ic">⚙️</div><b>Технарь</b><span>формат, логика, интеграции</span></button>
+          <button class="role" data-role="sales"><div class="ic">🤝</div><b>Продажник</b><span>клиенты, переписка, тон</span></button>
+          <button class="role" data-role="ops"><div class="ic">📊</div><b>Операционный</b><span>расчёты, регламенты</span></button>
+        </div>
+        <div class="build-row">
+          <button class="btn" id="btn-role-next" disabled>Дальше →</button>
+          <button class="btn ghost sm" data-back-cat>← К категориям</button>
+        </div>
+      </div>
     </section>
 
-    <section class="grid" aria-label="Цены и статус запуска">
-      <article class="card">
-        <h2>Бесплатная бета</h2>
-        <p>$0. Офлайн-демо агента, локальный пакет прогона, пилот-фикстуры, локальный preview-сервер и публичный чеклист.</p>
-      </article>
-      <article class="card">
-        <h2>Verified-трек</h2>
-        <p>Зарезервирован для серверного раннера, скрытых задач, verified-бейджей и анти-чит-контролей. В этой бете не активен.</p>
-      </article>
-      <article class="card">
-        <h2>Биллинг</h2>
-        <p>Платёжный чекаут намеренно не подключён до настройки провайдера, product ID, юридического текста и проверки вебхуков.</p>
-      </article>
+    <!-- STEP 2 -->
+    <section id="screen-step2" hidden>
+      <div class="panel">
+        <div class="step-head"><span class="step-num">2</span><h2>Скопируй задание, отдай своему ИИ — и вставь ответы</h2></div>
+        <p class="sub" id="step2-sub">Кнопка кладёт задания в буфер обмена. Прогони у своего ИИ и вставь каждый ответ ниже.</p>
+        <div class="copy-row">
+          <button class="btn" id="btn-copy">Скопировать задание</button>
+          <span class="hint">→ вставь своему ИИ → ответы верни в поля ниже</span>
+        </div>
+        <div id="answer-fields"></div>
+        <div class="build-row">
+          <button class="btn" id="btn-build" disabled>Собрать радар →</button>
+          <span id="fill-count">0/5 вставлено</span>
+          <button class="btn ghost sm" data-back-hero>← На главную</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="screen-result" hidden>
+      <div class="panel">
+        <div id="shared-note" hidden>Вы смотрите профиль, которым с вами поделились по ссылке. Хотите проверить своего ИИ? <a href="#" onclick="location.href=location.pathname;return false;">Запустить проверку →</a></div>
+        <div class="step-head"><h2>Экспресс-профиль по ответам</h2></div>
+        <p class="sub">Радар построен по 4 осям, которые честно измеримы прямо по тексту ответов. Глубокие оси — затенены и открываются в полном прогоне.</p>
+        <div class="result-grid">
+          <div class="res-radar-card">
+            <div class="res-radar-host" id="result-radar"></div>
+            <div class="res-note">🔒 затенённые оси (память, инструменты, автономность, восстановление, стоимость) — измеряются в полном прогоне</div>
+          </div>
+          <div>
+            <div class="fit">
+              <div class="fit-ring" id="fit-ring"><div class="inner"><b id="fit-score">0</b></div></div>
+              <div class="fit-meta">
+                <div class="role">Fit под роль: <span id="fit-role">—</span></div>
+                <b>Насколько годится под твою работу</b>
+                <div class="risk" id="fit-risk"></div>
+              </div>
+            </div>
+            <div class="block-title">🔴 Где он опасен</div>
+            <div id="risk-list"></div>
+          </div>
+        </div>
+
+        <div class="block-title">Разбор по задачам — сильные стороны и где просел</div>
+        <div id="task-accordion"></div>
+
+        <div class="block-title">Доступно в полном прогоне (9 осей, cockpit)</div>
+        <div class="upsell">
+          <div class="lock"><b>🔒 Baseline-сравнение</b>Насколько твой ИИ выше/ниже эталонного агента.<div class="tag">в полном прогоне</div></div>
+          <div class="lock"><b>🔒 Карта компромиссов</b>Где он жертвует скоростью ради качества и наоборот.<div class="tag">в полном прогоне</div></div>
+          <div class="lock"><b>🔒 Рекомендации X→Y</b>Что конкретно поменять, чтобы закрыть красные зоны.<div class="tag">в полном прогоне</div></div>
+          <div class="lock"><b>🔒 Конфиг v2</b>Готовая улучшенная связка под твою роль.<div class="tag">в полном прогоне</div></div>
+        </div>
+
+        <div class="share">
+          <div class="block-title" style="margin-top:0">Поделиться профилем</div>
+          <span class="hint">В ссылке — только цифры радара. Ни задание, ни ответы в неё не попадают.</span>
+          <input id="share-url" readonly value="">
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn sm" id="btn-share">Скопировать ссылку</button>
+            <button class="btn ghost sm" id="btn-restart">Проверить снова</button>
+          </div>
+          <div class="share-social">
+            <span class="soc-label">Бросить вызов другому ИИ:</span>
+            <button class="soc" data-share="tg" data-kind="generic">✈ Telegram</button>
+            <button class="soc" data-share="wa" data-kind="generic">WhatsApp</button>
+            <button class="soc" data-share="x" data-kind="generic">✕ X</button>
+            <button class="soc" data-share="native" data-kind="generic" hidden>Поделиться…</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMAIL RESULT -->
+    <section id="screen-email-result" hidden>
+      <div class="panel">
+        <div class="step-head"><h2>Как твой ИИ справился с письмами</h2></div>
+        <p class="sub" id="email-result-sub">Прогнали все 6 писем по нарастающей сложности. Уровень не выбирался — его показал результат.</p>
+
+        <div class="failcard" id="email-failcard">
+          <div class="fc-eyebrow">Вот где твой ИИ сломался</div>
+          <h3 id="efc-title">—</h3>
+          <div class="fc-where" id="efc-where">—</div>
+          <div class="fc-why" id="efc-why">—</div>
+          <div class="fc-cost" id="efc-cost">—</div>
+        </div>
+
+        <div class="levelband">
+          <div class="levelpill" id="elevel-pill">—</div>
+          <div class="lb-meta">
+            <b>Выявленный уровень письма</b>
+            <span id="elevel-note">—</span>
+            <div class="ladder" id="elevel-ladder"></div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="res-radar-card">
+            <div class="res-radar-host" id="email-radar"></div>
+            <div class="res-note">🔒 затенённые направления (память по переписке, отправка, ведение цепочки, правки, поток) — в полном прогоне</div>
+          </div>
+          <div>
+            <div class="block-title">🔴 Красные риски в письмах</div>
+            <div id="email-risk-list"></div>
+            <div class="anticheat">
+              <b>Честно:</b> балл считаем мы, на стороне сайта — не твой ИИ. В этом режиме ты можешь обмануть сам себя
+              (вставить чужой образцовый ответ). Для проверенного прогона нужен живой запуск твоего ИИ.
+              <div class="attempts" id="email-attempts">Попытка: 1</div>
+              <div class="copypaste-flag" id="email-copypaste" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block-title">Разбор по письмам — что вышло и где просел</div>
+        <div id="email-accordion"></div>
+
+        <div class="share">
+          <div class="block-title" style="margin-top:0">Поделиться результатом</div>
+          <span class="hint">В ссылке — только цифры и уровень. Ни задание, ни ответы в неё не попадают.</span>
+          <input id="email-share-url" readonly value="">
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn sm" id="btn-email-share">Скопировать ссылку</button>
+            <button class="btn ghost sm" id="btn-email-restart">Проверить снова</button>
+          </div>
+          <div class="share-social">
+            <span class="soc-label">Бросить вызов другому ИИ:</span>
+            <button class="soc" data-share="tg" data-kind="emails">✈ Telegram</button>
+            <button class="soc" data-share="wa" data-kind="emails">WhatsApp</button>
+            <button class="soc" data-share="x" data-kind="emails">✕ X</button>
+            <button class="soc" data-share="native" data-kind="emails" hidden>Поделиться…</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CODE RESULT -->
+    <section id="screen-code-result" hidden>
+      <div class="panel">
+        <div class="step-head"><h2>Как твой ИИ справился с кодом</h2></div>
+        <p class="sub" id="code-result-sub">Прогнали все 6 задач по нарастающей сложности. Уровень не выбирался — его показал результат.</p>
+
+        <div class="failcard" id="code-failcard">
+          <div class="fc-eyebrow">Вот где твой ИИ сломался</div>
+          <h3 id="cfc-title">—</h3>
+          <div class="fc-where" id="cfc-where">—</div>
+          <div class="fc-why" id="cfc-why">—</div>
+          <div class="fc-cost" id="cfc-cost">—</div>
+        </div>
+
+        <div class="levelband">
+          <div class="levelpill" id="clevel-pill">—</div>
+          <div class="lb-meta">
+            <b>Выявленный уровень кода</b>
+            <span id="clevel-note">—</span>
+            <div class="ladder" id="clevel-ladder"></div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="res-radar-card">
+            <div class="res-radar-host" id="code-radar"></div>
+            <div class="res-note">🔒 затенённые направления (память по проекту, запуск тестов, доведение фичи, правки после ревью, поток) — в полном прогоне</div>
+          </div>
+          <div>
+            <div class="block-title">🔴 Красные риски в коде</div>
+            <div id="code-risk-list"></div>
+            <div class="anticheat">
+              <b>Честно:</b> балл считаем мы, на стороне сайта — не твой ИИ. В этом режиме ты можешь обмануть сам себя
+              (вставить чужой образцовый код). Для проверенного прогона нужен живой запуск твоего ИИ.
+              <div class="attempts" id="code-attempts">Попытка: 1</div>
+              <div class="copypaste-flag" id="code-copypaste" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block-title">Разбор по задачам — что вышло и где просел</div>
+        <div id="code-accordion"></div>
+
+        <div class="share">
+          <div class="block-title" style="margin-top:0">Поделиться результатом</div>
+          <span class="hint">В ссылке — только цифры и уровень. Ни задание, ни ответы в неё не попадают.</span>
+          <input id="code-share-url" readonly value="">
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn sm" id="btn-code-share">Скопировать ссылку</button>
+            <button class="btn ghost sm" id="btn-code-restart">Проверить снова</button>
+          </div>
+          <div class="share-social">
+            <span class="soc-label">Бросить вызов другому ИИ:</span>
+            <button class="soc" data-share="tg" data-kind="code">✈ Telegram</button>
+            <button class="soc" data-share="wa" data-kind="code">WhatsApp</button>
+            <button class="soc" data-share="x" data-kind="code">✕ X</button>
+            <button class="soc" data-share="native" data-kind="code" hidden>Поделиться…</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLE RESULT -->
+    <section id="screen-table-result" hidden>
+      <div class="panel">
+        <div class="step-head"><h2>Как твой ИИ справился с таблицами</h2></div>
+        <p class="sub" id="table-result-sub">Прогнали все 6 задач по нарастающей сложности — до мастер-уровня. Уровень не выбирался, его показал результат.</p>
+
+        <div class="failcard" id="table-failcard">
+          <div class="fc-eyebrow">Вот где твой ИИ сломался</div>
+          <h3 id="tfc-title">—</h3>
+          <div class="fc-where" id="tfc-where">—</div>
+          <div class="fc-why" id="tfc-why">—</div>
+          <div class="fc-cost" id="tfc-cost">—</div>
+        </div>
+
+        <div class="levelband">
+          <div class="levelpill" id="tlevel-pill">—</div>
+          <div class="lb-meta">
+            <b>Выявленный уровень работы с таблицами</b>
+            <span id="tlevel-note">—</span>
+            <div class="ladder" id="tlevel-ladder"></div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="res-radar-card">
+            <div class="res-radar-host" id="table-radar"></div>
+            <div class="res-note">🔒 затенённые направления (память по прошлым таблицам, работа в Excel/Sheets, доведение отчёта, правки, поток) — в полном прогоне</div>
+          </div>
+          <div>
+            <div class="block-title">🔴 Красные риски в таблицах</div>
+            <div id="table-risk-list"></div>
+            <div class="anticheat">
+              <b>Честно:</b> балл считаем мы, на стороне сайта — не твой ИИ. В этом режиме ты можешь обмануть сам себя
+              (вставить чужую образцовую таблицу). Для проверенного прогона нужен живой запуск твоего ИИ.
+              <div class="attempts" id="table-attempts">Попытка: 1</div>
+              <div class="copypaste-flag" id="table-copypaste" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block-title">Разбор по задачам — что вышло и где просел</div>
+        <div id="table-accordion"></div>
+
+        <div class="share">
+          <div class="block-title" style="margin-top:0">Поделиться результатом</div>
+          <span class="hint">В ссылке — только цифры и уровень. Ни задание, ни ответы в неё не попадают.</span>
+          <input id="table-share-url" readonly value="">
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn sm" id="btn-table-share">Скопировать ссылку</button>
+            <button class="btn ghost sm" id="btn-table-restart">Проверить снова</button>
+          </div>
+          <div class="share-social">
+            <span class="soc-label">Бросить вызов другому ИИ:</span>
+            <button class="soc" data-share="tg" data-kind="tables">✈ Telegram</button>
+            <button class="soc" data-share="wa" data-kind="tables">WhatsApp</button>
+            <button class="soc" data-share="x" data-kind="tables">✕ X</button>
+            <button class="soc" data-share="native" data-kind="tables" hidden>Поделиться…</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <footer>
-      Публичная страница запуска сгенерирована из ветки main. На странице нет продакшн-секретов, API-ключей, приватных модельных кредов или платёжных данных.
+      AgentStack — экспресс-проверка ИИ-помощников. Скоринг детерминирован и выполняется в вашем браузере:
+      ни задание, ни ваши ответы не передаются на сервер и не уходят во внешнюю аналитику.
+      Полный 9-осевой прогон (память, инструменты, автономность, восстановление, стоимость) выполняется отдельно — см.
+      <a href="developers.html">Для разработчиков</a>.
     </footer>
-  </main>
+  </div>
+
+  <script src="js/score.js"></script>
+  <script src="js/radar.js"></script>
+  <script src="pack/v1.data.js"></script>
+  <script src="pack/emails_v1.data.js"></script>
+  <script src="pack/code_v1.data.js"></script>
+  <script src="pack/tables_v1.data.js"></script>
+  <script src="demo/demo-data.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

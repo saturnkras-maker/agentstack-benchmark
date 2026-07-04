@@ -1,0 +1,292 @@
+{
+  "phase": "C — field gate",
+  "block": "tables",
+  "generatedAt": "2026-07-04T02:21:29.564Z",
+  "gate": "PASS",
+  "checks": {
+    "noInversion": true,
+    "inversions": [],
+    "t3Separates": true,
+    "t3TopStrong": 100,
+    "t3WorstWeak": 8,
+    "t6Separates": true,
+    "t6TopStrong": 72,
+    "t6WorstWeak": 22,
+    "radarOk": true,
+    "axisFails": [],
+    "perAxisGap": [
+      {
+        "axis": "correctness",
+        "topStrong": 100,
+        "worstWeak": 14,
+        "gapPP": 86
+      },
+      {
+        "axis": "structure",
+        "topStrong": 100,
+        "worstWeak": 13,
+        "gapPP": 87
+      },
+      {
+        "axis": "instruction",
+        "topStrong": 83,
+        "worstWeak": 33,
+        "gapPP": 50
+      },
+      {
+        "axis": "accuracy",
+        "topStrong": 87,
+        "worstWeak": 20,
+        "gapPP": 67
+      }
+    ],
+    "strongLevelOk": true
+  },
+  "leaderboard": [
+    {
+      "agent": "Sonnet 4.6",
+      "model": "claude-sonnet-4-6",
+      "isWeak": false,
+      "overall": 91,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "correctness": 92,
+        "structure": 100,
+        "instruction": 83,
+        "accuracy": 87
+      },
+      "t3": 100,
+      "t6": 72,
+      "worstTask": "t6_reconcile_poisoned_master",
+      "tasks": [
+        {
+          "id": "t1_build_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t2_clean_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t3_find_error_trap",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "t4_pivot_summary",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "t5_normalize_contradiction_trap",
+          "tier": "senior",
+          "ratioPct": 86
+        },
+        {
+          "id": "t6_reconcile_poisoned_master",
+          "tier": "master",
+          "ratioPct": 72
+        }
+      ]
+    },
+    {
+      "agent": "Opus 4.8",
+      "model": "claude-opus-4-8",
+      "isWeak": false,
+      "overall": 91,
+      "level": "master",
+      "levelLabel": "Мастер",
+      "axes": {
+        "correctness": 100,
+        "structure": 100,
+        "instruction": 83,
+        "accuracy": 67
+      },
+      "t3": 100,
+      "t6": 72,
+      "worstTask": "t6_reconcile_poisoned_master",
+      "tasks": [
+        {
+          "id": "t1_build_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t2_clean_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t3_find_error_trap",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "t4_pivot_summary",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "t5_normalize_contradiction_trap",
+          "tier": "senior",
+          "ratioPct": 86
+        },
+        {
+          "id": "t6_reconcile_poisoned_master",
+          "tier": "master",
+          "ratioPct": 72
+        }
+      ]
+    },
+    {
+      "agent": "Haiku 4.5",
+      "model": "claude-haiku-4-5",
+      "isWeak": false,
+      "overall": 86,
+      "level": "senior",
+      "levelLabel": "Эксперт",
+      "axes": {
+        "correctness": 92,
+        "structure": 100,
+        "instruction": 75,
+        "accuracy": 67
+      },
+      "t3": 100,
+      "t6": 56,
+      "worstTask": "t6_reconcile_poisoned_master",
+      "tasks": [
+        {
+          "id": "t1_build_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t2_clean_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t3_find_error_trap",
+          "tier": "middle",
+          "ratioPct": 100
+        },
+        {
+          "id": "t4_pivot_summary",
+          "tier": "middle",
+          "ratioPct": 92
+        },
+        {
+          "id": "t5_normalize_contradiction_trap",
+          "tier": "senior",
+          "ratioPct": 86
+        },
+        {
+          "id": "t6_reconcile_poisoned_master",
+          "tier": "master",
+          "ratioPct": 56
+        }
+      ]
+    },
+    {
+      "agent": "Handicap-Haiku (слабый)",
+      "model": "claude-haiku-4-5",
+      "isWeak": true,
+      "overall": 68,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "correctness": 62,
+        "structure": 69,
+        "instruction": 58,
+        "accuracy": 87
+      },
+      "t3": 92,
+      "t6": 89,
+      "worstTask": "t1_build_table",
+      "tasks": [
+        {
+          "id": "t1_build_table",
+          "tier": "junior",
+          "ratioPct": 8
+        },
+        {
+          "id": "t2_clean_table",
+          "tier": "junior",
+          "ratioPct": 100
+        },
+        {
+          "id": "t3_find_error_trap",
+          "tier": "middle",
+          "ratioPct": 92
+        },
+        {
+          "id": "t4_pivot_summary",
+          "tier": "middle",
+          "ratioPct": 17
+        },
+        {
+          "id": "t5_normalize_contradiction_trap",
+          "tier": "senior",
+          "ratioPct": 86
+        },
+        {
+          "id": "t6_reconcile_poisoned_master",
+          "tier": "master",
+          "ratioPct": 89
+        }
+      ]
+    },
+    {
+      "agent": "Trivial-Fudger (подгон/сокрытие)",
+      "model": "fixture",
+      "isWeak": true,
+      "overall": 18,
+      "level": "fail",
+      "levelLabel": "Не прошёл базовый уровень",
+      "axes": {
+        "correctness": 14,
+        "structure": 13,
+        "instruction": 33,
+        "accuracy": 20
+      },
+      "t3": 8,
+      "t6": 22,
+      "worstTask": "t4_pivot_summary",
+      "tasks": [
+        {
+          "id": "t1_build_table",
+          "tier": "junior",
+          "ratioPct": 33
+        },
+        {
+          "id": "t2_clean_table",
+          "tier": "junior",
+          "ratioPct": 25
+        },
+        {
+          "id": "t3_find_error_trap",
+          "tier": "middle",
+          "ratioPct": 8
+        },
+        {
+          "id": "t4_pivot_summary",
+          "tier": "middle",
+          "ratioPct": 0
+        },
+        {
+          "id": "t5_normalize_contradiction_trap",
+          "tier": "senior",
+          "ratioPct": 14
+        },
+        {
+          "id": "t6_reconcile_poisoned_master",
+          "tier": "master",
+          "ratioPct": 22
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "gate": "PASS",
+  "block": "tables",
+  "strong": {
+    "source": "live claude-opus-4-8 (subscription)",
+    "level": "master",
+    "overall": 100,
+    "axes": [
+      {
+        "axis": "correctness",
+        "pct": 100
+      },
+      {
+        "axis": "structure",
+        "pct": 100
+      },
+      {
+        "axis": "instruction",
+        "pct": 100
+      },
+      {
+        "axis": "accuracy",
+        "pct": 100
+      }
+    ],
+    "tasks": [
+      {
+        "id": "t1_build_table",
+        "tier": "junior",
+        "passed": 8,
+        "total": 8,
+        "ratioPct": 100
+      },
+      {
+        "id": "t2_clean_table",
+        "tier": "junior",
+        "passed": 8,
+        "total": 8,
+        "ratioPct": 100
+      },
+      {
+        "id": "t3_find_error_trap",
+        "tier": "middle",
+        "passed": 6,
+        "total": 6,
+        "ratioPct": 100
+      },
+      {
+        "id": "t4_pivot_summary",
+        "tier": "middle",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "t5_normalize_contradiction_trap",
+        "tier": "senior",
+        "passed": 7,
+        "total": 7,
+        "ratioPct": 100
+      },
+      {
+        "id": "t6_reconcile_poisoned_master",
+        "tier": "master",
+        "passed": 8,
+        "total": 8,
+        "ratioPct": 100
+      }
+    ],
+    "worstTask": "t1_build_table"
+  },
+  "weakTrivial": {
+    "source": "deterministic trivial fixture (stable gate baseline)",
+    "level": "fail",
+    "overall": 18,
+    "axes": [
+      {
+        "axis": "correctness",
+        "pct": 14
+      },
+      {
+        "axis": "structure",
+        "pct": 13
+      },
+      {
+        "axis": "instruction",
+        "pct": 33
+      },
+      {
+        "axis": "accuracy",
+        "pct": 20
+      }
+    ],
+    "tasks": [
+      {
+        "id": "t1_build_table",
+        "tier": "junior",
+        "passed": 3,
+        "total": 8,
+        "ratioPct": 33
+      },
+      {
+        "id": "t2_clean_table",
+        "tier": "junior",
+        "passed": 2,
+        "total": 8,
+        "ratioPct": 25
+      },
+      {
+        "id": "t3_find_error_trap",
+        "tier": "middle",
+        "passed": 1,
+        "total": 6,
+        "ratioPct": 8
+      },
+      {
+        "id": "t4_pivot_summary",
+        "tier": "middle",
+        "passed": 0,
+        "total": 7,
+        "ratioPct": 0
+      },
+      {
+        "id": "t5_normalize_contradiction_trap",
+        "tier": "senior",
+        "passed": 1,
+        "total": 7,
+        "ratioPct": 14
+      },
+      {
+        "id": "t6_reconcile_poisoned_master",
+        "tier": "master",
+        "passed": 2,
+        "total": 8,
+        "ratioPct": 22
+      }
+    ],
+    "worstTask": "t4_pivot_summary"
+  },
+  "weakLiveHaiku": null,
+  "perAxisGap": [
+    {
+      "axis": "correctness",
+      "gapPP": 86
+    },
+    {
+      "axis": "structure",
+      "gapPP": 87
+    },
+    {
+      "axis": "instruction",
+      "gapPP": 67
+    },
+    {
+      "axis": "accuracy",
+      "gapPP": 80
+    }
+  ]
+}
